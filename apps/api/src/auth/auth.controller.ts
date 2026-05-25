@@ -1,11 +1,34 @@
-import { Controller, Get, Query, Req, Res, UseGuards, Logger } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Logger,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 
 import { GOOGLE_STRATEGY } from './auth.const.js';
 import { AuthService } from './auth.service.js';
-import { OAuthProfile } from './auth.model.js';
+import {
+  OAuthProfile,
+  JwtPayload,
+  RefreshTokenDto,
+} from './auth.model.js';
+import { Public } from './decorators/public.decorator.js';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -18,6 +41,7 @@ export class AuthController {
   // Google OAuth
   // ---------------------------------------------------------------------------
 
+  @Public()
   @Get('google')
   @UseGuards(AuthGuard(GOOGLE_STRATEGY))
   @ApiOperation({ summary: 'Initiate Google OAuth login' })
@@ -26,6 +50,7 @@ export class AuthController {
     // Guard redirects to Google
   }
 
+  @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard(GOOGLE_STRATEGY))
   @ApiOperation({ summary: 'Google OAuth callback' })
@@ -41,6 +66,7 @@ export class AuthController {
   // Facebook OAuth
   // ---------------------------------------------------------------------------
 
+  @Public()
   @Get('facebook')
   @UseGuards(AuthGuard('facebook'))
   @ApiOperation({ summary: 'Initiate Facebook OAuth login' })
@@ -49,6 +75,7 @@ export class AuthController {
     // Guard redirects to Facebook
   }
 
+  @Public()
   @Get('facebook/callback')
   @UseGuards(AuthGuard('facebook'))
   @ApiOperation({ summary: 'Facebook OAuth callback' })
@@ -64,6 +91,7 @@ export class AuthController {
   // Telegram Login Widget
   // ---------------------------------------------------------------------------
 
+  @Public()
   @Get('telegram/callback')
   @UseGuards(AuthGuard('telegram'))
   @ApiOperation({ summary: 'Telegram Login Widget callback' })
@@ -76,16 +104,113 @@ export class AuthController {
   }
 
   // ---------------------------------------------------------------------------
+  // Token Refresh (S-E01-04)
+  // ---------------------------------------------------------------------------
+
+  @Public()
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refresh access token using refresh token' })
+  @ApiBody({ schema: { properties: { refreshToken: { type: 'string' } }, required: ['refreshToken'] } })
+  @ApiResponse({ status: 200, description: 'Returns new token pair' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  async refresh(@Body() body: RefreshTokenDto) {
+    return this.authService.refreshTokens(body.refreshToken);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Logout (S-E01-04)
+  // ---------------------------------------------------------------------------
+
+  @Post('logout')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout and revoke refresh token family' })
+  @ApiBody({ schema: { properties: { refreshToken: { type: 'string' } }, required: ['refreshToken'] } })
+  @ApiResponse({ status: 200, description: 'Session revoked' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async logout(@Body() body: RefreshTokenDto) {
+    await this.authService.logout(body.refreshToken);
+    return { message: 'Logged out successfully' };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Provider Linking (S-E01-03)
+  // ---------------------------------------------------------------------------
+
+  @Post('link/:provider')
+  @UseGuards(AuthGuard(GOOGLE_STRATEGY))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Start OAuth flow to link additional provider' })
+  @ApiParam({ name: 'provider', description: 'OAuth provider name (google, facebook, telegram)' })
+  @ApiResponse({ status: 302, description: 'Redirects to provider OAuth consent screen' })
+  linkProvider(): void {
+    // Guard redirects to provider
+  }
+
+  @Public()
+  @Get('link/:provider/callback')
+  @ApiOperation({ summary: 'OAuth callback for provider linking' })
+  @ApiParam({ name: 'provider', description: 'OAuth provider name' })
+  @ApiResponse({ status: 302, description: 'Redirects to frontend after linking' })
+  async linkProviderCallback(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:4333';
+
+    try {
+      const profile = req.user as OAuthProfile;
+      const jwtPayload = req.user as JwtPayload;
+
+      if (!jwtPayload?.sub) {
+        res.redirect(`${frontendUrl}/settings/providers?error=not_authenticated`);
+        return;
+      }
+
+      await this.authService.linkProvider(jwtPayload.sub, profile);
+      res.redirect(`${frontendUrl}/settings/providers?linked=${profile.provider}`);
+    } catch (err) {
+      this.logger.error(`Provider linking failed: ${(err as Error).message}`, (err as Error).stack);
+      res.redirect(`${frontendUrl}/settings/providers?error=link_failed`);
+    }
+  }
+
+  @Delete('providers/:linkId')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Unlink an OAuth provider' })
+  @ApiParam({ name: 'linkId', description: 'Provider link ID to remove' })
+  @ApiResponse({ status: 200, description: 'Provider unlinked' })
+  @ApiResponse({ status: 409, description: 'Cannot unlink last provider' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async unlinkProvider(
+    @Req() req: Request,
+    @Param('linkId') linkId: string,
+  ) {
+    const user = req.user as JwtPayload;
+    await this.authService.unlinkProvider(user.sub, linkId);
+    return { message: 'Provider unlinked successfully' };
+  }
+
+  @Get('providers')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List linked OAuth providers for current user' })
+  @ApiResponse({ status: 200, description: 'Returns list of linked providers' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getProviders(@Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.authService.getProviders(user.sub);
+  }
+
+  // ---------------------------------------------------------------------------
   // Current user
   // ---------------------------------------------------------------------------
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'Returns current user' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async me(@Req() req: Request) {
-    return this.authService.getUserFromToken(req.user as { sub: string; email: string; role: string });
+    return this.authService.getUserFromToken(req.user as JwtPayload);
   }
 
   // ---------------------------------------------------------------------------

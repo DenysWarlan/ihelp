@@ -9,6 +9,8 @@ import { GoogleStrategy } from './strategies/google.strategy.js';
 import { FacebookStrategy } from './strategies/facebook.strategy.js';
 import { TelegramStrategy } from './strategies/telegram.strategy.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { RolesGuard } from './guards/roles.guard.js';
 
 @Module({
   imports: [
@@ -21,7 +23,15 @@ import { JwtStrategy } from './strategies/jwt.strategy.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, FacebookStrategy, TelegramStrategy, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    GoogleStrategy,
+    FacebookStrategy,
+    TelegramStrategy,
+    JwtStrategy,
+    JwtAuthGuard,
+    RolesGuard,
+  ],
+  exports: [AuthService, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}

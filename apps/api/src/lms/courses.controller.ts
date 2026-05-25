@@ -2,8 +2,10 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiNotFoundResponse } from '@nestjs/swagger';
 import { CoursesService } from './courses.service.js';
 import { CourseListItemDto, CourseDetailDto } from './dto/course.dto.js';
+import { Public } from '../auth/decorators/public.decorator.js';
 
 @ApiTags('courses')
+@Public()
 @Controller('courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}

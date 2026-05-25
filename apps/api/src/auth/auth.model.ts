@@ -18,3 +18,14 @@ export interface JwtPayload {
   readonly iat?: number;
   readonly exp?: number;
 }
+
+export interface RefreshTokenDto {
+  readonly refreshToken: string;
+}
+
+export interface ProviderLinkResponse {
+  readonly id: string;
+  readonly provider: string;
+  readonly providerAccountId: string;
+  readonly createdAt: Date;
+}

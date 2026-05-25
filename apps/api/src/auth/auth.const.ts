@@ -1,5 +1,8 @@
 export const JWT_ACCESS_EXPIRY = '15m';
 export const JWT_REFRESH_EXPIRY = '7d';
+export const REFRESH_TOKEN_DAYS = 7;
+export const CRISIS_SESSION_HOURS = 24;
 export const GOOGLE_STRATEGY = 'google';
 export const JWT_STRATEGY = 'jwt';
 export const COOKIE_REFRESH_TOKEN = 'ihelp_refresh';
+export const TELEGRAM_EMAIL_DOMAIN = 'telegram.user';

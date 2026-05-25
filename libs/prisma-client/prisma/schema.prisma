@@ -25,24 +25,93 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sessions Session[]
+  // Auth: password for Staff (S-E01-06)
+  passwordHash String? @map("password_hash")
+
+  // GDPR consent (S-E01-07)
+  dataConsentAt          DateTime? @map("data_consent_at")
+  sensitiveDataConsentAt DateTime? @map("sensitive_data_consent_at")
+
+  // MFA (S-E01-08)
+  mfaSecret     String?  @map("mfa_secret")
+  mfaEnabled    Boolean  @default(false) @map("mfa_enabled")
+  mfaBackupHash String[] @default([]) @map("mfa_backup_hash")
+
+  // Break-glass flag (S-E01-09)
+  isBreakGlass Boolean @default(false) @map("is_break_glass")
+
+  sessions      Session[]
+  providerLinks ProviderLink[]
+  invitesSent   Invite[]       @relation("inviter")
 
   @@index([role])
   @@map("users")
 }
 
 model Session {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  token     String
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  token        String
+  tokenFamily  String?  @map("token_family")
+  isRevoked    Boolean  @default(false) @map("is_revoked")
+  isCrisis     Boolean  @default(false) @map("is_crisis")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
+  @@index([tokenFamily])
   @@map("sessions")
+}
+
+// S-E01-02/03: OAuth provider links for multi-provider accounts
+model ProviderLink {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  provider          String
+  providerAccountId String   @map("provider_account_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("provider_links")
+}
+
+// S-E01-06: Staff invite tokens
+model Invite {
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String
+  role      Role
+  token     String    @unique
+  inviterId String    @map("inviter_id") @db.Uuid
+  claimedAt DateTime? @map("claimed_at")
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  inviter User @relation("inviter", fields: [inviterId], references: [id])
+
+  @@index([token])
+  @@index([email])
+  @@map("invites")
+}
+
+// S-E01-09: Audit log for security events
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  action    String
+  details   String?
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
 enum CourseStatus {

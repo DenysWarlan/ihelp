@@ -14,6 +14,8 @@ import {
   GLOBAL_THROTTLE_TTL,
   GLOBAL_THROTTLE_LIMIT,
 } from '../common/security/throttler.const.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -21,6 +23,11 @@ import { AppService } from './app.service.js';
 import { PrismaModule } from '@org/prisma-client';
 import { HealthModule } from '../health/health.module.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { InviteModule } from '../auth/invite/invite.module.js';
+import { ConsentModule } from '../auth/consent/consent.module.js';
+import { MfaModule } from '../auth/mfa/mfa.module.js';
+import { BreakGlassModule } from '../auth/break-glass/break-glass.module.js';
+import { AuditModule } from '../common/audit/audit.module.js';
 import { CasesModule } from '../cases/cases.module.js';
 import { ChatModule } from '../chat/chat.module.js';
 import { LmsModule } from '../lms/lms.module.js';
@@ -77,9 +84,16 @@ import { StorageModule } from '../storage/storage.module.js';
     // Database
     PrismaModule,
 
+    // Global modules
+    AuditModule,
+
     // Feature modules
     HealthModule,
     AuthModule,
+    InviteModule,
+    ConsentModule,
+    MfaModule,
+    BreakGlassModule,
     CasesModule,
     ChatModule,
     LmsModule,
@@ -93,6 +107,14 @@ import { StorageModule } from '../storage/storage.module.js';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })
