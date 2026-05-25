@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsDateString,
   IsOptional,
   IsString,
@@ -80,6 +82,24 @@ export class AcceptTransferMatchDto {
 }
 
 // ---------------------------------------------------------------------------
+// DTOs — Return cases after vacation (S-E10-08)
+// ---------------------------------------------------------------------------
+
+/**
+ * DTO for returning cases after vacation ends.
+ */
+export class ReturnCasesDto {
+  @ApiProperty({
+    description: 'List of transfer IDs to return',
+    type: [String],
+  })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID('all', { each: true })
+  transferIds!: string[];
+}
+
+// ---------------------------------------------------------------------------
 // Response interfaces
 // ---------------------------------------------------------------------------
 
@@ -106,4 +126,52 @@ export interface TransferInitiationResult {
   readonly totalCasesTransferred: number;
   readonly matches: TransferMatchProposal[];
   readonly unmatchedCases: number;
+}
+
+/**
+ * A returnable transfer record (S-E10-08).
+ */
+export interface ReturnableTransfer {
+  readonly transferId: string;
+  readonly caseId: string;
+  readonly caseTopic: string | null;
+  readonly caseLanguage: string | null;
+  readonly currentConsultantName: string | null;
+  readonly vacationEnd: Date | null;
+}
+
+/**
+ * Result of returning cases after vacation.
+ */
+export interface ReturnCasesResult {
+  readonly returnedCount: number;
+  readonly failedCount: number;
+  readonly returned: string[];
+  readonly failed: Array<{ readonly transferId: string; readonly reason: string }>;
+}
+
+/**
+ * Transfer history entry for a case (S-E10-06).
+ */
+export interface TransferHistoryEntry {
+  readonly id: string;
+  readonly transferType: TransferType;
+  readonly status: TransferStatus;
+  readonly fromConsultantName: string | null;
+  readonly toConsultantName: string | null;
+  readonly reason: string | null;
+  readonly vacationStart: Date | null;
+  readonly vacationEnd: Date | null;
+  readonly completedAt: Date | null;
+  readonly createdAt: Date;
+}
+
+/**
+ * Active case blocking consultant deactivation (S-E10-07).
+ */
+export interface BlockingCase {
+  readonly caseId: string;
+  readonly topic: string;
+  readonly status: string;
+  readonly personName: string | null;
 }

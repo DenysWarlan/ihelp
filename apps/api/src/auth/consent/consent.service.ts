@@ -5,9 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { User } from '@prisma/client';
+import { ConsentType, CrisisLevel } from '@prisma/client';
 
-import { ConsentStatus } from './consent.model.js';
+import {
+  ANONYMIZED_VALUE,
+  CONSENT_FIELD_MAP,
+  CONSENT_TYPE_MAP,
+} from './consent.const.js';
+import { ConsentRecord, ConsentStatus } from './consent.model.js';
 
 @Injectable()
 export class ConsentService {
@@ -17,55 +22,118 @@ export class ConsentService {
 
   /**
    * Grant GDPR consent of the specified type.
-   * 'data' = general data processing consent (Art. 6).
-   * 'sensitive' = special category data consent (Art. 9).
+   * Creates an auditable Consent record and updates the User timestamp.
    */
   async grantConsent(
     userId: string,
     type: 'data' | 'sensitive',
-  ): Promise<User> {
-    const field =
-      type === 'data' ? 'dataConsentAt' : 'sensitiveDataConsentAt';
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<ConsentRecord> {
+    const consentType = CONSENT_TYPE_MAP[type] as ConsentType;
+    const userField = CONSENT_FIELD_MAP[type];
+    const now = new Date();
 
-    const user = await this.prisma.user.update({
-      where: { id: userId },
-      data: { [field]: new Date() },
-    });
+    const [consent] = await this.prisma.$transaction([
+      this.prisma.consent.create({
+        data: {
+          userId,
+          consentType,
+          grantedAt: now,
+          ipAddress: ipAddress ?? null,
+          userAgent: userAgent ?? null,
+        },
+      }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { [userField]: now },
+      }),
+    ]);
 
     this.logger.log(`Consent granted: ${type} for user ${userId}`);
-    return user;
+    return consent;
   }
 
   /**
-   * Revoke Art. 9 (sensitive data) consent.
-   * Blocked if the user has an active crisis session to prevent
-   * interruption of safeguarding obligations.
+   * Withdraw Art. 9 (sensitive data) consent.
+   * - Blocked if user has an active crisis case (crisisLevel != NONE).
+   * - Anonymizes sensitive fields on active non-crisis cases.
+   * - Creates a withdrawn Consent record.
+   * - Notifies consultant (MVP: logger).
    */
-  async revokeConsent(userId: string, type: 'sensitive'): Promise<void> {
-    // Check for active crisis sessions — safeguarding override
-    const activeCrisis = await this.prisma.session.findFirst({
+  async withdrawSensitiveConsent(
+    userId: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<void> {
+    // Check for active crisis cases — safeguarding override
+    const activeCrisisCase = await this.prisma.careCase.findFirst({
       where: {
-        userId,
-        isCrisis: true,
-        isRevoked: false,
-        expiresAt: { gt: new Date() },
+        personId: userId,
+        crisisLevel: { not: CrisisLevel.NONE },
+        closedAt: null,
       },
     });
 
-    if (activeCrisis) {
+    if (activeCrisisCase) {
       throw new ConflictException(
-        'Cannot revoke sensitive data consent while an active crisis case exists',
+        'Cannot withdraw sensitive data consent while an active crisis case exists. ' +
+          'This is required to maintain safeguarding obligations under Art. 9(2)(c) GDPR.',
       );
     }
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { sensitiveDataConsentAt: null },
+    const now = new Date();
+
+    await this.prisma.$transaction(async (tx) => {
+      // Create withdrawn consent record for audit trail
+      await tx.consent.create({
+        data: {
+          userId,
+          consentType: ConsentType.SENSITIVE_DATA,
+          grantedAt: now,
+          withdrawnAt: now,
+          ipAddress: ipAddress ?? null,
+          userAgent: userAgent ?? null,
+        },
+      });
+
+      // Clear sensitive consent timestamp on user
+      await tx.user.update({
+        where: { id: userId },
+        data: { sensitiveDataConsentAt: null },
+      });
+
+      // Anonymize sensitive fields on active non-crisis cases
+      await tx.careCase.updateMany({
+        where: {
+          personId: userId,
+          closedAt: null,
+          crisisLevel: CrisisLevel.NONE,
+        },
+        data: {
+          topic: ANONYMIZED_VALUE,
+          description: ANONYMIZED_VALUE,
+        },
+      });
     });
 
-    this.logger.log(
-      `Sensitive data consent revoked for user ${userId}`,
+    // MVP notification — consultant informed via log
+    this.logger.warn(
+      `[MVP NOTIFICATION] Sensitive data consent withdrawn for user ${userId}. ` +
+        'Active non-crisis cases have been anonymized. Consultants should be notified.',
     );
+
+    this.logger.log(
+      `Sensitive data consent withdrawn for user ${userId}`,
+    );
+  }
+
+  /**
+   * Revoke consent — legacy method kept for backward compatibility.
+   * @deprecated Use withdrawSensitiveConsent instead.
+   */
+  async revokeConsent(userId: string, _type: 'sensitive'): Promise<void> {
+    return this.withdrawSensitiveConsent(userId);
   }
 
   /**

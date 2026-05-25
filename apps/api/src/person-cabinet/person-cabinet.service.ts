@@ -1,12 +1,37 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@org/prisma-client';
-import { CaseStatus, MeetingStatus, EnrollmentStatus } from '@prisma/client';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import {PrismaService} from '@org/prisma-client';
+import {CaseStatus, CourseStatus, DeletionStatus, EnrollmentStatus, ExportStatus,} from '@prisma/client';
+import {InjectQueue} from '@nestjs/bullmq';
+import {Queue} from 'bullmq';
 
 import {
-  DashboardCareCaseDto,
+  DATA_EXPORT_QUEUE,
+  DELETION_GRACE_PERIOD_DAYS,
+  JOB_PROCESS_DATA_EXPORT,
+  MVP_NOTIFICATION_PREFIX,
+  PERSON_CHAT_MAX_PAGE_SIZE,
+  PERSON_CHAT_PAGE_SIZE,
+  UPCOMING_MEETING_STATUSES,
+} from './person-cabinet.const.js';
+import {
   DashboardCourseDto,
-  DashboardMeetingDto,
+  DataExportResponse,
+  DeletionRequestResponse,
+  PersonCourseDto,
+  PersonCoursesResponse,
   PersonDashboardResponse,
+  PersonMeetingDto,
+  PersonProfileResponse,
+  ProviderLinkDto,
+  RequestDeletionDto,
+  UpdateProfileDto,
 } from './person-cabinet.model.js';
 
 const CHAT_ELIGIBLE_STATUSES: CaseStatus[] = [
@@ -17,14 +42,19 @@ const CHAT_ELIGIBLE_STATUSES: CaseStatus[] = [
   CaseStatus.TRANSFERRED,
 ];
 
-const UPCOMING_MEETING_STATUSES: MeetingStatus[] = [
-  MeetingStatus.SCHEDULED,
-  MeetingStatus.CONFIRMED,
-];
-
 @Injectable()
 export class PersonCabinetService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(PersonCabinetService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue(DATA_EXPORT_QUEUE)
+    private readonly dataExportQueue: Queue,
+  ) {}
+
+  // ---------------------------------------------------------------------------
+  // Dashboard (S-E15-01)
+  // ---------------------------------------------------------------------------
 
   async getDashboard(personId: string): Promise<PersonDashboardResponse> {
     const [careCase, nextMeeting, courses] = await Promise.all([
@@ -61,6 +91,428 @@ export class PersonCabinetService {
     };
   }
 
+  // ---------------------------------------------------------------------------
+  // S-E15-02: Person's course list
+  // ---------------------------------------------------------------------------
+
+  async getCourses(personId: string): Promise<PersonCoursesResponse> {
+    // Get active enrollments with progress
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { personId, status: EnrollmentStatus.ACTIVE },
+      include: {
+        course: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            imageUrl: true,
+            lessonCount: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    const enrolledCourseIds = enrollments.map((e) => e.course.id);
+
+    // Get completed lesson counts per course
+    const completedCounts = await this.prisma.lessonProgress.groupBy({
+      by: ['courseId'],
+      where: {
+        personId,
+        courseId: { in: enrolledCourseIds },
+        isCompleted: true,
+      },
+      _count: { id: true },
+    });
+
+    const completedMap = new Map(
+      completedCounts.map((c) => [c.courseId, c._count.id]),
+    );
+
+    const active: PersonCourseDto[] = enrollments.map((e) => {
+      const completed = completedMap.get(e.course.id) ?? 0;
+      const total = e.course.lessonCount;
+      return {
+        id: e.course.id,
+        title: e.course.title,
+        description: e.course.description,
+        imageUrl: e.course.imageUrl,
+        lessonCount: total,
+        completedCount: completed,
+        progressPercent: total > 0 ? Math.round((completed / total) * 100) : 0,
+        enrollmentStatus: e.status,
+      };
+    });
+
+    // Recommended courses: published courses the person is not enrolled in
+    const recommended = await this.getRecommendedCourses(
+      personId,
+      enrolledCourseIds,
+    );
+
+    return { active, recommended };
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E15-03: Chat messages for person
+  // ---------------------------------------------------------------------------
+
+  async getChatMessages(
+    personId: string,
+    caseId: string,
+    cursor?: string,
+    limit?: number,
+  ) {
+    // Verify person owns this case
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { id: true, personId: true },
+    });
+
+    if (!careCase) {
+      throw new NotFoundException('Care case not found');
+    }
+
+    if (careCase.personId !== personId) {
+      throw new ForbiddenException('You do not have access to this case');
+    }
+
+    const pageSize = Math.min(
+      limit ?? PERSON_CHAT_PAGE_SIZE,
+      PERSON_CHAT_MAX_PAGE_SIZE,
+    );
+
+    // Fetch messages, excluding private consultant notes
+    // Private notes are CaseNote records, not Message records.
+    // Messages with senderRole != PERSON are consultant messages visible to person.
+    const messages = await this.prisma.message.findMany({
+      where: {
+        careCaseId: caseId,
+        isDeleted: false,
+      },
+      orderBy: [
+        { originalTs: { sort: 'asc', nulls: 'last' } },
+        { createdAt: 'asc' },
+      ],
+      take: pageSize + 1,
+      ...(cursor
+        ? {
+            cursor: { id: cursor },
+            skip: 1,
+          }
+        : {}),
+      select: {
+        id: true,
+        senderId: true,
+        senderRole: true,
+        channel: true,
+        content: true,
+        attachments: true,
+        isRead: true,
+        isEdited: true,
+        createdAt: true,
+      },
+    });
+
+    const hasMore = messages.length > pageSize;
+    const data = hasMore ? messages.slice(0, pageSize) : messages;
+    const nextCursor = hasMore ? data[data.length - 1].id : null;
+
+    return { data, nextCursor, hasMore };
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E15-05: Profile and settings
+  // ---------------------------------------------------------------------------
+
+  async getProfile(personId: string): Promise<PersonProfileResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: personId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatarUrl: true,
+        timezone: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async updateProfile(
+    personId: string,
+    dto: UpdateProfileDto,
+  ): Promise<PersonProfileResponse> {
+    const data: Record<string, unknown> = {};
+
+    if (dto.name !== undefined) {
+      data['name'] = dto.name;
+    }
+    if (dto.timezone !== undefined) {
+      // Validate timezone
+      try {
+        Intl.DateTimeFormat(undefined, { timeZone: dto.timezone });
+      } catch {
+        throw new BadRequestException(
+          `Invalid timezone: "${dto.timezone}"`,
+        );
+      }
+      data['timezone'] = dto.timezone;
+    }
+
+    if (Object.keys(data).length === 0) {
+      throw new BadRequestException('No fields to update');
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: personId },
+      data,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatarUrl: true,
+        timezone: true,
+        createdAt: true,
+      },
+    });
+
+    return user;
+  }
+
+  async getProviders(personId: string): Promise<ProviderLinkDto[]> {
+    return this.prisma.providerLink.findMany({
+      where: { userId: personId },
+      select: {
+        id: true,
+        provider: true,
+        providerAccountId: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E15-06: GDPR data export
+  // ---------------------------------------------------------------------------
+
+  async requestDataExport(personId: string): Promise<DataExportResponse> {
+    // Check for existing pending/processing export
+    const existing = await this.prisma.dataExportRequest.findFirst({
+      where: {
+        userId: personId,
+        status: { in: [ExportStatus.PENDING, ExportStatus.PROCESSING] },
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException(
+        'A data export request is already in progress',
+      );
+    }
+
+    const request = await this.prisma.dataExportRequest.create({
+      data: {
+        userId: personId,
+        status: ExportStatus.PENDING,
+      },
+    });
+
+    // Enqueue BullMQ job for async processing
+    await this.dataExportQueue.add(
+      JOB_PROCESS_DATA_EXPORT,
+      {
+        exportRequestId: request.id,
+        userId: personId,
+      },
+      {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+        removeOnComplete: true,
+        removeOnFail: { count: 10 },
+      },
+    );
+
+    this.logger.log(
+      `Data export request ${request.id} created for user ${personId}`,
+    );
+
+    return {
+      id: request.id,
+      status: request.status,
+      fileUrl: request.fileUrl,
+      fileSize: request.fileSize,
+      expiresAt: request.expiresAt,
+      completedAt: request.completedAt,
+      createdAt: request.createdAt,
+    };
+  }
+
+  async getDataExportStatus(
+    personId: string,
+    exportId: string,
+  ): Promise<DataExportResponse> {
+    const request = await this.prisma.dataExportRequest.findUnique({
+      where: { id: exportId },
+    });
+
+    if (!request || request.userId !== personId) {
+      throw new NotFoundException('Data export request not found');
+    }
+
+    return {
+      id: request.id,
+      status: request.status,
+      fileUrl: request.fileUrl,
+      fileSize: request.fileSize,
+      expiresAt: request.expiresAt,
+      completedAt: request.completedAt,
+      createdAt: request.createdAt,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E15-07: GDPR account deletion
+  // ---------------------------------------------------------------------------
+
+  async requestDeletion(
+    personId: string,
+    dto: RequestDeletionDto,
+  ): Promise<DeletionRequestResponse> {
+    // Check for existing pending deletion
+    const existing = await this.prisma.deletionRequest.findFirst({
+      where: {
+        userId: personId,
+        status: {
+          in: [DeletionStatus.PENDING, DeletionStatus.DEFERRED_CRISIS],
+        },
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException(
+        'A deletion request is already pending',
+      );
+    }
+
+    // Check for active crisis cases
+    const crisisCase = await this.prisma.careCase.findFirst({
+      where: {
+        personId,
+        status: {
+          notIn: [CaseStatus.COMPLETED, CaseStatus.CLOSED],
+        },
+        crisisLevel: { in: ['HIGH', 'CRITICAL'] },
+      },
+    });
+
+    const scheduledAt = new Date();
+    scheduledAt.setDate(scheduledAt.getDate() + DELETION_GRACE_PERIOD_DAYS);
+
+    const status = crisisCase
+      ? DeletionStatus.DEFERRED_CRISIS
+      : DeletionStatus.PENDING;
+
+    const request = await this.prisma.deletionRequest.create({
+      data: {
+        userId: personId,
+        status,
+        reason: dto.reason ?? null,
+        scheduledAt,
+        deferredUntil: crisisCase ? null : undefined,
+      },
+    });
+
+    if (crisisCase) {
+      this.logger.warn(
+        `${MVP_NOTIFICATION_PREFIX} Deletion request ${request.id} deferred ` +
+          `due to active crisis case ${crisisCase.id} for user ${personId}`,
+      );
+    } else {
+      this.logger.log(
+        `Deletion request ${request.id} created for user ${personId}. ` +
+          `Scheduled for ${scheduledAt.toISOString()}`,
+      );
+    }
+
+    return {
+      id: request.id,
+      status: request.status,
+      reason: request.reason,
+      scheduledAt: request.scheduledAt,
+      deferredUntil: request.deferredUntil,
+      createdAt: request.createdAt,
+    };
+  }
+
+  async cancelDeletion(personId: string): Promise<void> {
+    const request = await this.prisma.deletionRequest.findFirst({
+      where: {
+        userId: personId,
+        status: {
+          in: [DeletionStatus.PENDING, DeletionStatus.DEFERRED_CRISIS],
+        },
+      },
+    });
+
+    if (!request) {
+      throw new NotFoundException('No pending deletion request found');
+    }
+
+    await this.prisma.deletionRequest.update({
+      where: { id: request.id },
+      data: { status: DeletionStatus.CANCELLED },
+    });
+
+    this.logger.log(
+      `Deletion request ${request.id} cancelled for user ${personId}`,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E15-09: Meetings display in cabinet
+  // ---------------------------------------------------------------------------
+
+  async getUpcomingMeetings(personId: string): Promise<PersonMeetingDto[]> {
+    const meetings = await this.prisma.meeting.findMany({
+      where: {
+        personId,
+        status: { in: [...UPCOMING_MEETING_STATUSES] },
+        scheduledAt: { gte: new Date() },
+      },
+      orderBy: { scheduledAt: 'asc' },
+      include: {
+        consultant: {
+          select: { name: true },
+        },
+      },
+    });
+
+    return meetings.map((m) => ({
+      id: m.id,
+      careCaseId: m.careCaseId,
+      scheduledAt: m.scheduledAt,
+      durationMin: m.durationMin,
+      meetingUrl: m.meetingUrl,
+      status: m.status,
+      personTz: m.personTz,
+      personTzTime: this.formatInTimezone(m.scheduledAt, m.personTz),
+      consultantName: m.consultant.name,
+    }));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
   private async getActiveCase(personId: string) {
     return this.prisma.careCase.findFirst({
       where: {
@@ -88,7 +540,7 @@ export class PersonCabinetService {
     return this.prisma.meeting.findFirst({
       where: {
         personId,
-        status: { in: UPCOMING_MEETING_STATUSES },
+        status: { in: [...UPCOMING_MEETING_STATUSES] },
         scheduledAt: { gte: new Date() },
       },
       orderBy: { scheduledAt: 'asc' },
@@ -161,5 +613,63 @@ export class PersonCabinetService {
         progressPercent,
       };
     });
+  }
+
+  private async getRecommendedCourses(
+    personId: string,
+    excludeCourseIds: string[],
+  ): Promise<PersonCourseDto[]> {
+    const courses = await this.prisma.course.findMany({
+      where: {
+        status: CourseStatus.PUBLISHED,
+        ...(excludeCourseIds.length > 0
+          ? { id: { notIn: excludeCourseIds } }
+          : {}),
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        lessonCount: true,
+      },
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return courses.map((c) => ({
+      id: c.id,
+      title: c.title,
+      description: c.description,
+      imageUrl: c.imageUrl,
+      lessonCount: c.lessonCount,
+      completedCount: 0,
+      progressPercent: 0,
+      enrollmentStatus: EnrollmentStatus.ACTIVE, // placeholder for recommended
+    }));
+  }
+
+  private formatInTimezone(date: Date, timezone: string): string {
+    try {
+      return new Intl.DateTimeFormat('en-GB', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(date);
+    } catch {
+      return new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'UTC',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(date);
+    }
   }
 }

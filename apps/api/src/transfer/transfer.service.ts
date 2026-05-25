@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -9,25 +10,45 @@ import {
   CaseStatus,
   ConsultantStatus,
   CrisisLevel,
+  MeetingStatus,
   TransferStatus,
   TransferType,
 } from '@prisma/client';
 
 import { AssignmentService } from '../assignment/assignment.service.js';
 import { CRISIS_LEVELS } from '../assignment/assignment.const.js';
+import { MEETING_LINK_BASE_URL } from '../meetings/meetings.const.js';
 import {
+  AUDIT_ACTION_MEETING_CANCELLED_TRANSFER,
+  AUDIT_ACTION_MEETING_REASSIGNED_TRANSFER,
   AUDIT_ACTION_PERMANENT_TRANSFER,
+  AUDIT_ACTION_PERSON_NOTIFIED_TRANSFER,
   AUDIT_ACTION_TRANSFER_COMPLETED,
+  AUDIT_ACTION_TRANSFER_HISTORY_CREATED,
+  AUDIT_ACTION_VACATION_RETURN,
   AUDIT_ACTION_VACATION_TRANSFER,
+  ERROR_CONSULTANT_HAS_ACTIVE_CASES,
   ERROR_CRISIS_CASE_BLOCKS_PERMANENT,
   ERROR_NO_ACTIVE_CASES,
+  ERROR_WORKLOAD_LIMIT_EXCEEDED,
+  MEETING_CANCEL_REASON_TRANSFER,
+  MEETING_CANCEL_THRESHOLD_MS,
   MVP_NOTIFICATION_PREFIX,
+  NOTIFICATION_NEW_CASE_TO_CONSULTANT_TRANSFER,
+  NOTIFICATION_PERMANENT_TRANSFER_TO_PERSON,
+  NOTIFICATION_VACATION_RETURN_TO_PERSON,
+  NOTIFICATION_VACATION_TRANSFER_TO_PERSON,
   TRANSFERABLE_CASE_STATUSES,
 } from './transfer.const.js';
 import {
   AcceptTransferMatchDto,
+  BlockingCase,
   InitiatePermanentTransferDto,
   InitiateVacationTransferDto,
+  ReturnableTransfer,
+  ReturnCasesDto,
+  ReturnCasesResult,
+  TransferHistoryEntry,
   TransferInitiationResult,
   TransferMatchProposal,
 } from './transfer.model.js';
@@ -457,6 +478,19 @@ export class TransferService {
       });
     });
 
+    // S-E10-04: Handle meeting rescheduling
+    await this.handleMeetingTransfer(transfer.careCaseId, targetUserId, actorId);
+
+    // S-E10-05: Notify person about consultant change
+    await this.notifyPersonAboutTransfer(
+      transfer.careCaseId,
+      transfer.transferType,
+      actorId,
+    );
+
+    // S-E10-06: Notify new consultant about the case
+    await this.notifyNewConsultant(transfer.careCaseId, targetUserId);
+
     // Check if all transfers for a permanent transfer are complete
     if (transfer.transferType === TransferType.PERMANENT) {
       await this.checkAndDeactivateIfAllComplete(transfer.fromConsultantId);
@@ -515,6 +549,467 @@ export class TransferService {
       matchScore: null,
       status: t.status,
     }));
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E10-04: Meeting rescheduling on transfer
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Handle meetings when a case is transferred to a new consultant.
+   * - Meetings <24h away: cancel with notification
+   * - Meetings >=24h away: reassign to new consultant, regenerate URL
+   */
+  async handleMeetingTransfer(
+    caseId: string,
+    newConsultantId: string,
+    actorId?: string,
+  ): Promise<void> {
+    const now = new Date();
+    const threshold = new Date(now.getTime() + MEETING_CANCEL_THRESHOLD_MS);
+
+    // Find all pending meetings for this case
+    const pendingMeetings = await this.prisma.meeting.findMany({
+      where: {
+        careCaseId: caseId,
+        status: {
+          in: [MeetingStatus.SCHEDULED, MeetingStatus.CONFIRMED],
+        },
+        scheduledAt: { gte: now },
+      },
+    });
+
+    for (const meeting of pendingMeetings) {
+      if (meeting.scheduledAt < threshold) {
+        // Cancel meetings less than 24h away
+        await this.prisma.meeting.update({
+          where: { id: meeting.id },
+          data: {
+            status: MeetingStatus.CANCELLED,
+            cancelledAt: now,
+            cancelReason: MEETING_CANCEL_REASON_TRANSFER,
+          },
+        });
+
+        this.logger.warn(
+          `${MVP_NOTIFICATION_PREFIX} Meeting ${meeting.id} cancelled (<24h) ` +
+            `due to case ${caseId} transfer. Person ${meeting.personId} notified.`,
+        );
+
+        if (actorId) {
+          await this.prisma.caseAuditEntry.create({
+            data: {
+              careCaseId: caseId,
+              actorId,
+              action: AUDIT_ACTION_MEETING_CANCELLED_TRANSFER,
+              details: {
+                meetingId: meeting.id,
+                scheduledAt: meeting.scheduledAt.toISOString(),
+                reason: 'Meeting within 24h of transfer',
+              },
+            },
+          });
+        }
+      } else {
+        // Reassign meetings >=24h away to new consultant
+        const newUrl = `${MEETING_LINK_BASE_URL}/${meeting.id}`;
+
+        // Fetch new consultant timezone
+        const newConsultant = await this.prisma.user.findUnique({
+          where: { id: newConsultantId },
+          select: { timezone: true },
+        });
+
+        await this.prisma.meeting.update({
+          where: { id: meeting.id },
+          data: {
+            consultantId: newConsultantId,
+            consultantTz: newConsultant?.timezone ?? 'UTC',
+            meetingUrl: newUrl,
+          },
+        });
+
+        this.logger.log(
+          `Meeting ${meeting.id} reassigned to consultant ${newConsultantId} ` +
+            `for case ${caseId}. New URL: ${newUrl}`,
+        );
+
+        if (actorId) {
+          await this.prisma.caseAuditEntry.create({
+            data: {
+              careCaseId: caseId,
+              actorId,
+              action: AUDIT_ACTION_MEETING_REASSIGNED_TRANSFER,
+              details: {
+                meetingId: meeting.id,
+                newConsultantId,
+                newMeetingUrl: newUrl,
+              },
+            },
+          });
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E10-05: Notify person about consultant change
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Notify the person about a consultant change.
+   * Different message templates for vacation vs permanent.
+   */
+  async notifyPersonAboutTransfer(
+    caseId: string,
+    transferType: TransferType,
+    actorId?: string,
+  ): Promise<void> {
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { id: true, personId: true, contactMethod: true },
+    });
+
+    if (!careCase) {
+      return;
+    }
+
+    const message =
+      transferType === TransferType.VACATION
+        ? NOTIFICATION_VACATION_TRANSFER_TO_PERSON
+        : NOTIFICATION_PERMANENT_TRANSFER_TO_PERSON;
+
+    // MVP: log-based notification
+    this.logger.warn(
+      `${MVP_NOTIFICATION_PREFIX} [TRANSFER→PERSON] ` +
+        `Person ${careCase.personId} (case ${caseId}): "${message}" ` +
+        `via ${careCase.contactMethod ?? 'WEB'}`,
+    );
+
+    if (actorId) {
+      await this.prisma.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId,
+          action: AUDIT_ACTION_PERSON_NOTIFIED_TRANSFER,
+          details: {
+            personId: careCase.personId,
+            transferType,
+            message,
+          },
+        },
+      });
+    }
+  }
+
+  /**
+   * Notify the new consultant about a transferred case (S-E10-06).
+   */
+  async notifyNewConsultant(
+    caseId: string,
+    newConsultantId: string,
+  ): Promise<void> {
+    this.logger.warn(
+      `${MVP_NOTIFICATION_PREFIX} [TRANSFER→CONSULTANT] ` +
+        `Consultant ${newConsultantId} assigned case ${caseId}: ` +
+        `"${NOTIFICATION_NEW_CASE_TO_CONSULTANT_TRANSFER}"`,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E10-06: Transfer history for a case
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Get transfer history for a care case.
+   */
+  async getTransferHistory(caseId: string): Promise<TransferHistoryEntry[]> {
+    // Verify case exists
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { id: true },
+    });
+
+    if (!careCase) {
+      throw new NotFoundException(`Care case ${caseId} not found`);
+    }
+
+    const transfers = await this.prisma.caseTransfer.findMany({
+      where: { careCaseId: caseId },
+      include: {
+        fromConsultant: { select: { name: true } },
+        toConsultant: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return transfers.map((t) => ({
+      id: t.id,
+      transferType: t.transferType,
+      status: t.status,
+      fromConsultantName: t.fromConsultant?.name ?? null,
+      toConsultantName: t.toConsultant?.name ?? null,
+      reason: t.reason,
+      vacationStart: t.vacationStart,
+      vacationEnd: t.vacationEnd,
+      completedAt: t.completedAt,
+      createdAt: t.createdAt,
+    }));
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E10-07: Block consultant deletion with active cases
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Check if a consultant has active cases that block deactivation.
+   * If active cases exist, throws ConflictException with the list of blocking cases.
+   */
+  async validateConsultantDeactivation(
+    consultantUserId: string,
+  ): Promise<void> {
+    const activeCases = await this.prisma.careCase.findMany({
+      where: {
+        consultantId: consultantUserId,
+        status: { in: [...TRANSFERABLE_CASE_STATUSES] },
+      },
+      select: {
+        id: true,
+        topic: true,
+        status: true,
+        person: { select: { name: true } },
+      },
+    });
+
+    if (activeCases.length > 0) {
+      const blockingCases: BlockingCase[] = activeCases.map((c) => ({
+        caseId: c.id,
+        topic: c.topic,
+        status: c.status,
+        personName: c.person?.name ?? null,
+      }));
+
+      throw new ConflictException({
+        message: ERROR_CONSULTANT_HAS_ACTIVE_CASES,
+        blockingCases,
+        count: blockingCases.length,
+      });
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E10-08: Return cases after vacation
+  // ---------------------------------------------------------------------------
+
+  /**
+   * List transfers that can be returned after vacation ends.
+   */
+  async getReturnableTransfers(
+    consultantUserId: string,
+  ): Promise<ReturnableTransfer[]> {
+    const transfers = await this.prisma.caseTransfer.findMany({
+      where: {
+        fromConsultantId: consultantUserId,
+        transferType: TransferType.VACATION,
+        status: TransferStatus.COMPLETED,
+      },
+      include: {
+        careCase: {
+          select: {
+            id: true,
+            topic: true,
+            language: true,
+            status: true,
+          },
+        },
+        toConsultant: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    // Only include transfers where the case is still active
+    return transfers
+      .filter((t) =>
+        TRANSFERABLE_CASE_STATUSES.includes(t.careCase.status as CaseStatus),
+      )
+      .map((t) => ({
+        transferId: t.id,
+        caseId: t.careCaseId,
+        caseTopic: t.careCase.topic ?? null,
+        caseLanguage: t.careCase.language,
+        currentConsultantName: t.toConsultant?.name ?? null,
+        vacationEnd: t.vacationEnd,
+      }));
+  }
+
+  /**
+   * Return selected cases back to the original consultant after vacation.
+   * Validates workload limits before returning.
+   */
+  async returnCases(
+    dto: ReturnCasesDto,
+    actorId: string,
+  ): Promise<ReturnCasesResult> {
+    const transfers = await this.prisma.caseTransfer.findMany({
+      where: {
+        id: { in: dto.transferIds },
+        transferType: TransferType.VACATION,
+        status: TransferStatus.COMPLETED,
+      },
+      include: {
+        careCase: {
+          select: {
+            id: true,
+            version: true,
+            crisisLevel: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    if (transfers.length === 0) {
+      throw new NotFoundException('No eligible transfers found');
+    }
+
+    // All transfers must be from the same consultant
+    const fromConsultantId = transfers[0].fromConsultantId;
+
+    // Verify workload limits
+    const profile = await this.prisma.consultantProfile.findUnique({
+      where: { userId: fromConsultantId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Original consultant profile not found');
+    }
+
+    // Count how many cases would be returned
+    const activeTransfers = transfers.filter((t) =>
+      TRANSFERABLE_CASE_STATUSES.includes(t.careCase.status as CaseStatus),
+    );
+
+    if (profile.currentCases + activeTransfers.length > profile.maxCases) {
+      throw new BadRequestException(ERROR_WORKLOAD_LIMIT_EXCEEDED);
+    }
+
+    const returned: string[] = [];
+    const failed: Array<{ transferId: string; reason: string }> = [];
+
+    for (const transfer of activeTransfers) {
+      try {
+        const isCrisis = CRISIS_LEVELS.includes(transfer.careCase.crisisLevel);
+
+        await this.prisma.$transaction(async (tx) => {
+          // Return case to original consultant
+          await tx.careCase.update({
+            where: {
+              id: transfer.careCaseId,
+              version: transfer.careCase.version,
+            },
+            data: {
+              consultantId: fromConsultantId,
+              version: { increment: 1 },
+            },
+          });
+
+          // Mark transfer as RETURNED
+          await tx.caseTransfer.update({
+            where: { id: transfer.id },
+            data: { status: TransferStatus.RETURNED },
+          });
+
+          // Increment original consultant's counters
+          if (isCrisis) {
+            await tx.$executeRaw`
+              UPDATE consultant_profiles
+              SET current_cases = current_cases + 1,
+                  current_crisis = current_crisis + 1,
+                  updated_at = NOW()
+              WHERE user_id = ${fromConsultantId}::uuid
+            `;
+          } else {
+            await tx.$executeRaw`
+              UPDATE consultant_profiles
+              SET current_cases = current_cases + 1,
+                  updated_at = NOW()
+              WHERE user_id = ${fromConsultantId}::uuid
+            `;
+          }
+
+          // Decrement temporary consultant's counters
+          if (transfer.toConsultantId) {
+            if (isCrisis) {
+              await tx.$executeRaw`
+                UPDATE consultant_profiles
+                SET current_cases = GREATEST(current_cases - 1, 0),
+                    current_crisis = GREATEST(current_crisis - 1, 0),
+                    updated_at = NOW()
+                WHERE user_id = ${transfer.toConsultantId}::uuid
+              `;
+            } else {
+              await tx.$executeRaw`
+                UPDATE consultant_profiles
+                SET current_cases = GREATEST(current_cases - 1, 0),
+                    updated_at = NOW()
+                WHERE user_id = ${transfer.toConsultantId}::uuid
+              `;
+            }
+          }
+
+          // Audit entry
+          await tx.caseAuditEntry.create({
+            data: {
+              careCaseId: transfer.careCaseId,
+              actorId,
+              action: AUDIT_ACTION_VACATION_RETURN,
+              details: {
+                transferId: transfer.id,
+                fromConsultantId,
+                toConsultantId: transfer.toConsultantId,
+              },
+            },
+          });
+        });
+
+        // Handle meeting reassignment back
+        await this.handleMeetingTransfer(
+          transfer.careCaseId,
+          fromConsultantId,
+          actorId,
+        );
+
+        // Notify person about consultant return
+        this.logger.warn(
+          `${MVP_NOTIFICATION_PREFIX} [VACATION_RETURN→PERSON] ` +
+            `Case ${transfer.careCaseId}: "${NOTIFICATION_VACATION_RETURN_TO_PERSON}"`,
+        );
+
+        returned.push(transfer.id);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : String(error);
+        failed.push({ transferId: transfer.id, reason: message });
+        this.logger.error(
+          `Failed to return transfer ${transfer.id}: ${message}`,
+        );
+      }
+    }
+
+    // Update consultant status back to AVAILABLE
+    if (returned.length > 0) {
+      await this.prisma.consultantProfile.update({
+        where: { userId: fromConsultantId },
+        data: { status: ConsultantStatus.AVAILABLE },
+      });
+    }
+
+    return {
+      returnedCount: returned.length,
+      failedCount: failed.length,
+      returned,
+      failed,
+    };
   }
 
   // ---------------------------------------------------------------------------

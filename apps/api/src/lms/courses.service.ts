@@ -144,6 +144,98 @@ export class CoursesService {
     });
   }
 
+  async findAllAdmin(filters: {
+    status?: string;
+    search?: string;
+    skip?: number;
+    take?: number;
+  }) {
+    const where: Record<string, unknown> = {};
+
+    if (filters.status) {
+      where['status'] = filters.status;
+    }
+
+    if (filters.search) {
+      where['title'] = { contains: filters.search, mode: 'insensitive' };
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.course.findMany({
+        where,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          tags: true,
+          lessonCount: true,
+          imageUrl: true,
+          language: true,
+          gracePeriodEnd: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: { select: { enrollments: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: filters.skip ?? 0,
+        take: filters.take ?? 50,
+      }),
+      this.prisma.course.count({ where }),
+    ]);
+
+    return { data, total };
+  }
+
+  async softDelete(id: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id },
+      include: {
+        _count: { select: { enrollments: true } },
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException(`Course with id "${id}" not found`);
+    }
+
+    // Only allow archiving from HIDDEN status (state machine: PUBLISHED -> HIDDEN -> ARCHIVED)
+    const archivableStatuses: CourseStatus[] = [
+      CourseStatus.HIDDEN,
+    ];
+
+    if (!archivableStatuses.includes(course.status)) {
+      throw new BadRequestException(
+        `Cannot archive course in ${course.status} status`,
+      );
+    }
+
+    if (course.status === CourseStatus.ARCHIVED) {
+      throw new BadRequestException('Course is already archived');
+    }
+
+    const gracePeriodEnd = new Date();
+    gracePeriodEnd.setDate(
+      gracePeriodEnd.getDate() + ARCHIVE_GRACE_PERIOD_DAYS,
+    );
+
+    if (course._count.enrollments > 0) {
+      this.logger.warn(
+        `[MVP NOTIFICATION] Course "${course.title}" (${id}) soft-deleted. ` +
+          `${course._count.enrollments} enrolled person(s) should be notified. ` +
+          `Grace period ends: ${gracePeriodEnd.toISOString()}`,
+      );
+    }
+
+    return this.prisma.course.update({
+      where: { id },
+      data: {
+        status: CourseStatus.ARCHIVED,
+        gracePeriodEnd,
+      },
+    });
+  }
+
   async findOne(id: string) {
     const course = await this.prisma.course.findUnique({
       where: { id },

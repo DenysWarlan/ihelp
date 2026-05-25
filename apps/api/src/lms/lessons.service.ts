@@ -1,11 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
+import { CourseStatus } from '@prisma/client';
 import { CreateLessonDto } from './dto/create-lesson.dto.js';
 import { UpdateLessonDto } from './dto/update-lesson.dto.js';
+import { CourseVersionService } from './course-version.service.js';
 
 @Injectable()
 export class LessonsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(LessonsService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly courseVersionService: CourseVersionService,
+  ) {}
 
   async create(courseId: string, dto: CreateLessonDto) {
     await this.assertCourseExists(courseId);
@@ -54,6 +61,12 @@ export class LessonsService {
   async delete(lessonId: string) {
     const lesson = await this.assertLessonExists(lessonId);
 
+    // Check if the course is published (need to recalculate progress)
+    const course = await this.prisma.course.findUnique({
+      where: { id: lesson.courseId },
+      select: { status: true },
+    });
+
     await this.prisma.$transaction([
       this.prisma.lesson.delete({ where: { id: lessonId } }),
       this.prisma.course.update({
@@ -61,6 +74,17 @@ export class LessonsService {
         data: { lessonCount: { decrement: 1 } },
       }),
     ]);
+
+    // Recalculate progress for affected enrollments if course was published
+    if (course?.status === CourseStatus.PUBLISHED) {
+      this.logger.log(
+        `Lesson "${lessonId}" deleted from published course "${lesson.courseId}" — recalculating progress`,
+      );
+      await this.courseVersionService.recalculateProgressAfterLessonDeletion(
+        lesson.courseId,
+        lessonId,
+      );
+    }
   }
 
   async reorder(courseId: string, lessonIds: string[]) {

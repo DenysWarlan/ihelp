@@ -1,7 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 
-export class ConsentDto {
+export class GrantConsentDto {
   @ApiProperty({
     description: 'Type of consent to grant',
     enum: ['data', 'sensitive'],
@@ -12,8 +12,21 @@ export class ConsentDto {
   readonly type!: 'data' | 'sensitive';
 }
 
+/** @deprecated Use GrantConsentDto instead */
+export class ConsentDto extends GrantConsentDto {}
+
 export interface ConsentStatus {
   readonly dataConsentAt: Date | null;
   readonly sensitiveDataConsentAt: Date | null;
   readonly hasRequiredConsent: boolean;
+}
+
+export interface ConsentRecord {
+  readonly id: string;
+  readonly userId: string;
+  readonly consentType: string;
+  readonly grantedAt: Date;
+  readonly withdrawnAt: Date | null;
+  readonly ipAddress: string | null;
+  readonly userAgent: string | null;
 }

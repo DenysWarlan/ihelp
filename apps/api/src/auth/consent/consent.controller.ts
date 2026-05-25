@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Post,
   Req,
@@ -15,42 +14,43 @@ import {
 import { Request } from 'express';
 
 import { JwtPayload } from '../auth.model.js';
-import { ConsentDto } from './consent.model.js';
+import { GrantConsentDto } from './consent.model.js';
 import { ConsentService } from './consent.service.js';
 
-@ApiTags('auth')
-@Controller('auth/consent')
+@ApiTags('consent')
+@Controller('consent')
 @ApiBearerAuth()
 export class ConsentController {
   constructor(private readonly consentService: ConsentService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Grant GDPR consent' })
-  @ApiResponse({ status: 201, description: 'Consent granted' })
+  @Post('grant')
+  @ApiOperation({ summary: 'Grant GDPR consent (general data or sensitive data)' })
+  @ApiResponse({ status: 201, description: 'Consent granted and recorded' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async grantConsent(
-    @Body() dto: ConsentDto,
+    @Body() dto: GrantConsentDto,
     @Req() req: Request,
   ) {
     const user = req.user as JwtPayload;
-    return this.consentService.grantConsent(user.sub, dto.type);
+    const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.ip;
+    const userAgent = req.headers['user-agent'] ?? undefined;
+    return this.consentService.grantConsent(user.sub, dto.type, ipAddress, userAgent);
   }
 
-  @Delete('sensitive')
-  @ApiOperation({ summary: 'Revoke Art. 9 sensitive data consent' })
-  @ApiResponse({ status: 200, description: 'Sensitive consent revoked' })
-  @ApiResponse({
-    status: 409,
-    description: 'Cannot revoke during active crisis',
-  })
-  async revokeConsent(@Req() req: Request) {
+  @Post('withdraw-sensitive')
+  @ApiOperation({ summary: 'Withdraw Art. 9 sensitive data consent' })
+  @ApiResponse({ status: 201, description: 'Sensitive data consent withdrawn' })
+  @ApiResponse({ status: 409, description: 'Cannot withdraw during active crisis case' })
+  async withdrawSensitiveConsent(@Req() req: Request) {
     const user = req.user as JwtPayload;
-    await this.consentService.revokeConsent(user.sub, 'sensitive');
-    return { message: 'Sensitive data consent revoked' };
+    const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.ip;
+    const userAgent = req.headers['user-agent'] ?? undefined;
+    await this.consentService.withdrawSensitiveConsent(user.sub, ipAddress, userAgent);
+    return { message: 'Sensitive data consent withdrawn successfully' };
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get consent status' })
+  @Get('status')
+  @ApiOperation({ summary: 'Get current consent status' })
   @ApiResponse({ status: 200, description: 'Returns consent timestamps and status' })
   async getConsentStatus(@Req() req: Request) {
     const user = req.user as JwtPayload;

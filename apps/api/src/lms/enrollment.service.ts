@@ -6,10 +6,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
 import { CourseStatus, EnrollmentStatus } from '@prisma/client';
+import { CourseVersionService } from './course-version.service.js';
 
 @Injectable()
 export class EnrollmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly courseVersionService: CourseVersionService,
+  ) {}
 
   async enroll(courseId: string, personId: string) {
     const course = await this.prisma.course.findUnique({
@@ -29,19 +33,30 @@ export class EnrollmentService {
       where: { personId_courseId: { personId, courseId } },
     });
 
+    // Pin to the current published version (if any)
+    const currentVersionNum =
+      await this.courseVersionService.getCurrentVersionNumber(courseId);
+
     if (existing) {
       // Allow re-enrollment if previously dropped
       if (existing.status === EnrollmentStatus.DROPPED) {
         return this.prisma.enrollment.update({
           where: { id: existing.id },
-          data: { status: EnrollmentStatus.ACTIVE },
+          data: {
+            status: EnrollmentStatus.ACTIVE,
+            courseVersionNum: currentVersionNum,
+          },
         });
       }
       throw new ConflictException('Already enrolled in this course');
     }
 
     return this.prisma.enrollment.create({
-      data: { personId, courseId },
+      data: {
+        personId,
+        courseId,
+        courseVersionNum: currentVersionNum,
+      },
     });
   }
 

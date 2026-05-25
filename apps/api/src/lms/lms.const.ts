@@ -19,3 +19,20 @@ export const MAX_PROGRESS_RESETS = 3;
 
 /** Deduplication window for "I'm struggling" requests (milliseconds). */
 export const STRUGGLING_DEDUP_WINDOW_MS = 60_000;
+
+// ── Course Import/Export ────────────────────────────────────
+
+/** Maximum import file size in bytes (50 MB). */
+export const IMPORT_MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+
+/** Maximum number of lessons allowed in an imported course. */
+export const IMPORT_MAX_LESSONS = 500;
+
+/** BullMQ queue name for course export jobs. */
+export const COURSE_EXPORT_QUEUE = 'course-export';
+
+/** Threshold (lesson count) above which export is processed async via BullMQ. */
+export const EXPORT_ASYNC_THRESHOLD = 50;
+
+/** BullMQ job name for course export. */
+export const JOB_COURSE_EXPORT = 'course-export';

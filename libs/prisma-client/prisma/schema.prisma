@@ -71,6 +71,11 @@ model User {
   transfersFrom CaseTransfer[] @relation("TransferFrom")
   transfersTo   CaseTransfer[] @relation("TransferTo")
 
+  // GDPR relations
+  consents           Consent[]
+  dataExportRequests DataExportRequest[]
+  deletionRequests   DeletionRequest[]
+
   @@index([role])
   @@map("users")
 }
@@ -246,12 +251,13 @@ model Lesson {
 // ============================================================
 
 model Enrollment {
-  id        String           @id @default(uuid()) @db.Uuid
-  personId  String           @map("person_id") @db.Uuid
-  courseId   String           @map("course_id") @db.Uuid
-  status    EnrollmentStatus @default(ACTIVE)
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt @map("updated_at")
+  id               String           @id @default(uuid()) @db.Uuid
+  personId         String           @map("person_id") @db.Uuid
+  courseId          String           @map("course_id") @db.Uuid
+  status           EnrollmentStatus @default(ACTIVE)
+  courseVersionNum  Int?             @map("course_version_num")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
 
   person User   @relation(fields: [personId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -758,4 +764,110 @@ model OrganizationSettings {
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("organization_settings")
+}
+
+// ============================================================
+// COURSE VERSIONING (S-E04-09)
+// ============================================================
+
+model CourseVersion {
+  id            String   @id @default(uuid()) @db.Uuid
+  courseId       String   @map("course_id") @db.Uuid
+  versionNumber Int      @map("version_number")
+  lessonMapping Json?    @map("lesson_mapping") // { oldLessonId: newLessonId }
+  changelog     String?
+  publishedAt   DateTime @default(now()) @map("published_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([courseId, versionNumber])
+  @@index([courseId])
+  @@map("course_versions")
+}
+
+// ============================================================
+// GDPR CONSENT (S-E12-01/02)
+// ============================================================
+
+enum ConsentType {
+  GENERAL_DATA
+  SENSITIVE_DATA
+}
+
+model Consent {
+  id          String      @id @default(uuid()) @db.Uuid
+  userId      String      @map("user_id") @db.Uuid
+  consentType ConsentType @map("consent_type")
+  grantedAt   DateTime    @default(now()) @map("granted_at")
+  withdrawnAt DateTime?   @map("withdrawn_at")
+  ipAddress   String?     @map("ip_address")
+  userAgent   String?     @map("user_agent")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, consentType])
+  @@map("consents")
+}
+
+// ============================================================
+// GDPR DATA EXPORT REQUEST (S-E12-05 / S-E15-06)
+// ============================================================
+
+enum ExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+model DataExportRequest {
+  id          String       @id @default(uuid()) @db.Uuid
+  userId      String       @map("user_id") @db.Uuid
+  status      ExportStatus @default(PENDING)
+  fileUrl     String?      @map("file_url")
+  fileSize    Int?         @map("file_size")
+  errorMessage String?     @map("error_message")
+  expiresAt   DateTime?    @map("expires_at")
+  completedAt DateTime?    @map("completed_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("data_export_requests")
+}
+
+// ============================================================
+// GDPR DELETION REQUEST (S-E12-03/04 / S-E15-07)
+// ============================================================
+
+enum DeletionStatus {
+  PENDING
+  DEFERRED_CRISIS
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+model DeletionRequest {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @map("user_id") @db.Uuid
+  status        DeletionStatus @default(PENDING)
+  reason        String?
+  scheduledAt   DateTime       @map("scheduled_at")
+  executedAt    DateTime?      @map("executed_at")
+  deferredUntil DateTime?      @map("deferred_until")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("deletion_requests")
 }
