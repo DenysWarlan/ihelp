@@ -1,11 +1,11 @@
-import { ConsultantStatus } from '@prisma/client';
+import { ConsultantStatus, CrisisLevel } from '@prisma/client';
 
 /**
  * Consultant statuses eligible for auto-assignment.
  * AVAILABLE: fully open for new cases.
  * BUSY: working but may still accept cases if under maxCases.
  */
-export const ELIGIBLE_STATUSES: ConsultantStatus[] = [
+export const ELIGIBLE_STATUSES: readonly ConsultantStatus[] = [
   ConsultantStatus.AVAILABLE,
   ConsultantStatus.BUSY,
 ] as const;
@@ -54,3 +54,18 @@ export const NOTIFICATION_QUEUED_TO_PERSON =
 
 export const NOTIFICATION_NEW_CASE_TO_CONSULTANT =
   'Вам призначено нове звернення.' as const;
+
+/**
+ * Crisis levels that count as "crisis" for crisis case limit enforcement.
+ * Cases with crisisLevel HIGH or CRITICAL require crisis capacity.
+ */
+export const CRISIS_LEVELS: readonly CrisisLevel[] = [
+  CrisisLevel.HIGH,
+  CrisisLevel.CRITICAL,
+] as const;
+
+/**
+ * Error message when crisis case limit is exceeded (hard limit).
+ */
+export const CRISIS_LIMIT_EXCEEDED_MESSAGE =
+  'Consultant has reached the maximum crisis case limit' as const;

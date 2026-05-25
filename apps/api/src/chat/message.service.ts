@@ -2,26 +2,34 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
   UnprocessableEntityException,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { MessageChannel, Role } from '@prisma/client';
+import { CaseStatus, MessageChannel, Role } from '@prisma/client';
 import DOMPurify from 'isomorphic-dompurify';
 
 import { JwtPayload } from '../auth/auth.model.js';
+import { CrisisService } from '../crisis/crisis.service.js';
+import { AttachmentScanMeta } from '../crisis/crisis.model.js';
+import { ResponseTimeService } from '../sla/response-time.service.js';
+import { SlaService } from '../sla/sla.service.js';
 import {
   DEFAULT_PAGE_SIZE,
   ELEVATED_CHAT_ROLES,
   MAX_ATTACHMENT_SIZE,
   ATTACHMENT_ERROR_MSG,
   MAX_PAGE_SIZE,
+  SLA_RESPONDING_ROLES,
   SUPPORTED_CHANNELS,
 } from './chat.const.js';
 import {
   ActiveChannelResponse,
+  AttachmentMeta,
   MessageResponse,
   MessageVersionResponse,
   PaginatedMessagesResponse,
@@ -33,7 +41,12 @@ import {
 export class MessageService {
   private readonly logger = new Logger(MessageService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly crisisService: CrisisService,
+    @Inject(forwardRef(() => SlaService)) private readonly slaService: SlaService,
+    @Inject(forwardRef(() => ResponseTimeService)) private readonly responseTimeService: ResponseTimeService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Create message
@@ -70,6 +83,12 @@ export class MessageService {
     this.logger.log(
       `Message created: ${message.id} in case ${caseId} by ${actor.sub}`,
     );
+
+    // Crisis keyword scanning (S-E08-01) — runs synchronously before return
+    await this.scanForCrisis(caseId, message.id, sanitizedContent, channel, dto.attachments);
+
+    // SLA & response-time hooks (S-E07-03, S-E07-04, S-E07-05, S-E07-07)
+    await this.handleSlaOnMessage(caseId, message.id, actor);
 
     return message;
   }
@@ -141,6 +160,20 @@ export class MessageService {
     this.logger.log(
       `Webhook message created: ${message.id} (${input.channel}/${input.channelMsgId}) in case ${caseId}`,
     );
+
+    // Crisis keyword scanning (S-E08-01) — scan webhook messages too
+    const attachmentScanMeta = this.toAttachmentScanMeta(input.attachments);
+    await this.scanForCrisis(
+      caseId,
+      message.id,
+      input.content,
+      input.channel,
+      undefined,
+      attachmentScanMeta,
+    );
+
+    // SLA hooks for webhook (person) messages — open response-time entry + resume paused timer
+    await this.handleSlaOnPersonMessage(caseId, message.id);
 
     return message;
   }
@@ -566,5 +599,189 @@ export class MessageService {
     });
 
     return existingMessage?.careCaseId ?? null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Crisis scanning helper
+  // ---------------------------------------------------------------------------
+
+  private async scanForCrisis(
+    caseId: string,
+    messageId: string,
+    content: string,
+    channel: MessageChannel,
+    rawAttachments?: Record<string, unknown>,
+    attachmentScanMeta?: AttachmentScanMeta[],
+  ): Promise<void> {
+    try {
+      const attachments =
+        attachmentScanMeta ?? this.extractAttachmentScanMeta(rawAttachments);
+
+      await this.crisisService.processMessage(
+        caseId,
+        messageId,
+        { content, attachments },
+        channel,
+      );
+    } catch (error) {
+      // Crisis scanning must never block message delivery
+      this.logger.error(
+        `Crisis scanning failed for message ${messageId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Extract scannable metadata from raw attachment JSON (used by create method).
+   */
+  private extractAttachmentScanMeta(
+    rawAttachments?: Record<string, unknown>,
+  ): AttachmentScanMeta[] | undefined {
+    if (!rawAttachments) {
+      return undefined;
+    }
+
+    const fileName = rawAttachments['fileName'] ?? rawAttachments['file_name'];
+    const altText = rawAttachments['altText'] ?? rawAttachments['alt_text'];
+
+    if (!fileName && !altText) {
+      return undefined;
+    }
+
+    return [
+      {
+        fileName: typeof fileName === 'string' ? fileName : undefined,
+        altText: typeof altText === 'string' ? altText : undefined,
+      },
+    ];
+  }
+
+  /**
+   * Convert AttachmentMeta[] (from webhook) to AttachmentScanMeta[] for crisis scanning.
+   */
+  private toAttachmentScanMeta(
+    attachments?: readonly AttachmentMeta[],
+  ): AttachmentScanMeta[] | undefined {
+    if (!attachments || attachments.length === 0) {
+      return undefined;
+    }
+
+    return attachments.map((att) => ({
+      fileName: att.fileName,
+    }));
+  }
+
+  // ---------------------------------------------------------------------------
+  // SLA integration (S-E07-03, S-E07-04, S-E07-05, S-E07-07)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Central SLA hook called after every message creation (web channel).
+   *
+   * - Person message → open response-time entry, resume paused SLA timer,
+   *   set case IN_PROGRESS if ON_HOLD.
+   * - Consultant/elevated reply → close response-time entry, resolve SLA timer,
+   *   record firstResponseAt, start new SLA cycle.
+   */
+  private async handleSlaOnMessage(
+    caseId: string,
+    messageId: string,
+    actor: JwtPayload,
+  ): Promise<void> {
+    try {
+      const isResponder = SLA_RESPONDING_ROLES.includes(actor.role);
+
+      if (actor.role === 'PERSON') {
+        await this.handleSlaOnPersonMessage(caseId, messageId);
+      } else if (isResponder) {
+        await this.handleSlaOnConsultantReply(caseId, messageId, actor.sub);
+      }
+    } catch (error) {
+      // SLA hooks must never block message delivery
+      this.logger.error(
+        `SLA hook failed for message ${messageId} in case ${caseId}: ` +
+          `${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Handle SLA logic when a person sends a message:
+   * 1. Open a response-time tracking entry (S-E07-03)
+   * 2. If SLA timer is paused → resume it (S-E07-04)
+   * 3. If case is ON_HOLD → transition to IN_PROGRESS (S-E07-04)
+   */
+  private async handleSlaOnPersonMessage(
+    caseId: string,
+    messageId: string,
+  ): Promise<void> {
+    try {
+      const now = new Date();
+
+      // S-E07-03: Open response-time entry
+      await this.responseTimeService.openEntry(caseId, messageId, now);
+
+      // S-E07-04: Check SLA timer state
+      const timerState = await this.slaService.hasActiveOrPausedTimer(caseId);
+
+      if (timerState.isPaused) {
+        // Resume the paused SLA timer
+        await this.slaService.resumeTimer(caseId);
+        this.logger.log(`SLA timer resumed for case ${caseId} on person message`);
+
+        // Transition case from ON_HOLD to IN_PROGRESS
+        await this.prisma.careCase.updateMany({
+          where: { id: caseId, status: CaseStatus.ON_HOLD },
+          data: { status: CaseStatus.IN_PROGRESS },
+        });
+      } else if (!timerState.exists) {
+        // No active timer — start a new SLA cycle
+        await this.slaService.startTimer(caseId, now);
+        this.logger.log(`New SLA timer started for case ${caseId} on person message`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `SLA person-message hook failed for case ${caseId}: ` +
+          `${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Handle SLA logic when a consultant (or elevated role) replies:
+   * 1. Close the response-time entry (S-E07-03)
+   * 2. Resolve the SLA timer — cancel all pending escalation jobs (S-E07-07)
+   * 3. Record firstResponseAt on the case if not set yet (S-E07-07)
+   * A new SLA cycle starts automatically when the next person message arrives (S-E07-07)
+   */
+  private async handleSlaOnConsultantReply(
+    caseId: string,
+    messageId: string,
+    consultantId: string,
+  ): Promise<void> {
+    try {
+      const now = new Date();
+
+      // S-E07-03: Close the open response-time entry
+      await this.responseTimeService.closeEntry(caseId, messageId, consultantId, now);
+
+      // S-E07-07: Resolve the current SLA timer (cancels all escalation jobs)
+      const timerState = await this.slaService.hasActiveOrPausedTimer(caseId);
+      if (timerState.exists) {
+        await this.slaService.resolveTimer(caseId);
+        this.logger.log(`SLA timer resolved for case ${caseId} on consultant reply`);
+      }
+
+      // S-E07-07: Record firstResponseAt if not set
+      await this.prisma.careCase.updateMany({
+        where: { id: caseId, firstResponseAt: null },
+        data: { firstResponseAt: now },
+      });
+    } catch (error) {
+      this.logger.error(
+        `SLA consultant-reply hook failed for case ${caseId}: ` +
+          `${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }

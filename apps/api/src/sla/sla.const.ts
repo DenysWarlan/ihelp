@@ -66,3 +66,33 @@ export const AUDIT_ACTION_SLA_PAUSED = 'SLA_PAUSED' as const;
 export const AUDIT_ACTION_SLA_RESUMED = 'SLA_RESUMED' as const;
 export const AUDIT_ACTION_SLA_RESET = 'SLA_RESET' as const;
 export const AUDIT_ACTION_SLA_ESCALATION = 'SLA_ESCALATION' as const;
+
+// ---------------------------------------------------------------------------
+// Distributed lock (S-E07-06)
+// ---------------------------------------------------------------------------
+
+/** Redis key prefix for SLA distributed locks. */
+export const SLA_LOCK_PREFIX = 'sla:lock:' as const;
+
+/** Lock TTL in seconds (auto-release safety net). */
+export const SLA_LOCK_TTL_SECONDS = 8;
+
+/** Maximum retry attempts when acquiring a lock. */
+export const SLA_LOCK_MAX_RETRIES = 5;
+
+/** Base delay in ms for exponential backoff on lock retry. */
+export const SLA_LOCK_BASE_DELAY_MS = 50;
+
+// ---------------------------------------------------------------------------
+// Dashboard colour thresholds (S-E07-05)
+// ---------------------------------------------------------------------------
+
+/** Elapsed time thresholds (ms) for SLA dashboard colour indicators. */
+export const SLA_COLOR_GREEN_MAX_MS = 4 * 3600 * 1000; // < 4 h
+export const SLA_COLOR_YELLOW_MAX_MS = 12 * 3600 * 1000; // < 12 h
+
+/** Socket.io event names for SLA. */
+export const SLA_EVENTS = {
+  SLA_UPDATE: 'sla:update',
+  SLA_DASHBOARD: 'sla:dashboard',
+} as const;

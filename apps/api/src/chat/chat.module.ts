@@ -1,7 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
+import { CrisisModule } from '../crisis/crisis.module.js';
+import { SlaModule } from '../sla/sla.module.js';
 import { MessageService } from './message.service.js';
 import {
   CaseChannelController,
@@ -18,6 +20,8 @@ import { AdapterFactory } from './adapters/adapter.factory.js';
 
 @Module({
   imports: [
+    CrisisModule,
+    forwardRef(() => SlaModule),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

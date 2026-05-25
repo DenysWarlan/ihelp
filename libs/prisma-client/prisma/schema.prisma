@@ -591,3 +591,85 @@ model SlaTimer {
   @@index([status, currentLevel])
   @@map("sla_timers")
 }
+
+// ============================================================
+// RESPONSE TIME LOG (S-E07-03 — message response tracking)
+// ============================================================
+
+model ResponseTimeLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  careCaseId      String   @map("care_case_id") @db.Uuid
+  personMessageId String   @map("person_message_id") @db.Uuid
+  consultantMessageId String? @map("consultant_message_id") @db.Uuid
+  consultantId    String?  @map("consultant_id") @db.Uuid
+  personSentAt    DateTime @map("person_sent_at")
+  consultantRepliedAt DateTime? @map("consultant_replied_at")
+  responseTimeMs  Int?     @map("response_time_ms")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([careCaseId])
+  @@index([consultantId])
+  @@index([careCaseId, personSentAt])
+  @@map("response_time_logs")
+}
+
+// ============================================================
+// CRISIS KEYWORDS (S-E08-01/02 — configurable keyword list)
+// ============================================================
+
+enum CrisisRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model CrisisKeyword {
+  id        String          @id @default(uuid()) @db.Uuid
+  keyword   String
+  language  String          @default("uk")
+  riskLevel CrisisRiskLevel @default(HIGH) @map("risk_level")
+  isActive  Boolean         @default(true) @map("is_active")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  @@unique([keyword, language])
+  @@index([isActive])
+  @@index([riskLevel])
+  @@map("crisis_keywords")
+}
+
+// ============================================================
+// CRISIS AUTO-REPLY TEMPLATE (S-E08-04 — configurable auto-reply)
+// ============================================================
+
+model CrisisAutoReply {
+  id        String   @id @default(uuid()) @db.Uuid
+  language  String   @unique @default("uk")
+  template  String
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("crisis_auto_replies")
+}
+
+// ============================================================
+// CRISIS ALERT LOG (S-E08-03 — escalation tracking)
+// ============================================================
+
+model CrisisAlert {
+  id              String          @id @default(uuid()) @db.Uuid
+  careCaseId      String          @map("care_case_id") @db.Uuid
+  messageId       String          @map("message_id") @db.Uuid
+  riskLevel       CrisisRiskLevel @map("risk_level")
+  matchedKeywords String[]        @default([]) @map("matched_keywords")
+  acknowledgedAt  DateTime?       @map("acknowledged_at")
+  acknowledgedBy  String?         @map("acknowledged_by") @db.Uuid
+  autoReplySent   Boolean         @default(false) @map("auto_reply_sent")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  @@index([careCaseId])
+  @@index([riskLevel])
+  @@index([acknowledgedAt])
+  @@map("crisis_alerts")
+}

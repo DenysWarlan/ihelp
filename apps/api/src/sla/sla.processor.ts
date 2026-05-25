@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Logger, forwardRef } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { CaseStatus, SlaStatus } from '@prisma/client';
+import { CaseStatus, CrisisLevel, SlaStatus } from '@prisma/client';
 import { Job } from 'bullmq';
 
 import { AssignmentService } from '../assignment/assignment.service.js';
@@ -133,7 +133,7 @@ export class SlaProcessor extends WorkerHost {
 
     const careCase = await this.prisma.careCase.findUnique({
       where: { id: caseId },
-      select: { consultantId: true, version: true },
+      select: { consultantId: true, version: true, crisisLevel: true },
     });
 
     if (!careCase) {
@@ -141,15 +141,27 @@ export class SlaProcessor extends WorkerHost {
       return;
     }
 
+    const isCrisis = careCase.crisisLevel === CrisisLevel.HIGH || careCase.crisisLevel === CrisisLevel.CRITICAL;
+
     // Free up the old consultant's slot and reset case atomically
     if (careCase.consultantId) {
       await this.prisma.$transaction(async (tx) => {
-        await tx.$executeRaw`
-          UPDATE consultant_profiles
-          SET current_cases = GREATEST(current_cases - 1, 0),
-              updated_at = NOW()
-          WHERE user_id = ${careCase.consultantId}::uuid
-        `;
+        if (isCrisis) {
+          await tx.$executeRaw`
+            UPDATE consultant_profiles
+            SET current_cases = GREATEST(current_cases - 1, 0),
+                current_crisis = GREATEST(current_crisis - 1, 0),
+                updated_at = NOW()
+            WHERE user_id = ${careCase.consultantId}::uuid
+          `;
+        } else {
+          await tx.$executeRaw`
+            UPDATE consultant_profiles
+            SET current_cases = GREATEST(current_cases - 1, 0),
+                updated_at = NOW()
+            WHERE user_id = ${careCase.consultantId}::uuid
+          `;
+        }
 
         await tx.careCase.update({
           where: { id: caseId },

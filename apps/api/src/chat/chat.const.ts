@@ -44,3 +44,11 @@ export const ELEVATED_CHAT_ROLES = [
 
 /** Room prefix for case-based rooms. */
 export const CASE_ROOM_PREFIX = 'case:' as const;
+
+/** Roles that trigger SLA resolution and response-time closure. */
+export const SLA_RESPONDING_ROLES: readonly string[] = [
+  'CONSULTANT',
+  'SUPERVISOR',
+  'COORDINATOR',
+  'ADMIN',
+] as const;

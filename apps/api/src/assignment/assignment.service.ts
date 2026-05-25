@@ -5,13 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { CaseStatus, ConsultantStatus } from '@prisma/client';
+import { CaseStatus, ConsultantStatus, CrisisLevel } from '@prisma/client';
 
 import {
   AUDIT_ACTION_AUTO_ASSIGN,
   AUDIT_ACTION_AUTO_ASSIGN_FALLBACK,
   AUDIT_ACTION_MANUAL_ASSIGN,
   AUDIT_ACTION_REASSIGN,
+  CRISIS_LEVELS,
+  CRISIS_LIMIT_EXCEEDED_MESSAGE,
   ELIGIBLE_STATUSES,
   FALLBACK_PERSON_MESSAGE,
   FallbackReason,
@@ -68,6 +70,7 @@ export class AssignmentService {
         language: true,
         topic: true,
         version: true,
+        crisisLevel: true,
       },
     });
 
@@ -85,9 +88,11 @@ export class AssignmentService {
     }
 
     // 2. Find eligible consultants
+    const isCrisis = this.isCrisisCase(careCase.crisisLevel);
     const candidates = await this.findEligibleConsultants(
       careCase.language ?? undefined,
       careCase.topic ?? undefined,
+      isCrisis,
     );
 
     if (candidates.length === 0) {
@@ -112,6 +117,7 @@ export class AssignmentService {
         caseId,
         careCase.version,
         actorId,
+        isCrisis,
       );
 
       if (success) {
@@ -145,10 +151,12 @@ export class AssignmentService {
    * Filters:
    *   - status IN (AVAILABLE, BUSY)
    *   - currentCases < maxCases
+   *   - If crisis case: also currentCrisis < maxCrisisCases
    */
   async findEligibleConsultants(
     _language?: string,
     _specialization?: string,
+    isCrisis = false,
   ): Promise<EligibleConsultant[]> {
     // We fetch all eligible consultants and do fine-grained
     // prioritization in-memory. This is safe for the expected
@@ -164,7 +172,18 @@ export class AssignmentService {
     });
 
     // Post-filter: only consultants with capacity
-    return profiles.filter((p) => p.currentCases < p.maxCases);
+    return profiles.filter((p) => {
+      if (p.currentCases >= p.maxCases) {
+        return false;
+      }
+
+      // For crisis cases, also enforce crisis capacity limit
+      if (isCrisis && p.currentCrisis >= p.maxCrisisCases) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -232,7 +251,8 @@ export class AssignmentService {
   /**
    * Atomically assign a case to a consultant inside a serializable
    * transaction. The consultant's currentCases is incremented only if
-   * it is still below maxCases (optimistic guard).
+   * it is still below maxCases (optimistic guard). For crisis cases,
+   * currentCrisis is also atomically incremented with its own guard.
    *
    * Returns true if the assignment succeeded, false otherwise.
    */
@@ -241,22 +261,39 @@ export class AssignmentService {
     caseId: string,
     caseVersion: number,
     actorId: string,
+    isCrisis = false,
   ): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
-        // Atomic increment: only succeeds if currentCases < maxCases.
-        // Prisma's where clause cannot compare two columns, so we use
-        // raw SQL for the guard condition.
-        const rowsUpdated = await tx.$executeRaw`
-          UPDATE consultant_profiles
-          SET current_cases = current_cases + 1,
-              updated_at = NOW()
-          WHERE id = ${consultant.id}::uuid
-            AND current_cases < max_cases
-        `;
+        if (isCrisis) {
+          // Atomic increment: both currentCases and currentCrisis must
+          // be under their respective limits.
+          const rowsUpdated = await tx.$executeRaw`
+            UPDATE consultant_profiles
+            SET current_cases = current_cases + 1,
+                current_crisis = current_crisis + 1,
+                updated_at = NOW()
+            WHERE id = ${consultant.id}::uuid
+              AND current_cases < max_cases
+              AND current_crisis < max_crisis_cases
+          `;
 
-        if (rowsUpdated === 0) {
-          throw new Error('CAPACITY_EXCEEDED');
+          if (rowsUpdated === 0) {
+            throw new Error('CAPACITY_EXCEEDED');
+          }
+        } else {
+          // Non-crisis: only check total case capacity.
+          const rowsUpdated = await tx.$executeRaw`
+            UPDATE consultant_profiles
+            SET current_cases = current_cases + 1,
+                updated_at = NOW()
+            WHERE id = ${consultant.id}::uuid
+              AND current_cases < max_cases
+          `;
+
+          if (rowsUpdated === 0) {
+            throw new Error('CAPACITY_EXCEEDED');
+          }
         }
 
         // Assign the case
@@ -279,6 +316,7 @@ export class AssignmentService {
               consultantUserId: consultant.userId,
               consultantProfileId: consultant.id,
               algorithm: 'auto-assign-v1',
+              isCrisis,
             },
           },
         });
@@ -291,7 +329,7 @@ export class AssignmentService {
 
       if (message === 'CAPACITY_EXCEEDED') {
         this.logger.debug(
-          `Consultant ${consultant.userId} at capacity, trying next candidate`,
+          `Consultant ${consultant.userId} at capacity${isCrisis ? ' (crisis limit)' : ''}, trying next candidate`,
         );
         return false;
       }
@@ -365,7 +403,8 @@ export class AssignmentService {
   /**
    * Manually assign a consultant to an unassigned case.
    * Returns warnings (not errors) when the consultant is unavailable
-   * or over capacity.
+   * or over total capacity.
+   * Crisis limit is a HARD limit — throws BadRequestException if exceeded.
    */
   async manualAssign(
     caseId: string,
@@ -374,7 +413,13 @@ export class AssignmentService {
   ): Promise<ManualAssignResult> {
     const careCase = await this.prisma.careCase.findUnique({
       where: { id: caseId },
-      select: { id: true, status: true, consultantId: true, version: true },
+      select: {
+        id: true,
+        status: true,
+        consultantId: true,
+        version: true,
+        crisisLevel: true,
+      },
     });
 
     if (!careCase) {
@@ -397,6 +442,15 @@ export class AssignmentService {
       );
     }
 
+    const isCrisis = this.isCrisisCase(careCase.crisisLevel);
+
+    // Crisis limit is a HARD block — never allow exceeding it
+    if (isCrisis && profile.currentCrisis >= profile.maxCrisisCases) {
+      throw new BadRequestException(
+        `${CRISIS_LIMIT_EXCEEDED_MESSAGE} (${profile.currentCrisis}/${profile.maxCrisisCases})`,
+      );
+    }
+
     // Collect warnings (non-blocking)
     const warnings: string[] = [];
 
@@ -414,12 +468,22 @@ export class AssignmentService {
 
     // Perform assignment in a transaction
     await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`
-        UPDATE consultant_profiles
-        SET current_cases = current_cases + 1,
-            updated_at = NOW()
-        WHERE user_id = ${consultantUserId}::uuid
-      `;
+      if (isCrisis) {
+        await tx.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_cases = current_cases + 1,
+              current_crisis = current_crisis + 1,
+              updated_at = NOW()
+          WHERE user_id = ${consultantUserId}::uuid
+        `;
+      } else {
+        await tx.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_cases = current_cases + 1,
+              updated_at = NOW()
+          WHERE user_id = ${consultantUserId}::uuid
+        `;
+      }
 
       await tx.careCase.update({
         where: { id: caseId, version: careCase.version },
@@ -465,7 +529,8 @@ export class AssignmentService {
 
   /**
    * Reassign a case from one consultant to another.
-   * Decrements old consultant's currentCases, increments new one's.
+   * Decrements old consultant's currentCases (and currentCrisis if crisis),
+   * increments new one's. Crisis limit is a HARD block.
    */
   async reassign(
     caseId: string,
@@ -474,7 +539,13 @@ export class AssignmentService {
   ): Promise<ReassignResult> {
     const careCase = await this.prisma.careCase.findUnique({
       where: { id: caseId },
-      select: { id: true, status: true, consultantId: true, version: true },
+      select: {
+        id: true,
+        status: true,
+        consultantId: true,
+        version: true,
+        crisisLevel: true,
+      },
     });
 
     if (!careCase) {
@@ -499,6 +570,15 @@ export class AssignmentService {
       );
     }
 
+    const isCrisis = this.isCrisisCase(careCase.crisisLevel);
+
+    // Crisis limit is a HARD block — never allow exceeding it
+    if (isCrisis && newProfile.currentCrisis >= newProfile.maxCrisisCases) {
+      throw new BadRequestException(
+        `${CRISIS_LIMIT_EXCEEDED_MESSAGE} (${newProfile.currentCrisis}/${newProfile.maxCrisisCases})`,
+      );
+    }
+
     const warnings: string[] = [];
 
     if (newProfile.status !== ConsultantStatus.AVAILABLE && newProfile.status !== ConsultantStatus.BUSY) {
@@ -516,21 +596,41 @@ export class AssignmentService {
     await this.prisma.$transaction(async (tx) => {
       // Decrement old consultant
       if (previousConsultantUserId) {
-        await tx.$executeRaw`
-          UPDATE consultant_profiles
-          SET current_cases = GREATEST(current_cases - 1, 0),
-              updated_at = NOW()
-          WHERE user_id = ${previousConsultantUserId}::uuid
-        `;
+        if (isCrisis) {
+          await tx.$executeRaw`
+            UPDATE consultant_profiles
+            SET current_cases = GREATEST(current_cases - 1, 0),
+                current_crisis = GREATEST(current_crisis - 1, 0),
+                updated_at = NOW()
+            WHERE user_id = ${previousConsultantUserId}::uuid
+          `;
+        } else {
+          await tx.$executeRaw`
+            UPDATE consultant_profiles
+            SET current_cases = GREATEST(current_cases - 1, 0),
+                updated_at = NOW()
+            WHERE user_id = ${previousConsultantUserId}::uuid
+          `;
+        }
       }
 
       // Increment new consultant
-      await tx.$executeRaw`
-        UPDATE consultant_profiles
-        SET current_cases = current_cases + 1,
-            updated_at = NOW()
-        WHERE user_id = ${newConsultantUserId}::uuid
-      `;
+      if (isCrisis) {
+        await tx.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_cases = current_cases + 1,
+              current_crisis = current_crisis + 1,
+              updated_at = NOW()
+          WHERE user_id = ${newConsultantUserId}::uuid
+        `;
+      } else {
+        await tx.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_cases = current_cases + 1,
+              updated_at = NOW()
+          WHERE user_id = ${newConsultantUserId}::uuid
+        `;
+      }
 
       // Update case
       await tx.careCase.update({
@@ -626,12 +726,13 @@ export class AssignmentService {
   }
 
   /**
-   * Handle case completion: free up the consultant slot and process queue.
+   * Handle case completion: free up the consultant slot (and crisis slot
+   * if applicable) and process queue.
    */
   async onCaseCompleted(caseId: string): Promise<void> {
     const careCase = await this.prisma.careCase.findUnique({
       where: { id: caseId },
-      select: { consultantId: true },
+      select: { consultantId: true, crisisLevel: true },
     });
 
     if (!careCase) {
@@ -639,15 +740,27 @@ export class AssignmentService {
     }
 
     if (careCase.consultantId) {
-      await this.prisma.$executeRaw`
-        UPDATE consultant_profiles
-        SET current_cases = GREATEST(current_cases - 1, 0),
-            updated_at = NOW()
-        WHERE user_id = ${careCase.consultantId}::uuid
-      `;
+      const isCrisis = this.isCrisisCase(careCase.crisisLevel);
+
+      if (isCrisis) {
+        await this.prisma.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_cases = GREATEST(current_cases - 1, 0),
+              current_crisis = GREATEST(current_crisis - 1, 0),
+              updated_at = NOW()
+          WHERE user_id = ${careCase.consultantId}::uuid
+        `;
+      } else {
+        await this.prisma.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_cases = GREATEST(current_cases - 1, 0),
+              updated_at = NOW()
+          WHERE user_id = ${careCase.consultantId}::uuid
+        `;
+      }
 
       this.logger.log(
-        `Decremented currentCases for consultant ${careCase.consultantId} after case ${caseId} completed`,
+        `Decremented currentCases${isCrisis ? ' and currentCrisis' : ''} for consultant ${careCase.consultantId} after case ${caseId} completed`,
       );
     }
 
@@ -663,5 +776,17 @@ export class AssignmentService {
       `Consultant ${userId} became available. Processing queue.`,
     );
     await this.processQueue();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Determine whether a case qualifies as a crisis case.
+   * Crisis cases are those with crisisLevel HIGH or CRITICAL.
+   */
+  private isCrisisCase(crisisLevel: CrisisLevel): boolean {
+    return CRISIS_LEVELS.includes(crisisLevel);
   }
 }

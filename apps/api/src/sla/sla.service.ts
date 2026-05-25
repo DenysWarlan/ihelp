@@ -1,5 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import {
+  BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
@@ -7,6 +8,7 @@ import {
 import { PrismaService } from '@org/prisma-client';
 import { SlaStatus } from '@prisma/client';
 import { Queue } from 'bullmq';
+import { Server } from 'socket.io';
 
 import {
   AUDIT_ACTION_SLA_PAUSED,
@@ -15,9 +17,11 @@ import {
   AUDIT_ACTION_SLA_RESUMED,
   AUDIT_ACTION_SLA_STARTED,
   ESCALATION_LEVELS,
+  SLA_EVENTS,
   SLA_QUEUE,
   slaJobId,
 } from './sla.const.js';
+import { SlaLockService } from './sla-lock.service.js';
 import { SlaEscalationJobData, SlaTimerResponse } from './sla.model.js';
 
 /**
@@ -26,15 +30,30 @@ import { SlaEscalationJobData, SlaTimerResponse } from './sla.model.js';
  * Each timer schedules Bull delayed jobs for every escalation level.
  * When the timer is resolved (consultant responded) or reset
  * (reassignment at 24h), all pending jobs are removed.
+ *
+ * All mutating operations acquire a distributed Redis lock (S-E07-06)
+ * and emit Socket.io events for real-time dashboard updates (S-E07-05).
  */
 @Injectable()
 export class SlaService {
   private readonly logger = new Logger(SlaService.name);
 
+  /** Optional Socket.io server reference — set by ChatGateway at init. */
+  private ioServer: Server | null = null;
+
   constructor(
     private readonly prisma: PrismaService,
     @InjectQueue(SLA_QUEUE) private readonly slaQueue: Queue,
+    private readonly lockService: SlaLockService,
   ) {}
+
+  /**
+   * Called once by the ChatGateway after init to enable real-time SLA events.
+   */
+  setIoServer(server: Server): void {
+    this.ioServer = server;
+    this.logger.log('Socket.io server reference set on SlaService');
+  }
 
   // ---------------------------------------------------------------------------
   // Start timer
@@ -50,34 +69,45 @@ export class SlaService {
     caseId: string,
     startedAt?: Date,
   ): Promise<SlaTimerResponse> {
-    const start = startedAt ?? new Date();
+    const lock = await this.lockService.acquire(caseId);
+    if (!lock.acquired) {
+      throw new BadRequestException(`Could not acquire SLA lock for case ${caseId}`);
+    }
 
-    const timer = await this.prisma.slaTimer.create({
-      data: {
-        careCaseId: caseId,
-        startedAt: start,
-        status: SlaStatus.ACTIVE,
-        currentLevel: 0,
-      },
-    });
+    try {
+      const start = startedAt ?? new Date();
 
-    await this.scheduleEscalationJobs(caseId, start);
+      const timer = await this.prisma.slaTimer.create({
+        data: {
+          careCaseId: caseId,
+          startedAt: start,
+          status: SlaStatus.ACTIVE,
+          currentLevel: 0,
+        },
+      });
 
-    this.logger.log(
-      `SLA timer started for case ${caseId}, startedAt=${start.toISOString()}`,
-    );
+      await this.scheduleEscalationJobs(caseId, start);
 
-    // Audit
-    await this.prisma.caseAuditEntry.create({
-      data: {
-        careCaseId: caseId,
-        actorId: null,
-        action: AUDIT_ACTION_SLA_STARTED,
-        details: { startedAt: start.toISOString() },
-      },
-    });
+      this.logger.log(
+        `SLA timer started for case ${caseId}, startedAt=${start.toISOString()}`,
+      );
 
-    return timer;
+      // Audit
+      await this.prisma.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId: null,
+          action: AUDIT_ACTION_SLA_STARTED,
+          details: { startedAt: start.toISOString() },
+        },
+      });
+
+      this.emitSlaUpdate(caseId, timer);
+
+      return timer;
+    } finally {
+      await this.lockService.release(caseId, lock.lockValue);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -85,30 +115,41 @@ export class SlaService {
   // ---------------------------------------------------------------------------
 
   async resolveTimer(caseId: string): Promise<SlaTimerResponse> {
-    const timer = await this.findActiveTimer(caseId);
+    const lock = await this.lockService.acquire(caseId);
+    if (!lock.acquired) {
+      throw new BadRequestException(`Could not acquire SLA lock for case ${caseId}`);
+    }
 
-    const updated = await this.prisma.slaTimer.update({
-      where: { id: timer.id },
-      data: {
-        status: SlaStatus.RESOLVED,
-        resolvedAt: new Date(),
-      },
-    });
+    try {
+      const timer = await this.findResolvableTimer(caseId);
 
-    await this.removeEscalationJobs(caseId);
+      const updated = await this.prisma.slaTimer.update({
+        where: { id: timer.id },
+        data: {
+          status: SlaStatus.RESOLVED,
+          resolvedAt: new Date(),
+        },
+      });
 
-    this.logger.log(`SLA timer resolved for case ${caseId}`);
+      await this.removeEscalationJobs(caseId);
 
-    await this.prisma.caseAuditEntry.create({
-      data: {
-        careCaseId: caseId,
-        actorId: null,
-        action: AUDIT_ACTION_SLA_RESOLVED,
-        details: { resolvedAt: updated.resolvedAt?.toISOString() ?? null },
-      },
-    });
+      this.logger.log(`SLA timer resolved for case ${caseId}`);
 
-    return updated;
+      await this.prisma.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId: null,
+          action: AUDIT_ACTION_SLA_RESOLVED,
+          details: { resolvedAt: updated.resolvedAt?.toISOString() ?? null },
+        },
+      });
+
+      this.emitSlaUpdate(caseId, updated);
+
+      return updated;
+    } finally {
+      await this.lockService.release(caseId, lock.lockValue);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -116,75 +157,97 @@ export class SlaService {
   // ---------------------------------------------------------------------------
 
   async pauseTimer(caseId: string): Promise<SlaTimerResponse> {
-    const timer = await this.findActiveTimer(caseId);
+    const lock = await this.lockService.acquire(caseId);
+    if (!lock.acquired) {
+      throw new BadRequestException(`Could not acquire SLA lock for case ${caseId}`);
+    }
 
-    const updated = await this.prisma.slaTimer.update({
-      where: { id: timer.id },
-      data: {
-        status: SlaStatus.PAUSED,
-        pausedAt: new Date(),
-      },
-    });
+    try {
+      const timer = await this.findActiveTimer(caseId);
 
-    await this.removeEscalationJobs(caseId);
+      const updated = await this.prisma.slaTimer.update({
+        where: { id: timer.id },
+        data: {
+          status: SlaStatus.PAUSED,
+          pausedAt: new Date(),
+        },
+      });
 
-    this.logger.log(`SLA timer paused for case ${caseId}`);
+      await this.removeEscalationJobs(caseId);
 
-    await this.prisma.caseAuditEntry.create({
-      data: {
-        careCaseId: caseId,
-        actorId: null,
-        action: AUDIT_ACTION_SLA_PAUSED,
-        details: {},
-      },
-    });
+      this.logger.log(`SLA timer paused for case ${caseId}`);
 
-    return updated;
+      await this.prisma.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId: null,
+          action: AUDIT_ACTION_SLA_PAUSED,
+          details: {},
+        },
+      });
+
+      this.emitSlaUpdate(caseId, updated);
+
+      return updated;
+    } finally {
+      await this.lockService.release(caseId, lock.lockValue);
+    }
   }
 
   async resumeTimer(caseId: string): Promise<SlaTimerResponse> {
-    const timer = await this.prisma.slaTimer.findUnique({
-      where: { careCaseId: caseId },
-    });
-
-    if (!timer || timer.status !== SlaStatus.PAUSED) {
-      throw new NotFoundException(
-        `No paused SLA timer found for case ${caseId}`,
-      );
+    const lock = await this.lockService.acquire(caseId);
+    if (!lock.acquired) {
+      throw new BadRequestException(`Could not acquire SLA lock for case ${caseId}`);
     }
 
-    // Calculate elapsed time before pause and adjust start accordingly
-    const now = new Date();
-    if (!timer.pausedAt) {
-      throw new BadRequestException(`Timer for case ${caseId} is PAUSED but has no pausedAt timestamp`);
+    try {
+      const timer = await this.prisma.slaTimer.findUnique({
+        where: { careCaseId: caseId },
+      });
+
+      if (!timer || timer.status !== SlaStatus.PAUSED) {
+        throw new NotFoundException(
+          `No paused SLA timer found for case ${caseId}`,
+        );
+      }
+
+      // Calculate elapsed time before pause and adjust start accordingly
+      const now = new Date();
+      if (!timer.pausedAt) {
+        throw new BadRequestException(`Timer for case ${caseId} is PAUSED but has no pausedAt timestamp`);
+      }
+      const pausedAt = timer.pausedAt;
+      const pauseDuration = now.getTime() - pausedAt.getTime();
+      const adjustedStart = new Date(timer.startedAt.getTime() + pauseDuration);
+
+      const updated = await this.prisma.slaTimer.update({
+        where: { id: timer.id },
+        data: {
+          status: SlaStatus.ACTIVE,
+          startedAt: adjustedStart,
+          pausedAt: null,
+        },
+      });
+
+      await this.scheduleEscalationJobs(caseId, adjustedStart);
+
+      this.logger.log(`SLA timer resumed for case ${caseId}`);
+
+      await this.prisma.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId: null,
+          action: AUDIT_ACTION_SLA_RESUMED,
+          details: { adjustedStart: adjustedStart.toISOString() },
+        },
+      });
+
+      this.emitSlaUpdate(caseId, updated);
+
+      return updated;
+    } finally {
+      await this.lockService.release(caseId, lock.lockValue);
     }
-    const pausedAt = timer.pausedAt;
-    const pauseDuration = now.getTime() - pausedAt.getTime();
-    const adjustedStart = new Date(timer.startedAt.getTime() + pauseDuration);
-
-    const updated = await this.prisma.slaTimer.update({
-      where: { id: timer.id },
-      data: {
-        status: SlaStatus.ACTIVE,
-        startedAt: adjustedStart,
-        pausedAt: null,
-      },
-    });
-
-    await this.scheduleEscalationJobs(caseId, adjustedStart);
-
-    this.logger.log(`SLA timer resumed for case ${caseId}`);
-
-    await this.prisma.caseAuditEntry.create({
-      data: {
-        careCaseId: caseId,
-        actorId: null,
-        action: AUDIT_ACTION_SLA_RESUMED,
-        details: { adjustedStart: adjustedStart.toISOString() },
-      },
-    });
-
-    return updated;
   }
 
   // ---------------------------------------------------------------------------
@@ -192,46 +255,57 @@ export class SlaService {
   // ---------------------------------------------------------------------------
 
   async resetTimer(caseId: string): Promise<SlaTimerResponse> {
-    const timer = await this.prisma.slaTimer.findUnique({
-      where: { careCaseId: caseId },
-    });
-
-    if (!timer) {
-      throw new NotFoundException(
-        `No SLA timer found for case ${caseId}`,
-      );
+    const lock = await this.lockService.acquire(caseId);
+    if (!lock.acquired) {
+      throw new BadRequestException(`Could not acquire SLA lock for case ${caseId}`);
     }
 
-    await this.removeEscalationJobs(caseId);
+    try {
+      const timer = await this.prisma.slaTimer.findUnique({
+        where: { careCaseId: caseId },
+      });
 
-    const now = new Date();
+      if (!timer) {
+        throw new NotFoundException(
+          `No SLA timer found for case ${caseId}`,
+        );
+      }
 
-    const updated = await this.prisma.slaTimer.update({
-      where: { id: timer.id },
-      data: {
-        status: SlaStatus.ACTIVE,
-        startedAt: now,
-        pausedAt: null,
-        resolvedAt: null,
-        currentLevel: 0,
-        lastEscalatedAt: null,
-      },
-    });
+      await this.removeEscalationJobs(caseId);
 
-    await this.scheduleEscalationJobs(caseId, now);
+      const now = new Date();
 
-    this.logger.log(`SLA timer reset for case ${caseId}`);
+      const updated = await this.prisma.slaTimer.update({
+        where: { id: timer.id },
+        data: {
+          status: SlaStatus.ACTIVE,
+          startedAt: now,
+          pausedAt: null,
+          resolvedAt: null,
+          currentLevel: 0,
+          lastEscalatedAt: null,
+        },
+      });
 
-    await this.prisma.caseAuditEntry.create({
-      data: {
-        careCaseId: caseId,
-        actorId: null,
-        action: AUDIT_ACTION_SLA_RESET,
-        details: { resetAt: now.toISOString() },
-      },
-    });
+      await this.scheduleEscalationJobs(caseId, now);
 
-    return updated;
+      this.logger.log(`SLA timer reset for case ${caseId}`);
+
+      await this.prisma.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId: null,
+          action: AUDIT_ACTION_SLA_RESET,
+          details: { resetAt: now.toISOString() },
+        },
+      });
+
+      this.emitSlaUpdate(caseId, updated);
+
+      return updated;
+    } finally {
+      await this.lockService.release(caseId, lock.lockValue);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -264,6 +338,24 @@ export class SlaService {
     if (!timer || timer.status !== SlaStatus.ACTIVE) {
       throw new NotFoundException(
         `No active SLA timer found for case ${caseId}`,
+      );
+    }
+
+    return timer;
+  }
+
+  /**
+   * Find a timer that can be resolved (ACTIVE, PAUSED, or ESCALATED).
+   * Used by resolveTimer — consultant response should resolve regardless of state.
+   */
+  private async findResolvableTimer(caseId: string) {
+    const timer = await this.prisma.slaTimer.findUnique({
+      where: { careCaseId: caseId },
+    });
+
+    if (!timer || timer.status === SlaStatus.RESOLVED) {
+      throw new NotFoundException(
+        `No resolvable SLA timer found for case ${caseId}`,
       );
     }
 
@@ -306,6 +398,24 @@ export class SlaService {
   }
 
   /**
+   * Check whether a case has an active or paused SLA timer.
+   * Used by MessageService to decide whether to start or resume.
+   */
+  async hasActiveOrPausedTimer(caseId: string): Promise<{ exists: boolean; isPaused: boolean }> {
+    const timer = await this.prisma.slaTimer.findUnique({
+      where: { careCaseId: caseId },
+      select: { status: true },
+    });
+
+    if (!timer) return { exists: false, isPaused: false };
+
+    return {
+      exists: timer.status === SlaStatus.ACTIVE || timer.status === SlaStatus.PAUSED || timer.status === SlaStatus.ESCALATED,
+      isPaused: timer.status === SlaStatus.PAUSED,
+    };
+  }
+
+  /**
    * Remove all pending escalation jobs for a case.
    */
   private async removeEscalationJobs(caseId: string): Promise<void> {
@@ -321,6 +431,26 @@ export class SlaService {
           `Could not remove SLA job ${jobId}: ${error}`,
         );
       }
+    }
+  }
+
+  /**
+   * Emit an SLA update event via Socket.io for real-time dashboard (S-E07-05).
+   */
+  private emitSlaUpdate(caseId: string, timer: SlaTimerResponse): void {
+    if (!this.ioServer) return;
+
+    try {
+      this.ioServer.emit(SLA_EVENTS.SLA_UPDATE, {
+        caseId,
+        status: timer.status,
+        currentLevel: timer.currentLevel,
+        startedAt: timer.startedAt,
+        pausedAt: timer.pausedAt,
+        resolvedAt: timer.resolvedAt,
+      });
+    } catch (error) {
+      this.logger.warn(`Failed to emit SLA update: ${error}`);
     }
   }
 }
