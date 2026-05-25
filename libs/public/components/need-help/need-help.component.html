@@ -94,12 +94,17 @@
             <input
               type="text"
               class="need-help__input"
+              [class.need-help__input--error]="emailInvalid()"
               [placeholder]="t('needHelp.contactPlaceholder_' + contactMethod())"
               [ngModel]="contactValue()"
               (ngModelChange)="contactValue.set($event)"
+              (blur)="onContactBlur()"
               name="contact"
               required
             />
+            @if (emailInvalid()) {
+              <span class="need-help__field-error">{{ t('needHelp.emailInvalid') }}</span>
+            }
           </div>
 
           <!-- Topic -->
@@ -153,16 +158,33 @@
               <input
                 type="checkbox"
                 class="need-help__checkbox"
-                [ngModel]="consentProcessing()"
-                (ngModelChange)="consentProcessing.set($event)"
-                name="consentProcessing"
+                [ngModel]="consentSensitive()"
+                (ngModelChange)="consentSensitive.set($event)"
+                name="consentSensitive"
               />
               <span>{{ t('needHelp.consentProcessing') }}</span>
             </label>
           </div>
 
-          <button type="submit" class="need-help__submit">
-            {{ t('needHelp.submit') }}
+          @if (error()) {
+            <div class="need-help__error" role="alert">
+              <ui-icon name="AlertCircle" [size]="16" color="var(--ihelp-error, #dc2626)" />
+              <span>{{ t(error()!) }}</span>
+            </div>
+          }
+
+          <button
+            type="submit"
+            class="need-help__submit"
+            [class.need-help__submit--loading]="loading()"
+            [disabled]="!canSubmit()"
+          >
+            @if (loading()) {
+              <span class="need-help__spinner"></span>
+              {{ t('needHelp.submitting') }}
+            } @else {
+              {{ t('needHelp.submit') }}
+            }
           </button>
         </form>
       </div>

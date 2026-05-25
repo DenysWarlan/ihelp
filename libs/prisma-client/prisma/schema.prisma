@@ -44,6 +44,11 @@ model User {
   providerLinks ProviderLink[]
   invitesSent   Invite[]       @relation("inviter")
 
+  // Cases relations
+  careCasesAsPerson     CareCase[] @relation("CasePerson")
+  careCasesAsConsultant CareCase[] @relation("CaseConsultant")
+  caseNotes             CaseNote[] @relation("NoteAuthor")
+
   @@index([role])
   @@map("users")
 }
@@ -114,6 +119,47 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// ============================================================
+// CARE CASES — Enums
+// ============================================================
+
+enum CaseStatus {
+  NEW
+  ASSIGNED
+  IN_PROGRESS
+  MEETING_SCHEDULED
+  ON_HOLD
+  TRANSFERRED
+  COMPLETED
+  CLOSED
+}
+
+enum CasePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRISIS
+}
+
+enum CrisisLevel {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum CaseSource {
+  WEBSITE_FORM
+  COURSE
+  TELEGRAM
+  INSTAGRAM
+  FACEBOOK
+  VIBER
+  REFERRAL
+  MANUAL
+}
+
 enum CourseStatus {
   DRAFT
   PUBLISHED
@@ -132,7 +178,8 @@ model Course {
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  lessons Lesson[]
+  lessons   Lesson[]
+  careCases CareCase[]
 
   @@index([status])
   @@map("courses")
@@ -152,4 +199,89 @@ model Lesson {
 
   @@index([courseId])
   @@map("lessons")
+}
+
+// ============================================================
+// CARE CASES
+// ============================================================
+
+model CareCase {
+  id              String       @id @default(uuid()) @db.Uuid
+  personId        String       @map("person_id") @db.Uuid
+  consultantId    String?      @map("consultant_id") @db.Uuid
+  status          CaseStatus   @default(NEW)
+  priority        CasePriority @default(MEDIUM)
+  crisisLevel     CrisisLevel  @default(NONE)
+  source          CaseSource   @default(WEBSITE_FORM)
+  topic           String
+  description     String?
+  name            String?      // Person's name from intake form
+  country         String?
+  language        String?
+  contactMethod   String?      @map("contact_method")
+  contactValue    String?      @map("contact_value")
+  sourceCourseId  String?      @map("source_course_id") @db.Uuid
+  sourceLessonId  String?      @map("source_lesson_id") @db.Uuid
+  firstResponseAt DateTime?    @map("first_response_at")
+  resolvedAt      DateTime?    @map("resolved_at")
+  closedAt        DateTime?    @map("closed_at")
+  version         Int          @default(1)
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  person       User     @relation("CasePerson", fields: [personId], references: [id], onDelete: Restrict)
+  consultant   User?    @relation("CaseConsultant", fields: [consultantId], references: [id])
+  sourceCourse Course?  @relation(fields: [sourceCourseId], references: [id], onDelete: SetNull)
+  notes        CaseNote[]
+  auditEntries CaseAuditEntry[]
+
+  @@index([status])
+  @@index([consultantId])
+  @@index([personId])
+  @@index([priority])
+  @@index([crisisLevel])
+  @@index([createdAt])
+  @@index([status, consultantId])
+  @@map("care_cases")
+}
+
+// ============================================================
+// CASE NOTES (приватні нотатки консультанта)
+// ============================================================
+
+model CaseNote {
+  id               String   @id @default(uuid()) @db.Uuid
+  careCaseId       String   @map("care_case_id") @db.Uuid
+  authorId         String   @map("author_id") @db.Uuid
+  content          String
+  isSupervisorNote Boolean  @default(false) @map("is_supervisor_note")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+  author   User     @relation("NoteAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([careCaseId, createdAt])
+  @@index([authorId])
+  @@map("case_notes")
+}
+
+// ============================================================
+// CASE AUDIT LOG (append-only)
+// ============================================================
+
+model CaseAuditEntry {
+  id         String   @id @default(uuid()) @db.Uuid
+  careCaseId String   @map("care_case_id") @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  action     String
+  details    Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+
+  @@index([careCaseId, createdAt])
+  @@index([actorId])
+  @@index([action])
+  @@map("case_audit_entries")
 }
