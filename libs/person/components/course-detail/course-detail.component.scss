@@ -1,0 +1,123 @@
+:host {
+  display: block;
+}
+
+.course-detail-page {
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ihelp-space-2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--ihelp-text-sm);
+    font-weight: var(--ihelp-font-medium);
+    color: var(--ihelp-accent);
+    padding: 0;
+    margin-bottom: var(--ihelp-space-6);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__loading {
+    color: var(--ihelp-text-muted);
+    font-size: var(--ihelp-text-sm);
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-3);
+    margin-bottom: var(--ihelp-space-8);
+  }
+
+  &__title {
+    font-family: var(--ihelp-font-heading);
+    font-size: var(--ihelp-text-2xl);
+    font-weight: var(--ihelp-font-bold);
+    color: var(--ihelp-text-primary);
+  }
+
+  &__desc {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-text-muted);
+    line-height: 1.5;
+  }
+
+  &__progress {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-2);
+    max-width: 400px;
+  }
+
+  &__progress-label {
+    font-size: var(--ihelp-text-sm);
+    font-weight: var(--ihelp-font-medium);
+    color: var(--ihelp-text-secondary);
+  }
+
+  &__section-title {
+    font-size: var(--ihelp-text-lg);
+    font-weight: var(--ihelp-font-semibold);
+    color: var(--ihelp-text-primary);
+    margin-bottom: var(--ihelp-space-4);
+  }
+
+  &__lessons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-3);
+  }
+}
+
+.lesson-card {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-4);
+
+  &__order {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--ihelp-bg-secondary);
+    color: var(--ihelp-text-secondary);
+    font-size: var(--ihelp-text-sm);
+    font-weight: var(--ihelp-font-semibold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: var(--ihelp-text-base);
+    font-weight: var(--ihelp-font-medium);
+    color: var(--ihelp-text-primary);
+  }
+
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-2);
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .lesson-card {
+    flex-wrap: wrap;
+
+    &__status {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}

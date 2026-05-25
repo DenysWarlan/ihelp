@@ -1,0 +1,54 @@
+<ng-container *transloco="let t">
+  <div class="course-detail-page">
+    <button class="course-detail-page__back" (click)="onBack()">
+      <ui-icon name="ArrowLeft" [size]="16" color="var(--ihelp-accent)" />
+      <span>{{ t('courseDetail.back') }}</span>
+    </button>
+
+    @if (facade.isLoading()) {
+      <p class="course-detail-page__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.selectedCourse(); as course) {
+      <div class="course-detail-page__header">
+        <h1 class="course-detail-page__title">{{ course.title }}</h1>
+        <p class="course-detail-page__desc">{{ course.description }}</p>
+        <div class="course-detail-page__progress">
+          <span class="course-detail-page__progress-label">
+            {{ course.progress }}% {{ t('courseDetail.completed') }}
+          </span>
+          <ui-progress-bar [value]="course.progress" variant="success" [showLabel]="false" />
+        </div>
+      </div>
+
+      <h2 class="course-detail-page__section-title">{{ t('courseDetail.lessons') }}</h2>
+
+      <div class="course-detail-page__lessons">
+        @for (lesson of course.lessons; track lesson.id) {
+          <ui-card>
+            <div class="lesson-card">
+              <div class="lesson-card__order">{{ lesson.orderIndex }}</div>
+              <div class="lesson-card__info">
+                <h3 class="lesson-card__title">{{ lesson.title }}</h3>
+              </div>
+              <div class="lesson-card__status">
+                @if (lesson.isCompleted) {
+                  <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
+                  <ui-badge variant="success" size="sm">
+                    {{ t('courseDetail.completed') }}
+                  </ui-badge>
+                } @else {
+                  <ui-button
+                    variant="secondary"
+                    size="sm"
+                    (click)="onCompleteLesson(lesson.id)"
+                  >
+                    {{ t('courseDetail.markComplete') }}
+                  </ui-button>
+                }
+              </div>
+            </div>
+          </ui-card>
+        }
+      </div>
+    }
+  </div>
+</ng-container>

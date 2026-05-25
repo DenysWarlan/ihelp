@@ -1,0 +1,48 @@
+<ng-container *transloco="let t">
+  <section class="crisis">
+    <h1 class="crisis__title">{{ t('coordinator.crisisTitle') }}</h1>
+
+    @if (isLoading()) {
+      <p class="crisis__loading">{{ t('common.loading') }}</p>
+    }
+
+    @if (hasUnacknowledged()) {
+      <ui-alert-banner variant="crisis">
+        {{ t('coordinator.crisisUnacknowledged') }}
+      </ui-alert-banner>
+    }
+
+    <div class="crisis__list">
+      @for (alert of crisisAlerts(); track alert.id) {
+        <ui-card padding="md" [hoverable]="true">
+          <div class="crisis-card" [class.crisis-card--acknowledged]="alert.isAcknowledged">
+            <div class="crisis-card__header">
+              <ui-icon name="AlertTriangle" [size]="20" color="var(--ihelp-error)" />
+              <span class="crisis-card__person">{{ alert.personName }}</span>
+              <ui-badge [variant]="getSeverityVariant(alert.severity)" size="sm">
+                {{ alert.severity }}
+              </ui-badge>
+            </div>
+            <div class="crisis-card__body">
+              <span class="crisis-card__keyword">{{ t('coordinator.crisisKeyword') }}: {{ alert.keyword }}</span>
+              <span class="crisis-card__time">{{ alert.detectedAt }}</span>
+            </div>
+            <div class="crisis-card__footer">
+              @if (!alert.isAcknowledged) {
+                <ui-button variant="primary" size="sm" (click)="onAcknowledge(alert.id)">
+                  {{ t('coordinator.crisisAcknowledge') }}
+                </ui-button>
+              } @else {
+                <ui-badge variant="success" size="sm">
+                  {{ t('coordinator.crisisAcknowledged') }}
+                </ui-badge>
+              }
+            </div>
+          </div>
+        </ui-card>
+      } @empty {
+        <p class="crisis__empty">{{ t('coordinator.crisisEmpty') }}</p>
+      }
+    </div>
+  </section>
+</ng-container>

@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.gdpr-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+}
+
+.gdpr-page__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.gdpr-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+  padding: var(--ihelp-space-6) 0;
+  text-align: center;
+}
+
+.gdpr-placeholder__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--ihelp-bg-secondary);
+  color: var(--ihelp-brand);
+}
+
+.gdpr-placeholder__heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.gdpr-placeholder__text {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+  margin: 0;
+  max-width: 400px;
+}

@@ -1,0 +1,41 @@
+<ng-container *transloco="let t">
+  <section class="audit-page">
+    <h1 class="audit-page__title">{{ t('admin.auditLog') }}</h1>
+
+    @if (facade.isLoading()) {
+      <p class="audit-page__loading">{{ t('common.loading') }}</p>
+    }
+
+    @if (facade.error(); as errorMsg) {
+      <p class="audit-page__error">{{ errorMsg }}</p>
+    }
+
+    <div class="audit-page__list">
+      @for (entry of facade.auditLog(); track entry.id) {
+        <ui-card padding="md">
+          <div class="audit-entry">
+            <div class="audit-entry__header">
+              <ui-badge variant="info" size="sm">{{ entry.action }}</ui-badge>
+              <span class="audit-entry__time">{{ entry.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="audit-entry__body">
+              <span class="audit-entry__actor">{{ entry.actorName }}</span>
+              <span class="audit-entry__entity">{{ entry.entityType }}
+                @if (entry.entityId) {
+                  <span class="audit-entry__entity-id">#{{ entry.entityId }}</span>
+                }
+              </span>
+            </div>
+            @if (entry.details) {
+              <p class="audit-entry__details">{{ entry.details }}</p>
+            }
+          </div>
+        </ui-card>
+      } @empty {
+        @if (!facade.isLoading()) {
+          <p class="audit-page__empty">{{ t('admin.noAuditEntries') }}</p>
+        }
+      }
+    </div>
+  </section>
+</ng-container>

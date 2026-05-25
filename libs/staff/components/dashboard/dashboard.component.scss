@@ -2,20 +2,50 @@
   display: block;
 }
 
-.page-stub {
+.dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--ihelp-space-3);
+  gap: var(--ihelp-space-4);
 }
 
-.page-stub__title {
+.dashboard__title {
   font-family: var(--ihelp-font-heading);
   font-size: 28px;
   font-weight: 700;
   color: var(--ihelp-text-primary);
 }
 
-.page-stub__placeholder {
+.dashboard__loading {
   font-size: 14px;
+  color: var(--ihelp-text-muted);
+}
+
+.dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--ihelp-space-3);
+}
+
+.stat-card__content {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+}
+
+.stat-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  line-height: 1;
+}
+
+.stat-card__label {
+  font-size: 13px;
   color: var(--ihelp-text-muted);
 }

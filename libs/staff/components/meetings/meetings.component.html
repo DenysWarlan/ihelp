@@ -1,0 +1,45 @@
+<ng-container *transloco="let t">
+  <section class="meetings">
+    <h1 class="meetings__title">{{ t('staff.meetings') }}</h1>
+
+    @if (isLoading()) {
+      <p class="meetings__loading">{{ t('common.loading') }}</p>
+    } @else if (meetings().length === 0) {
+      <p class="meetings__empty">{{ t('staffMeetings.empty') }}</p>
+    } @else {
+      <div class="meetings__grid">
+        @for (meeting of meetings(); track meeting.id) {
+          <ui-card class="meeting-card" padding="md">
+            <div class="meeting-card__header">
+              <span class="meeting-card__title">{{ meeting.title }}</span>
+              <ui-badge [variant]="getMeetingStatusVariant(meeting.status)" size="sm">
+                {{ t('staffMeetings.status.' + meeting.status) }}
+              </ui-badge>
+            </div>
+            <div class="meeting-card__details">
+              <span class="meeting-card__person">{{ meeting.personName }}</span>
+              <span class="meeting-card__time">
+                {{ meeting.scheduledAt | date:'medium' }}
+              </span>
+              <span class="meeting-card__duration">
+                {{ meeting.durationMinutes }} {{ t('staffMeetings.minutes') }}
+              </span>
+            </div>
+            @if (meeting.meetingUrl && meeting.status !== 'COMPLETED' && meeting.status !== 'CANCELLED') {
+              <div class="meeting-card__actions">
+                <a
+                  class="meeting-card__join"
+                  [href]="meeting.meetingUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ t('staffMeetings.join') }}
+                </a>
+              </div>
+            }
+          </ui-card>
+        }
+      </div>
+    }
+  </section>
+</ng-container>

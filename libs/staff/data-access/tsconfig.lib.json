@@ -17,9 +17,6 @@
   ],
   "references": [
     {
-      "path": "../components/tsconfig.lib.json"
-    },
-    {
       "path": "../../shared/ui/tsconfig.lib.json"
     }
   ]

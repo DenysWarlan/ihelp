@@ -14,10 +14,10 @@
   ],
   "references": [
     {
-      "path": "../../libs/staff/data-access/tsconfig.lib.json"
+      "path": "../../libs/staff/components/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/person/data-access/tsconfig.lib.json"
+      "path": "../../libs/person/components/tsconfig.lib.json"
     },
     {
       "path": "../../libs/public/components/tsconfig.lib.json"

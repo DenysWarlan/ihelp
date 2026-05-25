@@ -1,6 +1,36 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('person.courses') }}</h1>
-    <p class="page-stub__placeholder">{{ t('person.coursesPlaceholder') }}</p>
-  </section>
+  <div class="courses-page">
+    <h1 class="courses-page__title">{{ t('courses.title') }}</h1>
+
+    @if (facade.isLoading()) {
+      <p class="courses-page__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.courses().length === 0) {
+      <div class="courses-page__empty">
+        <ui-icon name="BookOpen" [size]="48" color="var(--ihelp-text-muted)" />
+        <p>{{ t('courses.empty') }}</p>
+      </div>
+    } @else {
+      <div class="courses-page__grid">
+        @for (course of facade.courses(); track course.id) {
+          <ui-card [hoverable]="true" (click)="facade.navigateToCourse(course.id)">
+            <div class="course-card__content">
+              <div class="course-card__header">
+                <h3 class="course-card__title">{{ course.title }}</h3>
+                <ui-badge [variant]="getStatusVariant(course.status)">
+                  {{ t('courses.status.' + course.status) }}
+                </ui-badge>
+              </div>
+              <p class="course-card__desc">{{ course.description }}</p>
+              <div class="course-card__progress">
+                <span class="course-card__lessons">
+                  {{ course.completedLessons }}/{{ course.totalLessons }} {{ t('courses.lessons') }}
+                </span>
+                <ui-progress-bar [value]="course.progress" variant="success" />
+              </div>
+            </div>
+          </ui-card>
+        }
+      </div>
+    }
+  </div>
 </ng-container>

@@ -1,6 +1,51 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('staff.dashboard') }}</h1>
-    <p class="page-stub__placeholder">{{ t('staff.dashboardPlaceholder') }}</p>
+  <section class="dashboard">
+    <h1 class="dashboard__title">{{ t('staff.dashboard') }}</h1>
+
+    @if (isLoading()) {
+      <p class="dashboard__loading">{{ t('common.loading') }}</p>
+    } @else if (dashboard(); as d) {
+      <div class="dashboard__stats">
+        <ui-card class="stat-card" padding="md">
+          <div class="stat-card__content">
+            <ui-icon name="Briefcase" [size]="32" color="var(--ihelp-accent)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ d.activeCases }}</span>
+              <span class="stat-card__label">{{ t('staffDashboard.activeCases') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card class="stat-card" padding="md">
+          <div class="stat-card__content">
+            <ui-icon name="Clock" [size]="32" color="var(--ihelp-warning)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ d.pendingCases }}</span>
+              <span class="stat-card__label">{{ t('staffDashboard.pendingCases') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card class="stat-card" padding="md">
+          <div class="stat-card__content">
+            <ui-icon name="Calendar" [size]="32" color="var(--ihelp-info)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ d.todayMeetings }}</span>
+              <span class="stat-card__label">{{ t('staffDashboard.todayMeetings') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card class="stat-card" padding="md">
+          <div class="stat-card__content">
+            <ui-icon name="CheckCircle" [size]="32" color="var(--ihelp-success)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ d.resolvedThisWeek }}</span>
+              <span class="stat-card__label">{{ t('staffDashboard.resolvedThisWeek') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </div>
+    }
   </section>
 </ng-container>

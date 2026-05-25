@@ -38,7 +38,10 @@ export class AuthCallbackComponent {
         // ignore decode errors
       }
 
-      this.router.navigate(['/person']);
+      const role = win.localStorage.getItem('ihelp_user_role');
+      const staffRoles = ['consultant', 'supervisor', 'coordinator', 'admin'];
+      const redirectPath = role && staffRoles.includes(role) ? '/staff' : '/person';
+      this.router.navigate([redirectPath]);
     } else {
       this.router.navigate(['/login']);
     }

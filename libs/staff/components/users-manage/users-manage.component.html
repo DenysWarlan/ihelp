@@ -1,0 +1,161 @@
+<ng-container *transloco="let t">
+  <section class="users-page">
+    <div class="users-page__header">
+      <h1 class="users-page__title">{{ t('admin.users') }}</h1>
+      <div class="users-page__actions">
+        <ui-button variant="secondary" (click)="onCreateInvite()">
+          {{ t('admin.createInvite') }}
+        </ui-button>
+        <ui-button variant="primary" (click)="onCreateUser()">
+          {{ t('admin.createUser') }}
+        </ui-button>
+      </div>
+    </div>
+
+    @if (facade.isLoading()) {
+      <p class="users-page__loading">{{ t('common.loading') }}</p>
+    }
+
+    @if (facade.error(); as errorMsg) {
+      <p class="users-page__error">{{ errorMsg }}</p>
+    }
+
+    <div class="users-page__section">
+      <h2 class="users-page__subtitle">{{ t('admin.usersList') }}</h2>
+      <div class="users-page__grid">
+        @for (user of facade.users(); track user.id) {
+          <ui-card padding="md">
+            <div class="user-card">
+              <div class="user-card__header">
+                <span class="user-card__name">{{ user.name }}</span>
+                <ui-badge [variant]="facade.getStatusBadgeVariant(user.isActive)" size="sm">
+                  {{ user.isActive ? t('admin.active') : t('admin.inactive') }}
+                </ui-badge>
+              </div>
+              <p class="user-card__email">{{ user.email }}</p>
+              <div class="user-card__meta">
+                <ui-badge [variant]="facade.getRoleBadgeVariant(user.role)" size="sm">
+                  {{ user.role }}
+                </ui-badge>
+                <span class="user-card__date">{{ user.createdAt | date:'shortDate' }}</span>
+              </div>
+            </div>
+          </ui-card>
+        } @empty {
+          @if (!facade.isLoading()) {
+            <p class="users-page__empty">{{ t('admin.noUsers') }}</p>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="users-page__section">
+      <h2 class="users-page__subtitle">{{ t('admin.invitesList') }}</h2>
+      <div class="users-page__grid">
+        @for (invite of facade.invites(); track invite.id) {
+          <ui-card padding="md">
+            <div class="user-card">
+              <div class="user-card__header">
+                <span class="user-card__name">{{ invite.email }}</span>
+                <ui-badge [variant]="facade.getInviteStatusBadgeVariant(invite.status)" size="sm">
+                  {{ invite.status }}
+                </ui-badge>
+              </div>
+              <div class="user-card__meta">
+                <ui-badge [variant]="facade.getRoleBadgeVariant(invite.role)" size="sm">
+                  {{ invite.role }}
+                </ui-badge>
+                <span class="user-card__date">{{ t('admin.invitedBy') }} {{ invite.inviterName }}</span>
+              </div>
+            </div>
+          </ui-card>
+        } @empty {
+          @if (!facade.isLoading()) {
+            <p class="users-page__empty">{{ t('admin.noInvites') }}</p>
+          }
+        }
+      </div>
+    </div>
+  </section>
+
+  <ui-modal
+    [isOpen]="facade.showCreateUserModal()"
+    [title]="t('admin.createUser')"
+    (closed)="onCloseCreateUser()"
+  >
+    <form class="modal-form" (submit)="onSubmitCreateUser()">
+      <ui-input
+        [label]="t('admin.nameLabel')"
+        [placeholder]="t('admin.namePlaceholder')"
+        [ngModel]="facade.createUserModel().name"
+        (ngModelChange)="onUserFieldChange('name', $event)"
+        name="name"
+      />
+      <ui-input
+        [label]="t('admin.emailLabel')"
+        [placeholder]="t('admin.emailPlaceholder')"
+        type="email"
+        [ngModel]="facade.createUserModel().email"
+        (ngModelChange)="onUserFieldChange('email', $event)"
+        name="email"
+      />
+      <ui-select
+        [label]="t('admin.roleLabel')"
+        [placeholder]="t('admin.rolePlaceholder')"
+        [options]="facade.roleOptions"
+        [ngModel]="facade.createUserModel().role"
+        (ngModelChange)="onUserFieldChange('role', $event)"
+        name="role"
+      />
+      <ui-input
+        [label]="t('admin.passwordLabel')"
+        [placeholder]="t('admin.passwordPlaceholder')"
+        type="password"
+        [ngModel]="facade.createUserModel().password"
+        (ngModelChange)="onUserFieldChange('password', $event)"
+        name="password"
+      />
+      <div modal-footer>
+        <ui-button variant="secondary" (click)="onCloseCreateUser()">
+          {{ t('admin.cancel') }}
+        </ui-button>
+        <ui-button variant="primary" type="submit" [loading]="facade.isLoading()">
+          {{ t('admin.create') }}
+        </ui-button>
+      </div>
+    </form>
+  </ui-modal>
+
+  <ui-modal
+    [isOpen]="facade.showCreateInviteModal()"
+    [title]="t('admin.createInvite')"
+    (closed)="onCloseCreateInvite()"
+  >
+    <form class="modal-form" (submit)="onSubmitCreateInvite()">
+      <ui-input
+        [label]="t('admin.emailLabel')"
+        [placeholder]="t('admin.emailPlaceholder')"
+        type="email"
+        [ngModel]="facade.createInviteModel().email"
+        (ngModelChange)="onInviteFieldChange('email', $event)"
+        name="inviteEmail"
+      />
+      <ui-select
+        [label]="t('admin.roleLabel')"
+        [placeholder]="t('admin.rolePlaceholder')"
+        [options]="facade.roleOptions"
+        [ngModel]="facade.createInviteModel().role"
+        (ngModelChange)="onInviteFieldChange('role', $event)"
+        name="inviteRole"
+      />
+      <div modal-footer>
+        <ui-button variant="secondary" (click)="onCloseCreateInvite()">
+          {{ t('admin.cancel') }}
+        </ui-button>
+        <ui-button variant="primary" type="submit" [loading]="facade.isLoading()">
+          {{ t('admin.sendInvite') }}
+        </ui-button>
+      </div>
+    </form>
+  </ui-modal>
+</ng-container>

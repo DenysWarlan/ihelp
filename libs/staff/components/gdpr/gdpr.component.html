@@ -1,0 +1,14 @@
+<ng-container *transloco="let t">
+  <section class="gdpr-page">
+    <h1 class="gdpr-page__title">{{ t('admin.gdpr') }}</h1>
+    <ui-card padding="md">
+      <div class="gdpr-placeholder">
+        <div class="gdpr-placeholder__icon">
+          <ui-icon name="Shield" [size]="32" />
+        </div>
+        <h3 class="gdpr-placeholder__heading">{{ t('admin.gdprDataRequests') }}</h3>
+        <p class="gdpr-placeholder__text">{{ t('admin.gdprPlaceholder') }}</p>
+      </div>
+    </ui-card>
+  </section>
+</ng-container>

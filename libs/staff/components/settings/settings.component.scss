@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+}
+
+.settings-page__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.settings-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--ihelp-space-3);
+}
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.settings-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ihelp-radius-md);
+  background-color: var(--ihelp-bg-secondary);
+  color: var(--ihelp-brand);
+}
+
+.settings-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.settings-card__desc {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+  margin: 0;
+}

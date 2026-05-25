@@ -1,0 +1,18 @@
+<ng-container *transloco="let t">
+  <section class="settings-page">
+    <h1 class="settings-page__title">{{ t('admin.settings') }}</h1>
+    <div class="settings-page__grid">
+      @for (cat of categories; track cat.key) {
+        <ui-card padding="md" [hoverable]="true">
+          <div class="settings-card">
+            <div class="settings-card__icon">
+              <ui-icon [name]="cat.icon" [size]="24" />
+            </div>
+            <h3 class="settings-card__title">{{ t('admin.settingsCategory_' + cat.key) }}</h3>
+            <p class="settings-card__desc">{{ t('admin.settingsDesc_' + cat.key) }}</p>
+          </div>
+        </ui-card>
+      }
+    </div>
+  </section>
+</ng-container>

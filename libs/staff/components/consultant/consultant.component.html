@@ -1,6 +1,17 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('staff.consultant') }}</h1>
-    <p class="page-stub__placeholder">{{ t('staff.consultantPlaceholder') }}</p>
+  <section class="consultant-dashboard">
+    <h1 class="consultant-dashboard__title">{{ t('staff.consultant') }}</h1>
+
+    <a routerLink="../cases" class="consultant-dashboard__link">
+      <ui-card padding="md" [hoverable]="true">
+        <div class="nav-card">
+          <ui-icon name="FolderOpen" [size]="28" color="var(--ihelp-accent)" />
+          <div class="nav-card__content">
+            <span class="nav-card__label">{{ t('staff.cases') }}</span>
+            <span class="nav-card__desc">{{ t('coordinator.consultantCasesDesc') }}</span>
+          </div>
+        </div>
+      </ui-card>
+    </a>
   </section>
 </ng-container>

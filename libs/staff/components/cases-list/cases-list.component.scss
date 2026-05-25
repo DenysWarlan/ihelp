@@ -1,0 +1,68 @@
+:host {
+  display: block;
+}
+
+.cases-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+}
+
+.cases-list__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+}
+
+.cases-list__loading,
+.cases-list__empty {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+}
+
+.cases-list__grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.case-card {
+  cursor: pointer;
+}
+
+.case-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ihelp-space-2);
+  margin-bottom: var(--ihelp-space-2);
+}
+
+.case-card__person {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+}
+
+.case-card__badges {
+  display: flex;
+  gap: var(--ihelp-space-1);
+  flex-shrink: 0;
+}
+
+.case-card__topic {
+  font-size: 14px;
+  color: var(--ihelp-text-secondary);
+  margin: 0 0 var(--ihelp-space-2);
+}
+
+.case-card__meta {
+  display: flex;
+  gap: var(--ihelp-space-3);
+}
+
+.case-card__date {
+  font-size: 12px;
+  color: var(--ihelp-text-muted);
+}

@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@org/prisma-client';
+import * as bcrypt from 'bcrypt';
+import { authenticator } from 'otplib';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -228,6 +230,50 @@ export class AuthService {
         data: { isRevoked: true },
       });
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Staff Email/Password Login
+  // ---------------------------------------------------------------------------
+
+  async staffLogin(
+    email: string,
+    password: string,
+    mfaCode?: string,
+  ): Promise<TokenPair | { mfaRequired: true }> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user || !user.passwordHash || !user.isActive) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Only staff roles can use password login
+    const staffRoles = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'];
+    if (!staffRoles.includes(user.role)) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Check MFA
+    if (user.mfaEnabled) {
+      if (!mfaCode) {
+        return { mfaRequired: true };
+      }
+      const isValidMfa = authenticator.verify({
+        token: mfaCode,
+        secret: user.mfaSecret!,
+      });
+      if (!isValidMfa) {
+        throw new UnauthorizedException('Invalid MFA code');
+      }
+    }
+
+    this.logger.log(`Staff user ${user.id} authenticated via password`);
+    return this.createTokenPair(user.id, user.email, user.role);
   }
 
   // ---------------------------------------------------------------------------

@@ -1,0 +1,44 @@
+<ng-container *transloco="let t">
+  <div class="meetings-page">
+    <h1 class="meetings-page__title">{{ t('personMeetings.title') }}</h1>
+
+    @if (facade.isLoading()) {
+      <p class="meetings-page__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.meetings().length === 0) {
+      <div class="meetings-page__empty">
+        <ui-icon name="Calendar" [size]="48" color="var(--ihelp-text-muted)" />
+        <p>{{ t('personMeetings.empty') }}</p>
+      </div>
+    } @else {
+      <div class="meetings-page__list">
+        @for (meeting of facade.meetings(); track meeting.id) {
+          <ui-card>
+            <div class="meeting-card">
+              <div class="meeting-card__info">
+                <h3 class="meeting-card__title">{{ meeting.title }}</h3>
+                <div class="meeting-card__meta">
+                  <ui-icon name="User" [size]="14" color="var(--ihelp-text-muted)" />
+                  <span>{{ meeting.consultantName }}</span>
+                </div>
+                <div class="meeting-card__meta">
+                  <ui-icon name="Clock" [size]="14" color="var(--ihelp-text-muted)" />
+                  <span>{{ meeting.scheduledAt }} · {{ meeting.durationMinutes }} {{ t('personMeetings.minutes') }}</span>
+                </div>
+              </div>
+              <div class="meeting-card__actions">
+                <ui-badge [variant]="getStatusVariant(meeting.status)">
+                  {{ t('personMeetings.status.' + meeting.status) }}
+                </ui-badge>
+                @if (meeting.meetingUrl && meeting.status === 'SCHEDULED') {
+                  <a [href]="meeting.meetingUrl" target="_blank" class="meeting-card__join">
+                    {{ t('personMeetings.join') }}
+                  </a>
+                }
+              </div>
+            </div>
+          </ui-card>
+        }
+      </div>
+    }
+  </div>
+</ng-container>

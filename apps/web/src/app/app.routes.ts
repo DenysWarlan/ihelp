@@ -18,7 +18,7 @@ export const appRoutes: Route[] = [
     path: 'person',
     canActivate: [authGuard],
     loadChildren: () =>
-      import('@org/person/data-access').then((m) => m.personRoutes),
+      import('@org/person/components').then((m) => m.personRoutes),
   },
 
   // -------------------------------------------------------------------------
@@ -28,7 +28,7 @@ export const appRoutes: Route[] = [
     path: 'staff',
     canActivate: [authGuard],
     loadChildren: () =>
-      import('@org/staff/data-access').then((m) => m.staffRoutes),
+      import('@org/staff/components').then((m) => m.staffRoutes),
   },
 
   // -------------------------------------------------------------------------

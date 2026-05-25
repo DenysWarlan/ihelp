@@ -1,6 +1,69 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('person.cabinet') }}</h1>
-    <p class="page-stub__placeholder">{{ t('person.cabinetPlaceholder') }}</p>
-  </section>
+  <div class="cabinet">
+    <h1 class="cabinet__title">{{ t('cabinet.title') }}</h1>
+
+    @if (facade.isLoading()) {
+      <p class="cabinet__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.dashboard(); as dash) {
+      <div class="cabinet__stats">
+        <ui-card>
+          <div class="stat-card">
+            <ui-icon name="FolderOpen" [size]="24" color="var(--ihelp-accent)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ dash.activeCases }}</span>
+              <span class="stat-card__label">{{ t('cabinet.activeCases') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card>
+          <div class="stat-card">
+            <ui-icon name="Calendar" [size]="24" color="var(--ihelp-warning)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ dash.upcomingMeetings }}</span>
+              <span class="stat-card__label">{{ t('cabinet.upcomingMeetings') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card>
+          <div class="stat-card">
+            <ui-icon name="BookOpen" [size]="24" color="var(--ihelp-success)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ dash.courseProgress }}%</span>
+              <span class="stat-card__label">{{ t('cabinet.courseProgress') }}</span>
+            </div>
+            <ui-progress-bar [value]="dash.courseProgress" variant="success" />
+          </div>
+        </ui-card>
+
+        <ui-card>
+          <div class="stat-card">
+            <ui-icon name="MessageCircle" [size]="24" color="var(--ihelp-accent)" />
+            <div class="stat-card__info">
+              <span class="stat-card__value">{{ dash.unreadMessages }}</span>
+              <span class="stat-card__label">{{ t('cabinet.unreadMessages') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </div>
+
+      @if (dash.recentActivity.length > 0) {
+        <h2 class="cabinet__section-title">{{ t('cabinet.recentActivity') }}</h2>
+        <div class="cabinet__activity">
+          @for (activity of dash.recentActivity; track activity.id) {
+            <ui-card>
+              <div class="activity-item">
+                <div class="activity-item__content">
+                  <span class="activity-item__title">{{ activity.title }}</span>
+                  <span class="activity-item__desc">{{ activity.description }}</span>
+                </div>
+                <span class="activity-item__time">{{ activity.timestamp }}</span>
+              </div>
+            </ui-card>
+          }
+        </div>
+      }
+    }
+  </div>
 </ng-container>

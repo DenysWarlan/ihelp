@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { IconComponent } from '../../icon/icon.component';
 import { SIDEBAR_NAV_ITEMS } from './sidebar-nav.const';
@@ -16,6 +16,7 @@ import { SidebarNavItem, UserRole } from './sidebar-nav.model';
 })
 export class AuthenticatedLayoutComponent {
   private readonly doc = inject(DOCUMENT);
+  private readonly router = inject(Router);
 
   readonly sidebarOpen = signal(false);
   readonly userRole = signal<UserRole>('person');
@@ -51,5 +52,20 @@ export class AuthenticatedLayoutComponent {
 
   closeSidebar(): void {
     this.sidebarOpen.set(false);
+  }
+
+  isExactRoute(route: string): boolean {
+    return route === '/person' || route === '/staff';
+  }
+
+  logout(): void {
+    const win = this.doc.defaultView;
+    if (win) {
+      win.localStorage.removeItem('ihelp_token');
+      win.localStorage.removeItem('ihelp_refresh_token');
+      win.localStorage.removeItem('ihelp_user_role');
+      win.localStorage.removeItem('ihelp_user_name');
+    }
+    this.router.navigate(['/login']);
   }
 }

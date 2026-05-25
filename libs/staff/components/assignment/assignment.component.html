@@ -1,0 +1,30 @@
+<ng-container *transloco="let t">
+  <section class="assignment">
+    <h1 class="assignment__title">{{ t('coordinator.assignmentTitle') }}</h1>
+
+    @if (isLoading()) {
+      <p class="assignment__loading">{{ t('common.loading') }}</p>
+    }
+
+    <div class="assignment__list">
+      @for (item of assignments(); track item.caseId) {
+        <ui-card padding="md" [hoverable]="true">
+          <div class="assignment-card">
+            <div class="assignment-card__header">
+              <ui-icon name="UserPlus" [size]="20" color="var(--ihelp-accent)" />
+              <span class="assignment-card__person">{{ item.personName }}</span>
+            </div>
+            <div class="assignment-card__topic">{{ item.topic }}</div>
+            <div class="assignment-card__suggestion">
+              <ui-icon name="ArrowRight" [size]="16" color="var(--ihelp-text-muted)" />
+              <span class="assignment-card__consultant">{{ item.suggestedConsultantName }}</span>
+            </div>
+            <div class="assignment-card__reason">{{ item.reason }}</div>
+          </div>
+        </ui-card>
+      } @empty {
+        <p class="assignment__empty">{{ t('coordinator.assignmentEmpty') }}</p>
+      }
+    </div>
+  </section>
+</ng-container>

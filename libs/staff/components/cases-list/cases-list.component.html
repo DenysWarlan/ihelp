@@ -1,0 +1,40 @@
+<ng-container *transloco="let t">
+  <section class="cases-list">
+    <h1 class="cases-list__title">{{ t('staff.cases') }}</h1>
+
+    @if (isLoading()) {
+      <p class="cases-list__loading">{{ t('common.loading') }}</p>
+    } @else if (cases().length === 0) {
+      <p class="cases-list__empty">{{ t('staffCases.empty') }}</p>
+    } @else {
+      <div class="cases-list__grid">
+        @for (caseItem of cases(); track caseItem.id) {
+          <ui-card
+            class="case-card"
+            padding="md"
+            [hoverable]="true"
+            (click)="onCaseClick(caseItem.id)"
+          >
+            <div class="case-card__header">
+              <span class="case-card__person">{{ caseItem.personName }}</span>
+              <div class="case-card__badges">
+                <ui-badge [variant]="getStatusVariant(caseItem.status)" size="sm">
+                  {{ t('staffCases.status.' + caseItem.status) }}
+                </ui-badge>
+                <ui-badge [variant]="getPriorityVariant(caseItem.priority)" size="sm">
+                  {{ t('staffCases.priority.' + caseItem.priority) }}
+                </ui-badge>
+              </div>
+            </div>
+            <p class="case-card__topic">{{ caseItem.topic }}</p>
+            <div class="case-card__meta">
+              <span class="case-card__date">
+                {{ t('staffCases.assigned') }}: {{ caseItem.assignedAt | date:'mediumDate' }}
+              </span>
+            </div>
+          </ui-card>
+        }
+      </div>
+    }
+  </section>
+</ng-container>

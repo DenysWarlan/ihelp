@@ -1,0 +1,81 @@
+:host {
+  display: block;
+}
+
+.audit-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+}
+
+.audit-page__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.audit-page__loading,
+.audit-page__error,
+.audit-page__empty {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+}
+
+.audit-page__error {
+  color: var(--ihelp-error);
+}
+
+.audit-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.audit-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.audit-entry__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ihelp-space-2);
+}
+
+.audit-entry__time {
+  font-size: 12px;
+  color: var(--ihelp-text-muted);
+}
+
+.audit-entry__body {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+  font-size: 14px;
+}
+
+.audit-entry__actor {
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+}
+
+.audit-entry__entity {
+  color: var(--ihelp-text-muted);
+}
+
+.audit-entry__entity-id {
+  color: var(--ihelp-brand);
+}
+
+.audit-entry__details {
+  font-size: 13px;
+  color: var(--ihelp-text-muted);
+  margin: 0;
+  padding: var(--ihelp-space-2);
+  background-color: var(--ihelp-bg-secondary);
+  border-radius: var(--ihelp-radius-sm);
+}

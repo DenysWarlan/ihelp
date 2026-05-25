@@ -1,0 +1,66 @@
+<ng-container *transloco="let t">
+  <div class="staff-login">
+    <div class="staff-login__brand">
+      <div class="staff-login__brand-content">
+        <ui-icon name="HeartHandshake" [size]="64" color="var(--ihelp-text-inverse)" />
+        <h1 class="staff-login__brand-title">{{ t('layout.appName') }}</h1>
+        <p class="staff-login__brand-subtitle">{{ t('staffLogin.brandSubtitle') }}</p>
+      </div>
+    </div>
+
+    <div class="staff-login__form-side">
+      <div class="staff-login__form-container">
+        <h2 class="staff-login__title">{{ t('staffLogin.title') }}</h2>
+        <p class="staff-login__subtitle">{{ t('staffLogin.subtitle') }}</p>
+
+        @if (facade.error()) {
+          <ui-alert-banner variant="crisis" [dismissible]="true" (dismissed)="facade.clearError()">
+            {{ facade.error() }}
+          </ui-alert-banner>
+        }
+
+        <form class="staff-login__form" (submit)="onSubmit()">
+          <ui-input
+            [label]="t('staffLogin.email')"
+            type="email"
+            [placeholder]="t('staffLogin.emailPlaceholder')"
+            [(ngModel)]="email"
+            name="email"
+          />
+
+          <ui-input
+            [label]="t('staffLogin.password')"
+            type="password"
+            [placeholder]="t('staffLogin.passwordPlaceholder')"
+            [(ngModel)]="password"
+            name="password"
+          />
+
+          @if (facade.mfaRequired()) {
+            <ui-input
+              [label]="t('staffLogin.mfaCode')"
+              type="text"
+              [placeholder]="t('staffLogin.mfaPlaceholder')"
+              [(ngModel)]="mfaCode"
+              name="mfaCode"
+            />
+          }
+
+          <ui-button
+            type="submit"
+            variant="primary"
+            size="lg"
+            [loading]="facade.isLoading()"
+            [disabled]="!email || !password"
+          >
+            {{ facade.mfaRequired() ? t('staffLogin.verifyMfa') : t('staffLogin.signIn') }}
+          </ui-button>
+        </form>
+
+        <p class="staff-login__help">
+          <a routerLink="/login" class="staff-login__link">{{ t('staffLogin.personLogin') }}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</ng-container>

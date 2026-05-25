@@ -1,0 +1,62 @@
+<ng-container *transloco="let t">
+  <div class="profile-page">
+    <h1 class="profile-page__title">{{ t('personProfile.title') }}</h1>
+
+    @if (facade.isLoading()) {
+      <p class="profile-page__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.profile(); as profile) {
+      <div class="profile-page__content">
+        <ui-card>
+          <div class="profile-header">
+            <div class="profile-header__avatar">
+              @if (profile.avatarUrl) {
+                <img [src]="profile.avatarUrl" [alt]="profile.name" class="profile-header__img" />
+              } @else {
+                <div class="profile-header__placeholder">
+                  <ui-icon name="User" [size]="32" color="var(--ihelp-text-muted)" />
+                </div>
+              }
+            </div>
+            <div class="profile-header__info">
+              <h2 class="profile-header__name">{{ profile.name }}</h2>
+              <p class="profile-header__email">{{ profile.email }}</p>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card>
+          <form class="profile-form" (submit)="onSave()">
+            <ui-input
+              [label]="t('personProfile.nameLabel')"
+              [ngModel]="formModel().name"
+              (ngModelChange)="updateField('name', $event)"
+              name="name"
+            />
+
+            <ui-input
+              [label]="t('personProfile.emailLabel')"
+              [ngModel]="formModel().email"
+              name="email"
+              type="email"
+              [attr.disabled]="true"
+            />
+
+            <ui-select
+              [label]="t('personProfile.timezoneLabel')"
+              [options]="timezoneOptions"
+              [ngModel]="formModel().timezone"
+              (ngModelChange)="updateField('timezone', $event)"
+              name="timezone"
+            />
+
+            <div class="profile-form__actions">
+              <ui-button type="submit" [loading]="facade.isSaving()">
+                {{ t('personProfile.save') }}
+              </ui-button>
+            </div>
+          </form>
+        </ui-card>
+      </div>
+    }
+  </div>
+</ng-container>

@@ -1,0 +1,41 @@
+<ng-container *transloco="let t">
+  <section class="team">
+    <h1 class="team__title">{{ t('supervisor.teamTitle') }}</h1>
+
+    @if (isLoading()) {
+      <p class="team__loading">{{ t('common.loading') }}</p>
+    }
+
+    <div class="team__grid">
+      @for (member of teamMembers(); track member.id) {
+        <ui-card padding="md" [hoverable]="true">
+          <div class="member-card">
+            <div class="member-card__header">
+              <ui-icon name="User" [size]="20" color="var(--ihelp-accent)" />
+              <span class="member-card__name">{{ member.name }}</span>
+              <ui-badge variant="info" size="sm">
+                {{ member.role }}
+              </ui-badge>
+            </div>
+            <div class="member-card__stats">
+              <div class="member-card__stat">
+                <span class="member-card__stat-value">{{ member.activeCases }}</span>
+                <span class="member-card__stat-label">{{ t('supervisor.activeCases') }}</span>
+              </div>
+              <div class="member-card__stat">
+                <span class="member-card__stat-value">{{ member.resolvedThisMonth }}</span>
+                <span class="member-card__stat-label">{{ t('supervisor.resolvedMonth') }}</span>
+              </div>
+              <div class="member-card__stat">
+                <span class="member-card__stat-value">{{ member.avgResponseHours }}{{ t('supervisor.hours') }}</span>
+                <span class="member-card__stat-label">{{ t('supervisor.avgResponse') }}</span>
+              </div>
+            </div>
+          </div>
+        </ui-card>
+      } @empty {
+        <p class="team__empty">{{ t('supervisor.teamEmpty') }}</p>
+      }
+    </div>
+  </section>
+</ng-container>

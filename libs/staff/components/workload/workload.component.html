@@ -1,0 +1,35 @@
+<ng-container *transloco="let t">
+  <section class="workload">
+    <h1 class="workload__title">{{ t('coordinator.workloadTitle') }}</h1>
+
+    @if (isLoading()) {
+      <p class="workload__loading">{{ t('common.loading') }}</p>
+    }
+
+    <div class="workload__grid">
+      @for (entry of workload(); track entry.consultantId) {
+        <ui-card padding="md" [hoverable]="true">
+          <div class="workload-card">
+            <div class="workload-card__header">
+              <ui-icon name="User" [size]="20" color="var(--ihelp-accent)" />
+              <span class="workload-card__name">{{ entry.consultantName }}</span>
+              <ui-badge [variant]="getStatusVariant(entry.status)" size="sm">
+                {{ t('coordinator.workloadStatus_' + entry.status) }}
+              </ui-badge>
+            </div>
+            <div class="workload-card__cases">
+              {{ entry.activeCases }} / {{ entry.maxCases }} {{ t('coordinator.workloadCases') }}
+            </div>
+            <ui-progress-bar
+              [value]="entry.utilizationPercent"
+              [showLabel]="true"
+              [variant]="getProgressVariant(entry.status)"
+            />
+          </div>
+        </ui-card>
+      } @empty {
+        <p class="workload__empty">{{ t('coordinator.workloadEmpty') }}</p>
+      }
+    </div>
+  </section>
+</ng-container>

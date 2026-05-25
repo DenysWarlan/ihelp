@@ -1,6 +1,59 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('person.chat') }}</h1>
-    <p class="page-stub__placeholder">{{ t('person.chatPlaceholder') }}</p>
-  </section>
+  <div class="chat">
+    <div class="chat__sidebar">
+      <h2 class="chat__sidebar-title">{{ t('chat.conversations') }}</h2>
+      @if (facade.conversations().length === 0) {
+        <p class="chat__empty">{{ t('chat.noConversations') }}</p>
+      } @else {
+        @for (conv of facade.conversations(); track conv.id) {
+          <div
+            class="chat__conv"
+            [class.chat__conv--active]="facade.selectedConversationId() === conv.id"
+            (click)="selectConversation(conv.id)"
+          >
+            <div class="chat__conv-name">{{ conv.consultantName }}</div>
+            @if (conv.lastMessage) {
+              <div class="chat__conv-preview">{{ conv.lastMessage }}</div>
+            }
+            @if (conv.unreadCount > 0) {
+              <span class="chat__conv-badge">{{ conv.unreadCount }}</span>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <div class="chat__main">
+      @if (!facade.selectedConversationId()) {
+        <div class="chat__placeholder">
+          <ui-icon name="MessageCircle" [size]="48" color="var(--ihelp-text-muted)" />
+          <p>{{ t('chat.selectConversation') }}</p>
+        </div>
+      } @else {
+        <div class="chat__messages">
+          @for (msg of facade.messages(); track msg.id) {
+            <div class="chat__message" [class.chat__message--own]="msg.isFromPerson">
+              <div class="chat__message-bubble">
+                <span class="chat__message-text">{{ msg.content }}</span>
+                <span class="chat__message-time">{{ msg.sentAt }}</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <form class="chat__input-area" (submit)="sendMessage()">
+          <input
+            class="chat__input"
+            type="text"
+            [(ngModel)]="messageText"
+            name="message"
+            [placeholder]="t('chat.placeholder')"
+          />
+          <ui-button type="submit" variant="primary" [disabled]="!messageText.trim()">
+            <ui-icon name="Send" [size]="18" />
+          </ui-button>
+        </form>
+      }
+    </div>
+  </div>
 </ng-container>

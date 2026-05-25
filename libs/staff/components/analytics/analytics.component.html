@@ -1,0 +1,74 @@
+<ng-container *transloco="let t">
+  <section class="analytics">
+    <h1 class="analytics__title">{{ t('supervisor.analyticsTitle') }}</h1>
+
+    @if (isLoading()) {
+      <p class="analytics__loading">{{ t('common.loading') }}</p>
+    }
+
+    @if (teamAnalytics(); as analytics) {
+      <div class="analytics__stats">
+        <ui-card padding="sm">
+          <div class="stat-card">
+            <ui-icon name="FolderOpen" [size]="20" color="var(--ihelp-accent)" />
+            <div class="stat-card__content">
+              <span class="stat-card__value">{{ analytics.totalCasesThisMonth }}</span>
+              <span class="stat-card__label">{{ t('supervisor.totalCases') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card padding="sm">
+          <div class="stat-card">
+            <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
+            <div class="stat-card__content">
+              <span class="stat-card__value">{{ analytics.resolvedCases }}</span>
+              <span class="stat-card__label">{{ t('supervisor.resolvedCases') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card padding="sm">
+          <div class="stat-card">
+            <ui-icon name="Clock" [size]="20" color="var(--ihelp-warning)" />
+            <div class="stat-card__content">
+              <span class="stat-card__value">{{ analytics.avgResolutionDays }}{{ t('supervisor.days') }}</span>
+              <span class="stat-card__label">{{ t('supervisor.avgResolution') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card padding="sm">
+          <div class="stat-card">
+            <ui-icon name="Star" [size]="20" color="var(--ihelp-accent)" />
+            <div class="stat-card__content">
+              <span class="stat-card__value">{{ analytics.satisfactionScore }}/5</span>
+              <span class="stat-card__label">{{ t('supervisor.satisfaction') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </div>
+
+      <h2 class="analytics__subtitle">{{ t('supervisor.teamPerformance') }}</h2>
+
+      <div class="analytics__members">
+        @for (member of analytics.teamMembers; track member.id) {
+          <ui-card padding="sm" [hoverable]="true">
+            <div class="member-row">
+              <div class="member-row__info">
+                <ui-icon name="User" [size]="18" color="var(--ihelp-text-muted)" />
+                <span class="member-row__name">{{ member.name }}</span>
+                <span class="member-row__role">{{ member.role }}</span>
+              </div>
+              <div class="member-row__metrics">
+                <span class="member-row__metric">{{ member.activeCases }} {{ t('supervisor.active') }}</span>
+                <span class="member-row__metric">{{ member.resolvedThisMonth }} {{ t('supervisor.resolved') }}</span>
+                <span class="member-row__metric">{{ member.avgResponseHours }}{{ t('supervisor.hours') }} {{ t('supervisor.avgResp') }}</span>
+              </div>
+            </div>
+          </ui-card>
+        }
+      </div>
+    }
+  </section>
+</ng-container>

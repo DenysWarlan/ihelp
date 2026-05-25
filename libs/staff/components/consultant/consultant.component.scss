@@ -2,20 +2,44 @@
   display: block;
 }
 
-.page-stub {
+.consultant-dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--ihelp-space-3);
+  gap: var(--ihelp-space-4);
 }
 
-.page-stub__title {
+.consultant-dashboard__title {
   font-family: var(--ihelp-font-heading);
   font-size: 28px;
   font-weight: 700;
   color: var(--ihelp-text-primary);
 }
 
-.page-stub__placeholder {
-  font-size: 14px;
+.consultant-dashboard__link {
+  text-decoration: none;
+  color: inherit;
+  max-width: 400px;
+}
+
+.nav-card {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+}
+
+.nav-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-1);
+}
+
+.nav-card__label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+}
+
+.nav-card__desc {
+  font-size: 13px;
   color: var(--ihelp-text-muted);
 }

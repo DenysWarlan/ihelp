@@ -23,7 +23,7 @@
           <a
             [routerLink]="item.route"
             routerLinkActive="sidebar__nav-item--active"
-            [routerLinkActiveOptions]="{ exact: item.route === '/person' }"
+            [routerLinkActiveOptions]="{ exact: isExactRoute(item.route) }"
             class="sidebar__nav-item"
             (click)="closeSidebar()"
           >
@@ -38,6 +38,7 @@
           class="sidebar__logout"
           type="button"
           [attr.aria-label]="t('common.signOut')"
+          (click)="logout()"
         >
           <ui-icon name="LogOut" [size]="20" color="var(--ihelp-text-secondary)" />
           <span>{{ t('common.signOut') }}</span>

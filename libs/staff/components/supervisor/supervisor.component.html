@@ -1,6 +1,69 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('staff.supervisor') }}</h1>
-    <p class="page-stub__placeholder">{{ t('staff.supervisorPlaceholder') }}</p>
+  <section class="supervisor-dashboard">
+    <h1 class="supervisor-dashboard__title">{{ t('supervisor.dashboardTitle') }}</h1>
+
+    @if (isLoading()) {
+      <p class="supervisor-dashboard__loading">{{ t('common.loading') }}</p>
+    }
+
+    @if (teamAnalytics(); as analytics) {
+      <div class="supervisor-dashboard__stats">
+        <ui-card padding="sm">
+          <div class="stat-card">
+            <ui-icon name="FolderOpen" [size]="20" color="var(--ihelp-accent)" />
+            <div class="stat-card__content">
+              <span class="stat-card__value">{{ analytics.totalCasesThisMonth }}</span>
+              <span class="stat-card__label">{{ t('supervisor.totalCases') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card padding="sm">
+          <div class="stat-card">
+            <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
+            <div class="stat-card__content">
+              <span class="stat-card__value">{{ analytics.resolvedCases }}</span>
+              <span class="stat-card__label">{{ t('supervisor.resolvedCases') }}</span>
+            </div>
+          </div>
+        </ui-card>
+
+        <ui-card padding="sm">
+          <div class="stat-card">
+            <ui-icon name="Star" [size]="20" color="var(--ihelp-accent)" />
+            <div class="stat-card__content">
+              <span class="stat-card__value">{{ analytics.satisfactionScore }}/5</span>
+              <span class="stat-card__label">{{ t('supervisor.satisfaction') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </div>
+    }
+
+    <div class="supervisor-dashboard__nav">
+      <a routerLink="../team" class="supervisor-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="Users" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('supervisor.teamTitle') }}</span>
+              <span class="nav-card__desc">{{ t('supervisor.teamDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../analytics" class="supervisor-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="BarChart3" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('supervisor.analyticsTitle') }}</span>
+              <span class="nav-card__desc">{{ t('supervisor.analyticsDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+    </div>
   </section>
 </ng-container>

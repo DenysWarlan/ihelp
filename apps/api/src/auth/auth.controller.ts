@@ -27,6 +27,7 @@ import {
   OAuthProfile,
   JwtPayload,
   RefreshTokenDto,
+  StaffLoginDto,
 } from './auth.model.js';
 import { Public } from './decorators/public.decorator.js';
 
@@ -101,6 +102,20 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<void> {
     await this.handleOAuthCallback(req, res, 'telegram');
+  }
+
+  // ---------------------------------------------------------------------------
+  // Staff Email/Password Login
+  // ---------------------------------------------------------------------------
+
+  @Public()
+  @Post('staff/login')
+  @ApiOperation({ summary: 'Staff email/password login' })
+  @ApiBody({ type: StaffLoginDto })
+  @ApiResponse({ status: 200, description: 'Returns token pair or MFA challenge' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  async staffLogin(@Body() dto: StaffLoginDto) {
+    return this.authService.staffLogin(dto.email, dto.password, dto.mfaCode);
   }
 
   // ---------------------------------------------------------------------------

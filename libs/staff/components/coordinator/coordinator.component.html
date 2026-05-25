@@ -1,6 +1,55 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('staff.coordinator') }}</h1>
-    <p class="page-stub__placeholder">{{ t('staff.coordinatorPlaceholder') }}</p>
+  <section class="coordinator-dashboard">
+    <h1 class="coordinator-dashboard__title">{{ t('coordinator.dashboardTitle') }}</h1>
+
+    <div class="coordinator-dashboard__grid">
+      <a routerLink="../sla" class="coordinator-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="Timer" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('coordinator.slaTitle') }}</span>
+              <span class="nav-card__desc">{{ t('coordinator.slaDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../assignment" class="coordinator-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="UserPlus" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('coordinator.assignmentTitle') }}</span>
+              <span class="nav-card__desc">{{ t('coordinator.assignmentDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../workload" class="coordinator-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="BarChart3" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('coordinator.workloadTitle') }}</span>
+              <span class="nav-card__desc">{{ t('coordinator.workloadDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../crisis" class="coordinator-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="AlertTriangle" [size]="28" color="var(--ihelp-error)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('coordinator.crisisTitle') }}</span>
+              <span class="nav-card__desc">{{ t('coordinator.crisisDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+    </div>
   </section>
 </ng-container>
