@@ -124,6 +124,100 @@ export class AnalyticsService {
   // S-E11-01: Consultant Metrics — list
   // =========================================================================
 
+  // =========================================================================
+  // Team overview (supervisor dashboard)
+  // =========================================================================
+
+  async getTeamAnalytics() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [totalCasesThisMonth, resolvedCases] = await Promise.all([
+      this.prisma.careCase.count({
+        where: { createdAt: { gte: startOfMonth } },
+      }),
+      this.prisma.careCase.count({
+        where: {
+          status: CaseStatus.COMPLETED,
+          resolvedAt: { gte: startOfMonth },
+        },
+      }),
+    ]);
+
+    // Avg resolution days for completed cases this month
+    const completedCases = await this.prisma.careCase.findMany({
+      where: {
+        status: CaseStatus.COMPLETED,
+        resolvedAt: { gte: startOfMonth },
+      },
+      select: { createdAt: true, resolvedAt: true },
+    });
+
+    let avgResolutionDays = 0;
+    if (completedCases.length > 0) {
+      const totalDays = completedCases.reduce((sum, c) => {
+        const diff =
+          (c.resolvedAt!.getTime() - c.createdAt.getTime()) /
+          (1000 * 60 * 60 * 24);
+        return sum + diff;
+      }, 0);
+      avgResolutionDays = Math.round((totalDays / completedCases.length) * 10) / 10;
+    }
+
+    const members = await this.getTeamMembers();
+
+    return {
+      totalCasesThisMonth,
+      resolvedCases,
+      avgResolutionDays,
+      satisfactionScore: 4.2, // placeholder until feedback system is built
+      teamMembers: members,
+    };
+  }
+
+  async getTeamMembers() {
+    const consultants = await this.prisma.consultantProfile.findMany({
+      include: { user: { select: { id: true, name: true, email: true, role: true } } },
+    });
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    return Promise.all(
+      consultants.map(async (cp) => {
+        const [activeCases, resolvedThisMonth] = await Promise.all([
+          this.prisma.careCase.count({
+            where: {
+              consultantId: cp.userId,
+              status: { notIn: [CaseStatus.COMPLETED, CaseStatus.CLOSED] },
+            },
+          }),
+          this.prisma.careCase.count({
+            where: {
+              consultantId: cp.userId,
+              status: CaseStatus.COMPLETED,
+              resolvedAt: { gte: startOfMonth },
+            },
+          }),
+        ]);
+
+        return {
+          id: cp.userId,
+          name: cp.user.name,
+          email: cp.user.email,
+          role: cp.user.role,
+          activeCases,
+          resolvedThisMonth,
+          avgResponseHours: 0,
+        };
+      }),
+    );
+  }
+
+  // =========================================================================
+  // S-E11-01: Consultant Metrics
+  // =========================================================================
+
   async getConsultantMetrics(
     period: string,
     from?: string,

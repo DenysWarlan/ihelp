@@ -1,6 +1,79 @@
 <ng-container *transloco="let t">
-  <section class="page-stub">
-    <h1 class="page-stub__title">{{ t('staff.admin') }}</h1>
-    <p class="page-stub__placeholder">{{ t('staff.adminPlaceholder') }}</p>
+  <section class="admin-dashboard">
+    <h1 class="admin-dashboard__title">{{ t('admin.dashboardTitle') }}</h1>
+
+    <div class="admin-dashboard__grid">
+      <a routerLink="../users" class="admin-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="Users" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('admin.usersTitle') }}</span>
+              <span class="nav-card__desc">{{ t('admin.usersDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../courses" class="admin-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="BookOpen" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('admin.coursesTitle') }}</span>
+              <span class="nav-card__desc">{{ t('admin.coursesDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../settings" class="admin-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="Settings" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('admin.settingsTitle') }}</span>
+              <span class="nav-card__desc">{{ t('admin.settingsDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../analytics" class="admin-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="BarChart3" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('admin.analyticsTitle') }}</span>
+              <span class="nav-card__desc">{{ t('admin.analyticsDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../audit" class="admin-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="FileText" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('admin.auditTitle') }}</span>
+              <span class="nav-card__desc">{{ t('admin.auditDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../gdpr" class="admin-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="Shield" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('admin.gdprTitle') }}</span>
+              <span class="nav-card__desc">{{ t('admin.gdprDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+    </div>
   </section>
 </ng-container>

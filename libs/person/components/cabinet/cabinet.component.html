@@ -1,69 +1,156 @@
 <ng-container *transloco="let t">
   <div class="cabinet">
-    <h1 class="cabinet__title">{{ t('cabinet.title') }}</h1>
-
     @if (facade.isLoading()) {
       <p class="cabinet__loading">{{ t('common.loading') }}</p>
-    } @else if (facade.dashboard(); as dash) {
-      <div class="cabinet__stats">
-        <ui-card>
-          <div class="stat-card">
-            <ui-icon name="FolderOpen" [size]="24" color="var(--ihelp-accent)" />
-            <div class="stat-card__info">
-              <span class="stat-card__value">{{ dash.activeCases }}</span>
-              <span class="stat-card__label">{{ t('cabinet.activeCases') }}</span>
-            </div>
+    } @else {
+      <!-- Header -->
+      <div class="cabinet__header">
+        <div class="cabinet__header-text">
+          <h1 class="cabinet__title">{{ t('cabinet.title') }}</h1>
+          <p class="cabinet__subtitle">{{ t('cabinet.subtitle') }}</p>
+        </div>
+        <div class="cabinet__avatar">
+          @if (facade.profile()?.avatarUrl) {
+            <img [src]="facade.profile()!.avatarUrl!" [alt]="facade.profile()!.name" class="cabinet__avatar-img" />
+          } @else {
+            <span class="cabinet__avatar-initials">{{ facade.profile()?.name?.charAt(0) ?? '' }}</span>
+          }
+          <span class="cabinet__avatar-name">{{ facade.profile()?.name ?? '' }}</span>
+        </div>
+      </div>
+
+      <!-- Consultant + Next Meeting Row -->
+      <div class="cabinet__cards-row">
+        <!-- Consultant Card -->
+        <ui-card [padding]="'md'">
+          <div class="consultant-card">
+            <h3 class="consultant-card__title">{{ t('cabinet.yourConsultant') }}</h3>
+            @if (nextMeeting(); as meeting) {
+              <div class="consultant-card__info">
+                <div class="consultant-card__avatar">
+                  <ui-icon name="User" [size]="32" />
+                </div>
+                <div class="consultant-card__details">
+                  <span class="consultant-card__name">{{ meeting.consultantName }}</span>
+                  <span class="consultant-card__spec">{{ t('cabinet.yourConsultant') }}</span>
+                </div>
+              </div>
+              <ui-button variant="primary" (click)="onWriteConsultant()">{{ t('cabinet.write') }}</ui-button>
+            } @else {
+              <p class="consultant-card__empty">—</p>
+            }
           </div>
         </ui-card>
 
-        <ui-card>
-          <div class="stat-card">
-            <ui-icon name="Calendar" [size]="24" color="var(--ihelp-warning)" />
-            <div class="stat-card__info">
-              <span class="stat-card__value">{{ dash.upcomingMeetings }}</span>
-              <span class="stat-card__label">{{ t('cabinet.upcomingMeetings') }}</span>
-            </div>
-          </div>
-        </ui-card>
-
-        <ui-card>
-          <div class="stat-card">
-            <ui-icon name="BookOpen" [size]="24" color="var(--ihelp-success)" />
-            <div class="stat-card__info">
-              <span class="stat-card__value">{{ dash.courseProgress }}%</span>
-              <span class="stat-card__label">{{ t('cabinet.courseProgress') }}</span>
-            </div>
-            <ui-progress-bar [value]="dash.courseProgress" variant="success" />
-          </div>
-        </ui-card>
-
-        <ui-card>
-          <div class="stat-card">
-            <ui-icon name="MessageCircle" [size]="24" color="var(--ihelp-accent)" />
-            <div class="stat-card__info">
-              <span class="stat-card__value">{{ dash.unreadMessages }}</span>
-              <span class="stat-card__label">{{ t('cabinet.unreadMessages') }}</span>
-            </div>
+        <!-- Next Meeting Card -->
+        <ui-card [padding]="'md'">
+          <div class="meeting-card">
+            <h3 class="meeting-card__title">{{ t('cabinet.nextMeeting') }}</h3>
+            @if (nextMeeting(); as meeting) {
+              <div class="meeting-card__info">
+                <ui-icon name="Calendar" [size]="20" />
+                <span class="meeting-card__date">{{ meeting.scheduledAt | date:'EEE, d MMMM · HH:mm' }}</span>
+              </div>
+              <div class="meeting-card__meta">
+                <ui-icon name="Video" [size]="16" />
+                <span>Google Meet · {{ meeting.durationMinutes }} {{ t('cabinet.minutes') }}</span>
+              </div>
+              @if (meeting.meetingUrl) {
+                <a [href]="meeting.meetingUrl" target="_blank" rel="noopener">
+                  <ui-button variant="primary">{{ t('cabinet.join') }}</ui-button>
+                </a>
+              }
+            } @else {
+              <p class="meeting-card__empty">—</p>
+            }
           </div>
         </ui-card>
       </div>
 
-      @if (dash.recentActivity.length > 0) {
-        <h2 class="cabinet__section-title">{{ t('cabinet.recentActivity') }}</h2>
-        <div class="cabinet__activity">
-          @for (activity of dash.recentActivity; track activity.id) {
-            <ui-card>
-              <div class="activity-item">
-                <div class="activity-item__content">
-                  <span class="activity-item__title">{{ activity.title }}</span>
-                  <span class="activity-item__desc">{{ activity.description }}</span>
+      <!-- Recommended Courses -->
+      @if (facade.courses().length > 0) {
+        <section class="cabinet__section">
+          <h2 class="cabinet__section-title">{{ t('cabinet.recommendedCourses') }}</h2>
+          <div class="cabinet__courses">
+            @for (course of facade.courses(); track course.id) {
+              <ui-card [padding]="'md'">
+                <div class="course-card">
+                  <div class="course-card__info">
+                    <span class="course-card__title">{{ course.title }}</span>
+                    <span class="course-card__progress-text">{{ course.completedLessons }}/{{ course.totalLessons }} {{ t('courses.lessons') }}</span>
+                    <ui-progress-bar [value]="course.progress" variant="success" />
+                  </div>
+                  <ui-button variant="secondary" (click)="facade.navigateToCourse(course.id)">{{ t('cabinet.continue') }}</ui-button>
                 </div>
-                <span class="activity-item__time">{{ activity.timestamp }}</span>
-              </div>
-            </ui-card>
-          }
-        </div>
+              </ui-card>
+            }
+          </div>
+        </section>
       }
+
+      <!-- Privacy & Account -->
+      <section class="cabinet__section">
+        <h2 class="cabinet__section-title">{{ t('cabinet.privacy') }}</h2>
+        <ui-card [padding]="'md'">
+          <div class="privacy-card">
+            <!-- Timezone -->
+            <div class="privacy-card__row">
+              <div class="privacy-card__label">
+                <ui-icon name="Clock" [size]="18" />
+                <span>{{ t('cabinet.timezone') }}</span>
+              </div>
+              <span class="privacy-card__value">{{ facade.profile()?.timezone ?? 'UTC' }}</span>
+            </div>
+
+            <!-- Linked Accounts -->
+            <div class="privacy-card__accounts">
+              <span class="privacy-card__accounts-label">{{ t('cabinet.linkedAccounts') }}</span>
+              <div class="privacy-card__account-row">
+                <div class="privacy-card__account-info">
+                  <ui-icon name="Globe" [size]="18" />
+                  <span>Google</span>
+                </div>
+                <ui-button variant="secondary">{{ t('cabinet.link') }}</ui-button>
+              </div>
+              <div class="privacy-card__account-row">
+                <div class="privacy-card__account-info">
+                  <ui-icon name="Globe" [size]="18" />
+                  <span>Facebook</span>
+                </div>
+                <ui-button variant="secondary">{{ t('cabinet.link') }}</ui-button>
+              </div>
+              <div class="privacy-card__account-row">
+                <div class="privacy-card__account-info">
+                  <ui-icon name="Send" [size]="18" />
+                  <span>Telegram</span>
+                </div>
+                <ui-button variant="secondary">{{ t('cabinet.link') }}</ui-button>
+              </div>
+            </div>
+          </div>
+        </ui-card>
+      </section>
+
+      <!-- GDPR -->
+      <section class="cabinet__section">
+        <h2 class="cabinet__section-title">{{ t('cabinet.gdprTitle') }}</h2>
+        <ui-card [padding]="'md'">
+          <div class="gdpr-card">
+            <div class="gdpr-card__item">
+              <a class="gdpr-card__link" href="javascript:void(0)">{{ t('cabinet.exportData') }}</a>
+              <span class="gdpr-card__desc">{{ t('cabinet.exportDataDesc') }}</span>
+            </div>
+            <div class="gdpr-card__item">
+              <a class="gdpr-card__link" href="javascript:void(0)">{{ t('cabinet.revokeConsent') }}</a>
+              <span class="gdpr-card__desc">{{ t('cabinet.revokeConsentDesc') }}</span>
+            </div>
+            <div class="gdpr-card__item">
+              <a class="gdpr-card__link gdpr-card__link--danger" href="javascript:void(0)">{{ t('cabinet.deleteAccount') }}</a>
+              <span class="gdpr-card__desc">{{ t('cabinet.deleteAccountDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </section>
     }
   </div>
 </ng-container>

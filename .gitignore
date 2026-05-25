@@ -31,3 +31,4 @@ vitest.config.*.timestamp*
 
 # OS
 .DS_Store
+/.nx/

@@ -62,6 +62,14 @@ export class CasesController {
     return this.casesService.findAll(actor, tagId);
   }
 
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Get staff dashboard stats' })
+  @ApiResponse({ status: 200, description: 'Dashboard statistics' })
+  async getDashboard(@Req() req: Request) {
+    const actor = req.user as JwtPayload;
+    return this.casesService.getDashboard(actor);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a single case with relations' })
   @ApiResponse({ status: 200, description: 'Case details' })

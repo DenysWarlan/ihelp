@@ -15,19 +15,12 @@
   color: var(--ihelp-text-primary);
 }
 
-.analytics__subtitle {
-  font-family: var(--ihelp-font-heading);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--ihelp-text-primary);
-  margin-top: var(--ihelp-space-2);
-}
-
 .analytics__loading {
   font-size: 14px;
   color: var(--ihelp-text-muted);
 }
 
+// Stat cards row
 .analytics__stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -36,73 +29,174 @@
 
 .stat-card {
   display: flex;
-  align-items: center;
-  gap: var(--ihelp-space-3);
-}
-
-.stat-card__content {
-  display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ihelp-space-4) var(--ihelp-space-3);
+  border-radius: 12px;
+  text-align: center;
+
+  &--green {
+    background-color: var(--ihelp-surface, #c8dbbc);
+  }
 }
 
 .stat-card__value {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--ihelp-text-primary);
+  line-height: 1.2;
 }
 
 .stat-card__label {
-  font-size: 12px;
+  font-size: 13px;
+  color: var(--ihelp-text-secondary);
+  margin-top: var(--ihelp-space-1);
+}
+
+// Charts row
+.analytics__charts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ihelp-space-3);
+}
+
+.chart-card {
+  padding: var(--ihelp-space-2);
+}
+
+.chart-card__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+  margin-bottom: var(--ihelp-space-3);
+}
+
+.chart-card__empty {
+  font-size: 13px;
   color: var(--ihelp-text-muted);
 }
 
-.analytics__members {
+// Bar chart
+.bar-chart {
   display: flex;
   flex-direction: column;
   gap: var(--ihelp-space-2);
 }
 
-.member-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.member-row__info {
+.bar-chart__row {
   display: flex;
   align-items: center;
   gap: var(--ihelp-space-2);
 }
 
-.member-row__name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ihelp-text-primary);
-}
-
-.member-row__role {
-  font-size: 12px;
-  color: var(--ihelp-text-muted);
-}
-
-.member-row__metrics {
-  display: flex;
-  gap: var(--ihelp-space-4);
-}
-
-.member-row__metric {
+.bar-chart__label {
+  flex: 0 0 160px;
   font-size: 13px;
   color: var(--ihelp-text-secondary);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+.bar-chart__track {
+  flex: 1;
+  height: 20px;
+  background-color: var(--ihelp-bg-secondary, #f3f4f6);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar-chart__fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+
+  &--orange {
+    background-color: #f59e0b;
+  }
+
+  &--green {
+    background-color: #22c55e;
+  }
+
+  &--teal {
+    background-color: #14b8a6;
+  }
+
+  &--purple {
+    background-color: #8b5cf6;
+  }
+
+  &--pink {
+    background-color: #ec4899;
+  }
+}
+
+.bar-chart__count {
+  flex: 0 0 32px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+  text-align: right;
+}
+
+// Bottom metrics row
+.analytics__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ihelp-space-3);
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ihelp-space-4);
+  border-radius: 12px;
+  text-align: center;
+
+  &--green {
+    background-color: #d1fae5;
+  }
+
+  &--red {
+    background-color: #fee2e2;
+  }
+}
+
+.metric-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  line-height: 1.2;
+}
+
+.metric-card__label {
+  font-size: 13px;
+  color: var(--ihelp-text-secondary);
+  margin-top: var(--ihelp-space-1);
+}
+
+// Responsive
 @media (max-width: 768px) {
   .analytics__stats {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .member-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--ihelp-space-2);
+  .analytics__charts {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .bar-chart__label {
+    flex: 0 0 100px;
+    font-size: 12px;
   }
 }

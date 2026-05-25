@@ -36,6 +36,26 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   // =========================================================================
+  // Team overview (for supervisor dashboard)
+  // =========================================================================
+
+  @Get('team')
+  @Roles(...ANALYTICS_ROLES)
+  @ApiOperation({ summary: 'Get team analytics overview' })
+  @ApiResponse({ status: 200, description: 'Team analytics' })
+  async getTeamAnalytics() {
+    return this.analyticsService.getTeamAnalytics();
+  }
+
+  @Get('team/members')
+  @Roles(...ANALYTICS_ROLES)
+  @ApiOperation({ summary: 'Get team members with metrics' })
+  @ApiResponse({ status: 200, description: 'Team members list' })
+  async getTeamMembers() {
+    return this.analyticsService.getTeamMembers();
+  }
+
+  // =========================================================================
   // S-E11-01: Consultant Metrics
   // =========================================================================
 

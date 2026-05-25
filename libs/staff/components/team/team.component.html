@@ -4,8 +4,7 @@
 
     @if (isLoading()) {
       <p class="team__loading">{{ t('common.loading') }}</p>
-    }
-
+    } @else {
     <div class="team__grid">
       @for (member of teamMembers(); track member.id) {
         <ui-card padding="md" [hoverable]="true">
@@ -37,5 +36,6 @@
         <p class="team__empty">{{ t('supervisor.teamEmpty') }}</p>
       }
     </div>
+    }
   </section>
 </ng-container>

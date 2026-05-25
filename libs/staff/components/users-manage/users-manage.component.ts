@@ -1,17 +1,17 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
+  AlertBannerComponent,
   BadgeComponent,
   ButtonComponent,
-  CardComponent,
+  IconComponent,
   InputComponent,
   ModalComponent,
   SelectComponent,
 } from '@org/shared/ui';
-import { AdminFacade } from '@org/staff/data-access';
+import { AdminFacade, AdminUser } from '@org/staff/data-access';
 
 @Component({
   selector: 'app-users-manage',
@@ -19,10 +19,10 @@ import { AdminFacade } from '@org/staff/data-access';
   imports: [
     TranslocoDirective,
     FormsModule,
-    DatePipe,
+    AlertBannerComponent,
     BadgeComponent,
     ButtonComponent,
-    CardComponent,
+    IconComponent,
     InputComponent,
     ModalComponent,
     SelectComponent,
@@ -34,9 +34,35 @@ import { AdminFacade } from '@org/staff/data-access';
 export class UsersManageComponent implements OnInit {
   protected readonly facade: AdminFacade = inject(AdminFacade);
 
+  protected readonly searchQuery: WritableSignal<string> = signal('');
+  protected readonly selectedRole: WritableSignal<string> = signal('ALL');
+  protected readonly roleFilters: readonly string[] = ['ALL', 'Consultant', 'Supervisor', 'Coordinator', 'Admin'] as const;
+
+  protected readonly filteredUsers: Signal<AdminUser[]> = computed(() => {
+    const users: AdminUser[] = this.facade.users();
+    const query: string = this.searchQuery().toLowerCase();
+    const role: string = this.selectedRole();
+
+    return users.filter((user: AdminUser) => {
+      const matchesSearch: boolean = !query
+        || user.name.toLowerCase().includes(query)
+        || user.email.toLowerCase().includes(query);
+      const matchesRole: boolean = role === 'ALL' || user.role === role;
+      return matchesSearch && matchesRole;
+    });
+  });
+
   ngOnInit(): void {
     this.facade.loadUsers();
     this.facade.loadInvites();
+  }
+
+  protected onSearchChange(value: string): void {
+    this.searchQuery.set(value);
+  }
+
+  protected onRoleFilterChange(role: string): void {
+    this.selectedRole.set(role);
   }
 
   protected onCreateUser(): void {

@@ -4,8 +4,7 @@
 
     @if (isLoading()) {
       <p class="assignment__loading">{{ t('common.loading') }}</p>
-    }
-
+    } @else {
     <div class="assignment__list">
       @for (item of assignments(); track item.caseId) {
         <ui-card padding="md" [hoverable]="true">
@@ -26,5 +25,6 @@
         <p class="assignment__empty">{{ t('coordinator.assignmentEmpty') }}</p>
       }
     </div>
+    }
   </section>
 </ng-container>

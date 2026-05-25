@@ -1,25 +1,25 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
   BadgeComponent,
-  CardComponent,
+  ButtonComponent,
   IconComponent,
   ProgressBarComponent,
 } from '@org/shared/ui';
 import { PersonFacade } from '@org/person/data-access';
 
-import type { BadgeVariant } from '@org/shared/ui';
+import type { PersonCourse } from '@org/person/data-access';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
   imports: [
     TranslocoDirective,
-    CardComponent,
     IconComponent,
     ProgressBarComponent,
     BadgeComponent,
+    ButtonComponent,
   ],
   templateUrl: './courses.component.html',
   styleUrl: './courses.component.scss',
@@ -28,18 +28,15 @@ import type { BadgeVariant } from '@org/shared/ui';
 export class CoursesComponent implements OnInit {
   readonly facade: PersonFacade = inject(PersonFacade);
 
+  readonly activeCourses: Signal<PersonCourse[]> = computed(() =>
+    this.facade.courses().filter((c) => c.status === 'in_progress')
+  );
+
+  readonly recommendedCourses: Signal<PersonCourse[]> = computed(() =>
+    this.facade.courses().filter((c) => c.status === 'not_started')
+  );
+
   ngOnInit(): void {
     this.facade.loadCourses();
-  }
-
-  getStatusVariant(status: string): BadgeVariant {
-    switch (status) {
-      case 'completed':
-        return 'success';
-      case 'in_progress':
-        return 'warning';
-      default:
-        return 'neutral';
-    }
   }
 }

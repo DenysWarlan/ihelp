@@ -3,12 +3,45 @@
 }
 
 .courses-page {
+  max-width: 900px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--ihelp-space-8);
+  }
+
+  &__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-1);
+  }
+
   &__title {
     font-family: var(--ihelp-font-heading);
     font-size: var(--ihelp-text-2xl);
     font-weight: var(--ihelp-font-bold);
     color: var(--ihelp-text-primary);
-    margin-bottom: var(--ihelp-space-6);
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-text-muted);
+    margin: 0;
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--ihelp-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   &__loading {
@@ -25,25 +58,78 @@
     color: var(--ihelp-text-muted);
     text-align: center;
   }
-
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--ihelp-space-4);
-  }
 }
 
-.course-card {
-  &__content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ihelp-space-3);
-  }
+// Section layout
+.courses-section {
+  margin-bottom: var(--ihelp-space-8);
 
   &__header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    gap: var(--ihelp-space-3);
+    margin-bottom: var(--ihelp-space-4);
+  }
+
+  &__title {
+    font-family: var(--ihelp-font-heading);
+    font-size: var(--ihelp-text-lg);
+    font-weight: var(--ihelp-font-semibold);
+    color: var(--ihelp-text-primary);
+    margin: 0;
+  }
+
+  &__grid {
+    display: grid;
+    gap: var(--ihelp-space-4);
+
+    &--active {
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    }
+
+    &--recommended {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Active course cards - large with green gradient header
+.active-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--ihelp-surface);
+  border: 1px solid var(--ihelp-border, rgba(0, 0, 0, 0.08));
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  &__visual {
+    background: linear-gradient(135deg, #c8dbbc 0%, #e2edd9 100%);
+    padding: var(--ihelp-space-8) var(--ihelp-space-6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+  }
+
+  &__icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__body {
+    padding: var(--ihelp-space-4) var(--ihelp-space-5);
+    display: flex;
+    flex-direction: column;
     gap: var(--ihelp-space-3);
   }
 
@@ -51,31 +137,131 @@
     font-size: var(--ihelp-text-base);
     font-weight: var(--ihelp-font-semibold);
     color: var(--ihelp-text-primary);
+    margin: 0;
   }
 
-  &__desc {
-    font-size: var(--ihelp-text-sm);
-    color: var(--ihelp-text-muted);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  &__progress {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ihelp-space-2);
-  }
-
-  &__lessons {
+  &__meta {
     font-size: var(--ihelp-text-xs);
-    color: var(--ihelp-text-secondary);
+    color: var(--ihelp-text-muted);
+    margin: 0;
+  }
+
+  &__action {
+    margin-top: var(--ihelp-space-1);
   }
 }
 
+// Recommended course cards - compact horizontal layout
+.recommended-card {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-4);
+  padding: var(--ihelp-space-4) var(--ihelp-space-5);
+  border-radius: 12px;
+  background-color: var(--ihelp-surface);
+  border: 1px solid var(--ihelp-border, rgba(0, 0, 0, 0.08));
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: var(--ihelp-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: var(--ihelp-text-sm);
+    font-weight: var(--ihelp-font-semibold);
+    color: var(--ihelp-text-primary);
+    margin: 0;
+  }
+
+  &__meta {
+    font-size: var(--ihelp-text-xs);
+    color: var(--ihelp-text-muted);
+    margin: var(--ihelp-space-1) 0 0;
+  }
+
+  &__action {
+    flex-shrink: 0;
+  }
+}
+
+// Help banner
+.help-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ihelp-space-5) var(--ihelp-space-6);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4a7c3f 0%, #6ba35e 100%);
+  margin-top: var(--ihelp-space-8);
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-4);
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-1);
+  }
+
+  &__title {
+    font-size: var(--ihelp-text-base);
+    font-weight: var(--ihelp-font-semibold);
+    color: #fff;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: var(--ihelp-text-sm);
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+}
+
+// Responsive
 @media (max-width: 767px) {
-  .courses-page__grid {
+  .courses-section__grid--active {
     grid-template-columns: 1fr;
+  }
+
+  .help-banner {
+    flex-direction: column;
+    gap: var(--ihelp-space-4);
+    text-align: center;
+
+    &__content {
+      flex-direction: column;
+    }
   }
 }

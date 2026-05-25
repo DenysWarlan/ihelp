@@ -74,3 +74,33 @@ export { StaffChatFacade } from './service/staff-chat-facade.service';
 
 // Staff Chat Stores
 export { StaffChatStore } from './store/staff-chat.store';
+
+// Course Manage Models
+export type {
+  AdminCourse,
+  CreateCourseFormModel,
+} from './model/course-manage.model';
+
+// Course Manage Services
+export { CourseManageService } from './service/course-manage.service';
+export { CourseManageFacade } from './service/course-manage-facade.service';
+
+// Course Manage Stores
+export { CourseManageStore } from './store/course-manage.store';
+
+// GDPR Models
+export type {
+  GdprAccessRequest,
+  GdprRetentionPolicy,
+  GdprSarKeyword,
+  GdprAuditEntry,
+  GdprAuditLogParams,
+  GdprTab,
+} from './model/gdpr.model';
+
+// GDPR Services
+export { GdprService } from './service/gdpr.service';
+export { GdprFacade } from './service/gdpr-facade.service';
+
+// GDPR Stores
+export { GdprStore } from './store/gdpr.store';

@@ -4,7 +4,7 @@
 
     @if (isLoading()) {
       <p class="crisis__loading">{{ t('common.loading') }}</p>
-    }
+    } @else {
 
     @if (hasUnacknowledged()) {
       <ui-alert-banner variant="crisis">
@@ -44,5 +44,7 @@
         <p class="crisis__empty">{{ t('coordinator.crisisEmpty') }}</p>
       }
     </div>
+
+    }
   </section>
 </ng-container>

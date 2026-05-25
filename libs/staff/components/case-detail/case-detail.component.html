@@ -68,6 +68,9 @@
           </div>
         }
       </ui-card>
+    } @else {
+      <h1 class="case-detail__title">{{ t('staffCaseDetail.topic') }}</h1>
+      <p class="case-detail__empty">{{ t('staffCases.empty') }}</p>
     }
   </section>
 </ng-container>

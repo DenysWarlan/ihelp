@@ -26,10 +26,10 @@ export const appRoutes: Route[] = [
   // -------------------------------------------------------------------------
   {
     path: 'staff',
-    canActivate: [authGuard],
     loadChildren: () =>
       import('@org/staff/components').then((m) => m.staffRoutes),
   },
+
 
   // -------------------------------------------------------------------------
   // Fallback

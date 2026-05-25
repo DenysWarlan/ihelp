@@ -57,6 +57,22 @@
           </form>
         </ui-card>
       </div>
+    } @else {
+      <div class="profile-page__content">
+        <ui-card>
+          <div class="profile-header">
+            <div class="profile-header__avatar">
+              <div class="profile-header__placeholder">
+                <ui-icon name="User" [size]="32" color="var(--ihelp-text-muted)" />
+              </div>
+            </div>
+            <div class="profile-header__info">
+              <h2 class="profile-header__name">--</h2>
+              <p class="profile-header__email">--</p>
+            </div>
+          </div>
+        </ui-card>
+      </div>
     }
   </div>
 </ng-container>

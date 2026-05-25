@@ -16,36 +16,209 @@
   margin: 0;
 }
 
-.gdpr-placeholder {
+// Tabs
+.gdpr-tabs {
+  display: flex;
+  gap: var(--ihelp-space-1);
+  border-bottom: 1px solid var(--ihelp-border);
+  padding-bottom: 0;
+}
+
+.gdpr-tabs__item {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+  padding: var(--ihelp-space-2) var(--ihelp-space-4);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--ihelp-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  margin-bottom: -1px;
+
+  &:hover {
+    color: var(--ihelp-text-primary);
+  }
+
+  &--active {
+    color: var(--ihelp-brand);
+    border-bottom-color: var(--ihelp-brand);
+  }
+}
+
+// Error
+.gdpr-error {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+  color: var(--ihelp-error);
+  font-size: 14px;
+}
+
+// Loading
+.gdpr-loading {
+  text-align: center;
+  color: var(--ihelp-text-muted);
+  font-size: 14px;
+  padding: var(--ihelp-space-4) 0;
+}
+
+// Empty state
+.gdpr-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--ihelp-space-3);
   padding: var(--ihelp-space-6) 0;
   text-align: center;
+  color: var(--ihelp-text-muted);
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
 }
 
-.gdpr-placeholder__icon {
+// Access Requests
+.gdpr-request {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.gdpr-request__header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background-color: var(--ihelp-bg-secondary);
-  color: var(--ihelp-brand);
+  justify-content: space-between;
 }
 
-.gdpr-placeholder__heading {
-  font-size: 18px;
+.gdpr-request__title {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ihelp-text-primary);
+}
+
+.gdpr-request__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.gdpr-request__field {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ihelp-space-2);
+  font-size: 13px;
+  color: var(--ihelp-text-secondary);
+}
+
+.gdpr-request__label {
   font-weight: 600;
   color: var(--ihelp-text-primary);
-  margin: 0;
+  white-space: nowrap;
 }
 
-.gdpr-placeholder__text {
+.gdpr-request__actions {
+  display: flex;
+  gap: var(--ihelp-space-2);
+  padding-top: var(--ihelp-space-2);
+  border-top: 1px solid var(--ihelp-border);
+}
+
+// Retention Policies
+.gdpr-policy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.gdpr-policy__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gdpr-policy__title {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+}
+
+.gdpr-policy__entity {
+  font-weight: 600;
   font-size: 14px;
+  color: var(--ihelp-text-primary);
+}
+
+.gdpr-policy__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.gdpr-policy__field {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ihelp-space-2);
+  font-size: 13px;
+  color: var(--ihelp-text-secondary);
+}
+
+.gdpr-policy__label {
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+  white-space: nowrap;
+}
+
+.gdpr-policy__value {
+  font-weight: 500;
+}
+
+// SAR Keywords
+.gdpr-keywords {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.gdpr-keyword {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.gdpr-keyword__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gdpr-keyword__text {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ihelp-text-primary);
+}
+
+.gdpr-keyword__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-4);
+  font-size: 13px;
   color: var(--ihelp-text-muted);
-  margin: 0;
-  max-width: 400px;
+}
+
+.gdpr-keyword__language {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-1);
+}
+
+.gdpr-keyword__date {
+  color: var(--ihelp-text-muted);
 }

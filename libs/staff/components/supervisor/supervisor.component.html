@@ -4,15 +4,13 @@
 
     @if (isLoading()) {
       <p class="supervisor-dashboard__loading">{{ t('common.loading') }}</p>
-    }
-
-    @if (teamAnalytics(); as analytics) {
+    } @else {
       <div class="supervisor-dashboard__stats">
         <ui-card padding="sm">
           <div class="stat-card">
             <ui-icon name="FolderOpen" [size]="20" color="var(--ihelp-accent)" />
             <div class="stat-card__content">
-              <span class="stat-card__value">{{ analytics.totalCasesThisMonth }}</span>
+              <span class="stat-card__value">{{ teamAnalytics()?.totalCasesThisMonth ?? 0 }}</span>
               <span class="stat-card__label">{{ t('supervisor.totalCases') }}</span>
             </div>
           </div>
@@ -22,7 +20,7 @@
           <div class="stat-card">
             <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
             <div class="stat-card__content">
-              <span class="stat-card__value">{{ analytics.resolvedCases }}</span>
+              <span class="stat-card__value">{{ teamAnalytics()?.resolvedCases ?? 0 }}</span>
               <span class="stat-card__label">{{ t('supervisor.resolvedCases') }}</span>
             </div>
           </div>
@@ -32,7 +30,7 @@
           <div class="stat-card">
             <ui-icon name="Star" [size]="20" color="var(--ihelp-accent)" />
             <div class="stat-card__content">
-              <span class="stat-card__value">{{ analytics.satisfactionScore }}/5</span>
+              <span class="stat-card__value">{{ teamAnalytics()?.satisfactionScore ?? 0 }}/5</span>
               <span class="stat-card__label">{{ t('supervisor.satisfaction') }}</span>
             </div>
           </div>

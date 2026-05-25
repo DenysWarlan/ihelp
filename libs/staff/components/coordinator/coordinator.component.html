@@ -1,55 +1,87 @@
 <ng-container *transloco="let t">
   <section class="coordinator-dashboard">
-    <h1 class="coordinator-dashboard__title">{{ t('coordinator.dashboardTitle') }}</h1>
+    <header class="coordinator-dashboard__header">
+      <div class="coordinator-dashboard__header-text">
+        <h1 class="coordinator-dashboard__title">{{ t('coordinator.dashboardTitle') }}</h1>
+        <p class="coordinator-dashboard__subtitle">{{ t('coordinator.dashboardSubtitle') }}</p>
+      </div>
+      <div class="coordinator-dashboard__avatar">
+        <span class="coordinator-dashboard__avatar-circle">О</span>
+      </div>
+    </header>
 
-    <div class="coordinator-dashboard__grid">
-      <a routerLink="../sla" class="coordinator-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="Timer" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('coordinator.slaTitle') }}</span>
-              <span class="nav-card__desc">{{ t('coordinator.slaDesc') }}</span>
-            </div>
-          </div>
-        </ui-card>
-      </a>
-
-      <a routerLink="../assignment" class="coordinator-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="UserPlus" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('coordinator.assignmentTitle') }}</span>
-              <span class="nav-card__desc">{{ t('coordinator.assignmentDesc') }}</span>
-            </div>
-          </div>
-        </ui-card>
-      </a>
-
-      <a routerLink="../workload" class="coordinator-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="BarChart3" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('coordinator.workloadTitle') }}</span>
-              <span class="nav-card__desc">{{ t('coordinator.workloadDesc') }}</span>
-            </div>
-          </div>
-        </ui-card>
-      </a>
-
-      <a routerLink="../crisis" class="coordinator-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="AlertTriangle" [size]="28" color="var(--ihelp-error)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('coordinator.crisisTitle') }}</span>
-              <span class="nav-card__desc">{{ t('coordinator.crisisDesc') }}</span>
-            </div>
-          </div>
-        </ui-card>
-      </a>
+    <div class="coordinator-dashboard__stats">
+      <div class="stat-card stat-card--success">
+        <span class="stat-card__value">{{ slaOverview()?.onTrack ?? 0 }}</span>
+        <span class="stat-card__label">{{ t('coordinator.inProgress') }}</span>
+      </div>
+      <div class="stat-card stat-card--success">
+        <span class="stat-card__value">{{ slaOverview()?.totalActive ?? 0 }}</span>
+        <span class="stat-card__label">{{ t('coordinator.totalMonth') }}</span>
+      </div>
+      <div class="stat-card stat-card--warning">
+        <span class="stat-card__value">{{ slaOverview()?.atRisk ?? 0 }}</span>
+        <span class="stat-card__label">{{ t('coordinator.slaThreat') }}</span>
+      </div>
+      <div class="stat-card stat-card--error">
+        <span class="stat-card__value">{{ unacknowledgedCrisisCount() }}</span>
+        <span class="stat-card__label">{{ t('coordinator.crisisCases') }}</span>
+      </div>
     </div>
+
+    <div class="coordinator-dashboard__section-header">
+      <h2 class="coordinator-dashboard__section-title">{{ t('coordinator.newRequests') }}</h2>
+      <ui-button variant="primary" size="sm">
+        {{ t('coordinator.assignAll') }}
+      </ui-button>
+    </div>
+
+    <div class="coordinator-dashboard__table-wrapper">
+      <table class="coordinator-dashboard__table">
+        <thead>
+          <tr>
+            <th>{{ t('coordinator.colName') }}</th>
+            <th>{{ t('coordinator.colTopic') }}</th>
+            <th>{{ t('coordinator.colPriority') }}</th>
+            <th>{{ t('coordinator.colWaitTime') }}</th>
+            <th>{{ t('coordinator.colStatus') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (assignment of assignments(); track assignment.caseId) {
+            <tr>
+              <td>{{ assignment.personName }}</td>
+              <td>{{ assignment.topic }}</td>
+              <td>
+                <ui-badge [variant]="getPriorityVariant(assignment.reason)">
+                  {{ assignment.reason }}
+                </ui-badge>
+              </td>
+              <td>{{ assignment.suggestedConsultantName }}</td>
+              <td>
+                <ui-badge variant="info">{{ t('coordinator.assignmentTitle') }}</ui-badge>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="coordinator-dashboard__empty">
+                {{ t('coordinator.assignmentEmpty') }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (slaOverview()?.atRisk && slaOverview()!.atRisk > 0) {
+      <ui-alert-banner variant="warning">
+        <span class="coordinator-dashboard__alert-content">
+          <span>{{ t('coordinator.waitAlert') }}</span>
+          <ui-button variant="primary" size="sm">
+            {{ t('coordinator.reviewAction') }}
+          </ui-button>
+        </span>
+      </ui-alert-banner>
+    }
   </section>
 </ng-container>

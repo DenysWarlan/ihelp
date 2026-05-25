@@ -4,15 +4,13 @@
 
     @if (isLoading()) {
       <p class="sla-monitor__loading">{{ t('common.loading') }}</p>
-    }
-
-    @if (slaOverview(); as overview) {
+    } @else {
       <div class="sla-monitor__stats">
         <ui-card padding="sm">
           <div class="stat-card">
             <ui-icon name="Activity" [size]="20" color="var(--ihelp-accent)" />
             <div class="stat-card__content">
-              <span class="stat-card__value">{{ overview.totalActive }}</span>
+              <span class="stat-card__value">{{ slaOverview()?.totalActive ?? 0 }}</span>
               <span class="stat-card__label">{{ t('coordinator.slaTotal') }}</span>
             </div>
           </div>
@@ -22,7 +20,7 @@
           <div class="stat-card">
             <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
             <div class="stat-card__content">
-              <span class="stat-card__value">{{ overview.onTrack }}</span>
+              <span class="stat-card__value">{{ slaOverview()?.onTrack ?? 0 }}</span>
               <span class="stat-card__label">{{ t('coordinator.slaOnTrack') }}</span>
             </div>
           </div>
@@ -32,7 +30,7 @@
           <div class="stat-card">
             <ui-icon name="Clock" [size]="20" color="var(--ihelp-warning)" />
             <div class="stat-card__content">
-              <span class="stat-card__value">{{ overview.atRisk }}</span>
+              <span class="stat-card__value">{{ slaOverview()?.atRisk ?? 0 }}</span>
               <span class="stat-card__label">{{ t('coordinator.slaAtRisk') }}</span>
             </div>
           </div>
@@ -42,7 +40,7 @@
           <div class="stat-card">
             <ui-icon name="AlertTriangle" [size]="20" color="var(--ihelp-error)" />
             <div class="stat-card__content">
-              <span class="stat-card__value">{{ overview.breached }}</span>
+              <span class="stat-card__value">{{ slaOverview()?.breached ?? 0 }}</span>
               <span class="stat-card__label">{{ t('coordinator.slaBreached') }}</span>
             </div>
           </div>
@@ -50,7 +48,7 @@
       </div>
 
       <div class="sla-monitor__timers">
-        @for (timer of overview.timers; track timer.id) {
+        @for (timer of (slaOverview()?.timers ?? []); track timer.id) {
           <ui-card padding="sm" [hoverable]="true">
             <div class="timer-card">
               <div class="timer-card__header">

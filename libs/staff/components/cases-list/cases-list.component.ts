@@ -2,14 +2,21 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/cor
 import { DatePipe } from '@angular/common';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { BadgeComponent, CardComponent } from '@org/shared/ui';
+import { AlertBannerComponent, BadgeComponent, ButtonComponent, IconComponent } from '@org/shared/ui';
 import { StaffFacade } from '@org/staff/data-access';
 import type { BadgeVariant } from '@org/shared/ui';
 
 @Component({
   selector: 'app-cases-list',
   standalone: true,
-  imports: [TranslocoDirective, CardComponent, BadgeComponent, DatePipe],
+  imports: [
+    TranslocoDirective,
+    BadgeComponent,
+    ButtonComponent,
+    IconComponent,
+    AlertBannerComponent,
+    DatePipe,
+  ],
   templateUrl: './cases-list.component.html',
   styleUrl: './cases-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,10 +25,12 @@ export class CasesListComponent implements OnInit {
   private readonly facade: StaffFacade = inject(StaffFacade);
 
   readonly cases = this.facade.cases;
+  readonly dashboard = this.facade.dashboard;
   readonly isLoading = this.facade.isLoading;
 
   ngOnInit(): void {
     this.facade.loadCases();
+    this.facade.loadDashboard();
   }
 
   onCaseClick(id: string): void {
@@ -31,9 +40,9 @@ export class CasesListComponent implements OnInit {
   getStatusVariant(status: string): BadgeVariant {
     switch (status) {
       case 'OPEN':
-        return 'info';
+        return 'success';
       case 'IN_PROGRESS':
-        return 'warning';
+        return 'info';
       case 'WAITING':
         return 'neutral';
       case 'RESOLVED':
@@ -50,9 +59,9 @@ export class CasesListComponent implements OnInit {
       case 'CRISIS':
         return 'error';
       case 'HIGH':
-        return 'warning';
+        return 'error';
       case 'MEDIUM':
-        return 'info';
+        return 'warning';
       case 'LOW':
         return 'neutral';
       default:

@@ -1,14 +1,204 @@
 <ng-container *transloco="let t">
   <section class="gdpr-page">
     <h1 class="gdpr-page__title">{{ t('admin.gdpr') }}</h1>
-    <ui-card padding="md">
-      <div class="gdpr-placeholder">
-        <div class="gdpr-placeholder__icon">
-          <ui-icon name="Shield" [size]="32" />
+
+    <!-- Tabs -->
+    <div class="gdpr-tabs">
+      <button
+        class="gdpr-tabs__item"
+        [class.gdpr-tabs__item--active]="facade.activeTab() === 'accessRequests'"
+        (click)="facade.setActiveTab('accessRequests')"
+      >
+        <ui-icon name="Shield" [size]="16" />
+        {{ t('admin.gdprTabAccessRequests') }}
+      </button>
+      <button
+        class="gdpr-tabs__item"
+        [class.gdpr-tabs__item--active]="facade.activeTab() === 'retentionPolicies'"
+        (click)="facade.setActiveTab('retentionPolicies')"
+      >
+        <ui-icon name="Clock" [size]="16" />
+        {{ t('admin.gdprTabRetention') }}
+      </button>
+      <button
+        class="gdpr-tabs__item"
+        [class.gdpr-tabs__item--active]="facade.activeTab() === 'sarKeywords'"
+        (click)="facade.setActiveTab('sarKeywords')"
+      >
+        <ui-icon name="Search" [size]="16" />
+        {{ t('admin.gdprTabSarKeywords') }}
+      </button>
+    </div>
+
+    <!-- Error -->
+    @if (facade.error()) {
+      <ui-card padding="md">
+        <div class="gdpr-error">
+          <ui-icon name="AlertTriangle" [size]="20" />
+          <span>{{ facade.error() }}</span>
         </div>
-        <h3 class="gdpr-placeholder__heading">{{ t('admin.gdprDataRequests') }}</h3>
-        <p class="gdpr-placeholder__text">{{ t('admin.gdprPlaceholder') }}</p>
-      </div>
-    </ui-card>
+      </ui-card>
+    }
+
+    <!-- Loading -->
+    @if (facade.isLoading()) {
+      <ui-card padding="md">
+        <div class="gdpr-loading">{{ t('admin.gdprLoading') }}</div>
+      </ui-card>
+    }
+
+    <!-- Access Requests Tab -->
+    @if (facade.activeTab() === 'accessRequests' && !facade.isLoading()) {
+      @if (facade.accessRequests().length === 0) {
+        <ui-card padding="md">
+          <div class="gdpr-empty">
+            <ui-icon name="Shield" [size]="32" />
+            <p>{{ t('admin.gdprNoAccessRequests') }}</p>
+          </div>
+        </ui-card>
+      } @else {
+        @for (request of facade.accessRequests(); track request.id) {
+          <ui-card padding="md">
+            <div class="gdpr-request">
+              <div class="gdpr-request__header">
+                <div class="gdpr-request__title">
+                  <ui-icon name="User" [size]="16" />
+                  <span class="gdpr-request__label">{{ t('admin.gdprRequester') }}:</span>
+                  <span>{{ request.requesterId }}</span>
+                </div>
+                <ui-badge [variant]="facade.getStatusBadgeVariant(request.status)">
+                  {{ request.status }}
+                </ui-badge>
+              </div>
+
+              <div class="gdpr-request__details">
+                <div class="gdpr-request__field">
+                  <span class="gdpr-request__label">{{ t('admin.gdprTargetUser') }}:</span>
+                  <span>{{ request.targetUserId }}</span>
+                </div>
+                <div class="gdpr-request__field">
+                  <span class="gdpr-request__label">{{ t('admin.gdprReason') }}:</span>
+                  <span>{{ request.reason }}</span>
+                </div>
+                <div class="gdpr-request__field">
+                  <span class="gdpr-request__label">{{ t('admin.gdprCreatedAt') }}:</span>
+                  <span>{{ request.createdAt | date:'medium' }}</span>
+                </div>
+                <div class="gdpr-request__field">
+                  <span class="gdpr-request__label">{{ t('admin.gdprExpiresAt') }}:</span>
+                  <span>{{ request.expiresAt | date:'medium' }}</span>
+                </div>
+                @if (request.resolvedAt) {
+                  <div class="gdpr-request__field">
+                    <span class="gdpr-request__label">{{ t('admin.gdprResolvedAt') }}:</span>
+                    <span>{{ request.resolvedAt | date:'medium' }}</span>
+                  </div>
+                }
+              </div>
+
+              @if (request.status === 'PENDING') {
+                <div class="gdpr-request__actions">
+                  <ui-button
+                    variant="primary"
+                    size="sm"
+                    (click)="facade.approveRequest(request.id)"
+                  >
+                    {{ t('admin.gdprApprove') }}
+                  </ui-button>
+                  <ui-button
+                    variant="danger"
+                    size="sm"
+                    (click)="facade.rejectRequest(request.id)"
+                  >
+                    {{ t('admin.gdprReject') }}
+                  </ui-button>
+                </div>
+              }
+            </div>
+          </ui-card>
+        }
+      }
+    }
+
+    <!-- Retention Policies Tab -->
+    @if (facade.activeTab() === 'retentionPolicies' && !facade.isLoading()) {
+      @if (facade.retentionPolicies().length === 0) {
+        <ui-card padding="md">
+          <div class="gdpr-empty">
+            <ui-icon name="Clock" [size]="32" />
+            <p>{{ t('admin.gdprNoRetentionPolicies') }}</p>
+          </div>
+        </ui-card>
+      } @else {
+        @for (policy of facade.retentionPolicies(); track policy.id) {
+          <ui-card padding="md">
+            <div class="gdpr-policy">
+              <div class="gdpr-policy__header">
+                <div class="gdpr-policy__title">
+                  <ui-icon name="Database" [size]="16" />
+                  <span class="gdpr-policy__entity">{{ policy.entityType }}</span>
+                </div>
+                <ui-badge [variant]="facade.getActiveBadgeVariant(policy.isActive)">
+                  {{ policy.isActive ? t('admin.active') : t('admin.inactive') }}
+                </ui-badge>
+              </div>
+
+              <div class="gdpr-policy__details">
+                <div class="gdpr-policy__field">
+                  <span class="gdpr-policy__label">{{ t('admin.gdprRetentionDays') }}:</span>
+                  <span class="gdpr-policy__value">{{ policy.retentionDays }} {{ t('admin.gdprDays') }}</span>
+                </div>
+                @if (policy.description) {
+                  <div class="gdpr-policy__field">
+                    <span class="gdpr-policy__label">{{ t('admin.gdprDescription') }}:</span>
+                    <span>{{ policy.description }}</span>
+                  </div>
+                }
+                <div class="gdpr-policy__field">
+                  <span class="gdpr-policy__label">{{ t('admin.gdprCreatedAt') }}:</span>
+                  <span>{{ policy.createdAt | date:'medium' }}</span>
+                </div>
+              </div>
+            </div>
+          </ui-card>
+        }
+      }
+    }
+
+    <!-- SAR Keywords Tab -->
+    @if (facade.activeTab() === 'sarKeywords' && !facade.isLoading()) {
+      @if (facade.sarKeywords().length === 0) {
+        <ui-card padding="md">
+          <div class="gdpr-empty">
+            <ui-icon name="Search" [size]="32" />
+            <p>{{ t('admin.gdprNoSarKeywords') }}</p>
+          </div>
+        </ui-card>
+      } @else {
+        <div class="gdpr-keywords">
+          @for (keyword of facade.sarKeywords(); track keyword.id) {
+            <ui-card padding="md">
+              <div class="gdpr-keyword">
+                <div class="gdpr-keyword__header">
+                  <span class="gdpr-keyword__text">{{ keyword.keyword }}</span>
+                  <ui-badge [variant]="facade.getActiveBadgeVariant(keyword.isActive)">
+                    {{ keyword.isActive ? t('admin.active') : t('admin.inactive') }}
+                  </ui-badge>
+                </div>
+                <div class="gdpr-keyword__meta">
+                  <span class="gdpr-keyword__language">
+                    <ui-icon name="Globe" [size]="14" />
+                    {{ keyword.language }}
+                  </span>
+                  <span class="gdpr-keyword__date">
+                    {{ keyword.createdAt | date:'mediumDate' }}
+                  </span>
+                </div>
+              </div>
+            </ui-card>
+          }
+        </div>
+      }
+    }
   </section>
 </ng-container>

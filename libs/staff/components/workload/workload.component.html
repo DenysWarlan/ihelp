@@ -4,8 +4,7 @@
 
     @if (isLoading()) {
       <p class="workload__loading">{{ t('common.loading') }}</p>
-    }
-
+    } @else {
     <div class="workload__grid">
       @for (entry of workload(); track entry.consultantId) {
         <ui-card padding="md" [hoverable]="true">
@@ -31,5 +30,6 @@
         <p class="workload__empty">{{ t('coordinator.workloadEmpty') }}</p>
       }
     </div>
+    }
   </section>
 </ng-container>

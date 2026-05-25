@@ -1,6 +1,15 @@
 <ng-container *transloco="let t">
   <div class="courses-page">
-    <h1 class="courses-page__title">{{ t('courses.title') }}</h1>
+    <!-- Page Header -->
+    <div class="courses-page__header">
+      <div class="courses-page__header-text">
+        <h1 class="courses-page__title">{{ t('courses.pageTitle') }}</h1>
+        <p class="courses-page__subtitle">{{ t('courses.pageSubtitle') }}</p>
+      </div>
+      <div class="courses-page__avatar">
+        <ui-icon name="User" [size]="24" color="var(--ihelp-text-muted)" />
+      </div>
+    </div>
 
     @if (facade.isLoading()) {
       <p class="courses-page__loading">{{ t('common.loading') }}</p>
@@ -10,26 +19,76 @@
         <p>{{ t('courses.empty') }}</p>
       </div>
     } @else {
-      <div class="courses-page__grid">
-        @for (course of facade.courses(); track course.id) {
-          <ui-card [hoverable]="true" (click)="facade.navigateToCourse(course.id)">
-            <div class="course-card__content">
-              <div class="course-card__header">
-                <h3 class="course-card__title">{{ course.title }}</h3>
-                <ui-badge [variant]="getStatusVariant(course.status)">
-                  {{ t('courses.status.' + course.status) }}
-                </ui-badge>
+      <!-- Active Courses Section -->
+      @if (activeCourses().length > 0) {
+        <section class="courses-section">
+          <div class="courses-section__header">
+            <h2 class="courses-section__title">{{ t('courses.activeCourses') }}</h2>
+            <ui-badge variant="success">{{ t('courses.status.in_progress') }}</ui-badge>
+          </div>
+          <div class="courses-section__grid courses-section__grid--active">
+            @for (course of activeCourses(); track course.id) {
+              <div class="active-card" (click)="facade.navigateToCourse(course.id)">
+                <div class="active-card__visual">
+                  <div class="active-card__icon-wrapper">
+                    <ui-icon name="BookOpen" [size]="32" color="#4a7c3f" />
+                  </div>
+                </div>
+                <div class="active-card__body">
+                  <h3 class="active-card__title">{{ course.title }}</h3>
+                  <p class="active-card__meta">
+                    {{ course.totalLessons }} {{ t('courses.lessonsCount') }} · {{ course.completedLessons }} {{ t('courses.lessonsProgress', { completed: course.completedLessons }) }}
+                  </p>
+                  <ui-progress-bar [value]="course.progress" variant="success" />
+                  <div class="active-card__action">
+                    <ui-button variant="primary" size="sm">{{ t('courses.continue') }}</ui-button>
+                  </div>
+                </div>
               </div>
-              <p class="course-card__desc">{{ course.description }}</p>
-              <div class="course-card__progress">
-                <span class="course-card__lessons">
-                  {{ course.completedLessons }}/{{ course.totalLessons }} {{ t('courses.lessons') }}
-                </span>
-                <ui-progress-bar [value]="course.progress" variant="success" />
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Recommended Courses Section -->
+      @if (recommendedCourses().length > 0) {
+        <section class="courses-section">
+          <div class="courses-section__header">
+            <h2 class="courses-section__title">{{ t('courses.recommended') }}</h2>
+          </div>
+          <div class="courses-section__grid courses-section__grid--recommended">
+            @for (course of recommendedCourses(); track course.id) {
+              <div class="recommended-card" (click)="facade.navigateToCourse(course.id)">
+                <div class="recommended-card__icon">
+                  <ui-icon name="BookOpen" [size]="24" color="var(--ihelp-accent)" />
+                </div>
+                <div class="recommended-card__body">
+                  <h3 class="recommended-card__title">{{ course.title }}</h3>
+                  <p class="recommended-card__meta">
+                    {{ course.totalLessons }} {{ t('courses.lessonsCount') }}
+                  </p>
+                </div>
+                <div class="recommended-card__action">
+                  <ui-button variant="secondary" size="sm">{{ t('courses.start') }}</ui-button>
+                </div>
               </div>
-            </div>
-          </ui-card>
-        }
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Help Banner -->
+      <div class="help-banner">
+        <div class="help-banner__content">
+          <div class="help-banner__icon">
+            <ui-icon name="MessageCircle" [size]="24" color="#fff" />
+          </div>
+          <div class="help-banner__text">
+            <h3 class="help-banner__title">{{ t('courses.helpTitle') }}</h3>
+            <p class="help-banner__subtitle">{{ t('courses.helpSubtitle') }}</p>
+          </div>
+        </div>
+        <ui-button variant="secondary" size="sm">{{ t('courses.helpAction') }}</ui-button>
       </div>
     }
   </div>

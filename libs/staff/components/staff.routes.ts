@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthenticatedLayoutComponent } from '@org/shared/ui';
+import {authGuard} from '@org/shared/data-access';
 
 export const staffRoutes: Routes = [
   {
@@ -9,6 +10,7 @@ export const staffRoutes: Routes = [
   },
   {
     path: '',
+    canActivate: [authGuard],
     component: AuthenticatedLayoutComponent,
     children: [
       {

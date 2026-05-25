@@ -4,70 +4,83 @@
 
     @if (isLoading()) {
       <p class="analytics__loading">{{ t('common.loading') }}</p>
-    }
-
-    @if (teamAnalytics(); as analytics) {
+    } @else {
       <div class="analytics__stats">
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="FolderOpen" [size]="20" color="var(--ihelp-accent)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ analytics.totalCasesThisMonth }}</span>
-              <span class="stat-card__label">{{ t('supervisor.totalCases') }}</span>
+        <div class="stat-card stat-card--green">
+          <span class="stat-card__value">{{ teamAnalytics()?.totalCasesThisMonth ?? 0 }}</span>
+          <span class="stat-card__label">{{ t('supervisor.totalRequests') }}</span>
+        </div>
+
+        <div class="stat-card stat-card--green">
+          <span class="stat-card__value">{{ teamAnalytics()?.resolvedCases ?? 0 }}</span>
+          <span class="stat-card__label">{{ t('supervisor.completed') }}</span>
+        </div>
+
+        <div class="stat-card stat-card--green">
+          <span class="stat-card__value">{{ activeCasesCount() }}</span>
+          <span class="stat-card__label">{{ t('supervisor.activeCasesLabel') }}</span>
+        </div>
+
+        <div class="stat-card stat-card--green">
+          <span class="stat-card__value">{{ teamAnalytics()?.avgResolutionDays ?? 0 }} {{ t('supervisor.hours') }}</span>
+          <span class="stat-card__label">{{ t('supervisor.avgResponseTime') }}</span>
+        </div>
+      </div>
+
+      <div class="analytics__charts">
+        <ui-card>
+          <div class="chart-card">
+            <h3 class="chart-card__title">{{ t('supervisor.topicBreakdown') }}</h3>
+            <div class="bar-chart">
+              @for (topic of topicData; track topic.label) {
+                <div class="bar-chart__row">
+                  <span class="bar-chart__label">{{ topic.label }}</span>
+                  <div class="bar-chart__track">
+                    <div
+                      class="bar-chart__fill bar-chart__fill--{{ topic.color }}"
+                      [style.width.%]="topic.percent"
+                    ></div>
+                  </div>
+                  <span class="bar-chart__count">{{ topic.count }}</span>
+                </div>
+              }
             </div>
           </div>
         </ui-card>
 
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ analytics.resolvedCases }}</span>
-              <span class="stat-card__label">{{ t('supervisor.resolvedCases') }}</span>
-            </div>
-          </div>
-        </ui-card>
-
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="Clock" [size]="20" color="var(--ihelp-warning)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ analytics.avgResolutionDays }}{{ t('supervisor.days') }}</span>
-              <span class="stat-card__label">{{ t('supervisor.avgResolution') }}</span>
-            </div>
-          </div>
-        </ui-card>
-
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="Star" [size]="20" color="var(--ihelp-accent)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ analytics.satisfactionScore }}/5</span>
-              <span class="stat-card__label">{{ t('supervisor.satisfaction') }}</span>
+        <ui-card>
+          <div class="chart-card">
+            <h3 class="chart-card__title">{{ t('supervisor.consultantLoad') }}</h3>
+            <div class="bar-chart">
+              @for (member of (teamAnalytics()?.teamMembers ?? []); track member.id) {
+                <div class="bar-chart__row">
+                  <span class="bar-chart__label">{{ member.name }}</span>
+                  <div class="bar-chart__track">
+                    <div
+                      class="bar-chart__fill bar-chart__fill--orange"
+                      [style.width.%]="getBarWidth(member.activeCases)"
+                    ></div>
+                  </div>
+                  <span class="bar-chart__count">{{ member.activeCases }}</span>
+                </div>
+              } @empty {
+                <p class="chart-card__empty">{{ t('supervisor.teamEmpty') }}</p>
+              }
             </div>
           </div>
         </ui-card>
       </div>
 
-      <h2 class="analytics__subtitle">{{ t('supervisor.teamPerformance') }}</h2>
+      <div class="analytics__metrics">
+        <div class="metric-card metric-card--green">
+          <span class="metric-card__value">8%</span>
+          <span class="metric-card__label">{{ t('supervisor.monthGrowth') }}</span>
+        </div>
 
-      <div class="analytics__members">
-        @for (member of analytics.teamMembers; track member.id) {
-          <ui-card padding="sm" [hoverable]="true">
-            <div class="member-row">
-              <div class="member-row__info">
-                <ui-icon name="User" [size]="18" color="var(--ihelp-text-muted)" />
-                <span class="member-row__name">{{ member.name }}</span>
-                <span class="member-row__role">{{ member.role }}</span>
-              </div>
-              <div class="member-row__metrics">
-                <span class="member-row__metric">{{ member.activeCases }} {{ t('supervisor.active') }}</span>
-                <span class="member-row__metric">{{ member.resolvedThisMonth }} {{ t('supervisor.resolved') }}</span>
-                <span class="member-row__metric">{{ member.avgResponseHours }}{{ t('supervisor.hours') }} {{ t('supervisor.avgResp') }}</span>
-              </div>
-            </div>
-          </ui-card>
-        }
+        <div class="metric-card metric-card--red">
+          <span class="metric-card__value">5%</span>
+          <span class="metric-card__label">{{ t('supervisor.consultTimeIncrease') }}</span>
+        </div>
       </div>
     }
   </section>

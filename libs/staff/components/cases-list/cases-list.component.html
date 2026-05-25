@@ -1,40 +1,89 @@
 <ng-container *transloco="let t">
   <section class="cases-list">
-    <h1 class="cases-list__title">{{ t('staff.cases') }}</h1>
+    <!-- Header -->
+    <div class="cases-list__header">
+      <div class="cases-list__header-text">
+        <h1 class="cases-list__title">{{ t('staff.cases') }}</h1>
+        <p class="cases-list__subtitle">{{ t('staffCases.subtitle') }}</p>
+      </div>
+      <div class="cases-list__avatar"></div>
+    </div>
 
-    @if (isLoading()) {
-      <p class="cases-list__loading">{{ t('common.loading') }}</p>
-    } @else if (cases().length === 0) {
-      <p class="cases-list__empty">{{ t('staffCases.empty') }}</p>
-    } @else {
-      <div class="cases-list__grid">
-        @for (caseItem of cases(); track caseItem.id) {
-          <ui-card
-            class="case-card"
-            padding="md"
-            [hoverable]="true"
-            (click)="onCaseClick(caseItem.id)"
-          >
-            <div class="case-card__header">
-              <span class="case-card__person">{{ caseItem.personName }}</span>
-              <div class="case-card__badges">
-                <ui-badge [variant]="getStatusVariant(caseItem.status)" size="sm">
-                  {{ t('staffCases.status.' + caseItem.status) }}
-                </ui-badge>
-                <ui-badge [variant]="getPriorityVariant(caseItem.priority)" size="sm">
-                  {{ t('staffCases.priority.' + caseItem.priority) }}
-                </ui-badge>
-              </div>
-            </div>
-            <p class="case-card__topic">{{ caseItem.topic }}</p>
-            <div class="case-card__meta">
-              <span class="case-card__date">
-                {{ t('staffCases.assigned') }}: {{ caseItem.assignedAt | date:'mediumDate' }}
-              </span>
-            </div>
-          </ui-card>
-        }
+    <!-- Alert banner -->
+    <ui-alert-banner variant="warning">
+      {{ t('staffCases.alertReminder') }}
+    </ui-alert-banner>
+
+    <!-- Stat cards -->
+    @if (dashboard(); as dash) {
+      <div class="cases-list__stats">
+        <div class="cases-list__stat-card">
+          <span class="cases-list__stat-number">{{ dash.activeCases }}</span>
+          <span class="cases-list__stat-label">{{ t('staffDashboard.activeCases') }}</span>
+        </div>
+        <div class="cases-list__stat-card cases-list__stat-card--crisis">
+          <span class="cases-list__stat-number">{{ dash.todayMeetings }}</span>
+          <span class="cases-list__stat-label">{{ t('staffDashboard.crisisCases') }}</span>
+        </div>
+        <div class="cases-list__stat-card">
+          <span class="cases-list__stat-number">{{ dash.pendingCases }}</span>
+          <span class="cases-list__stat-label">{{ t('staffDashboard.waitingCases') }}</span>
+        </div>
+        <div class="cases-list__stat-card">
+          <span class="cases-list__stat-number">{{ dash.resolvedThisWeek }}</span>
+          <span class="cases-list__stat-label">{{ t('staffDashboard.completedCases') }}</span>
+        </div>
       </div>
     }
+
+    <!-- Cases table section -->
+    <div class="cases-list__table-section">
+      <div class="cases-list__table-header">
+        <h2 class="cases-list__table-title">{{ t('staffCases.listTitle') }}</h2>
+        <ui-button variant="secondary">
+          <ui-icon name="Filter" [size]="20" />
+          {{ t('staffCases.filter') }}
+        </ui-button>
+      </div>
+
+      @if (isLoading()) {
+        <p class="cases-list__loading">{{ t('common.loading') }}</p>
+      } @else if (cases().length === 0) {
+        <p class="cases-list__empty">{{ t('staffCases.empty') }}</p>
+      } @else {
+        <table class="cases-list__table">
+          <thead>
+            <tr>
+              <th>{{ t('staffCases.colName') }}</th>
+              <th>{{ t('staffCases.colTopic') }}</th>
+              <th>{{ t('staffCases.colStatus') }}</th>
+              <th>{{ t('staffCases.colPriority') }}</th>
+              <th>{{ t('staffCases.colLastActivity') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (caseItem of cases(); track caseItem.id) {
+              <tr class="cases-list__row" (click)="onCaseClick(caseItem.id)">
+                <td class="cases-list__cell-name">{{ caseItem.personName }}</td>
+                <td>{{ caseItem.topic }}</td>
+                <td>
+                  <ui-badge [variant]="getStatusVariant(caseItem.status)" size="sm">
+                    {{ t('staffCases.status.' + caseItem.status) }}
+                  </ui-badge>
+                </td>
+                <td>
+                  <ui-badge [variant]="getPriorityVariant(caseItem.priority)" size="sm">
+                    {{ t('staffCases.priority.' + caseItem.priority) }}
+                  </ui-badge>
+                </td>
+                <td class="cases-list__cell-date">
+                  {{ caseItem.lastMessageAt ? (caseItem.lastMessageAt | date:'mediumDate') : (caseItem.assignedAt | date:'mediumDate') }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
   </section>
 </ng-container>

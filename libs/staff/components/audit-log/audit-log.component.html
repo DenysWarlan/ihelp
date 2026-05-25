@@ -1,41 +1,78 @@
 <ng-container *transloco="let t">
   <section class="audit-page">
-    <h1 class="audit-page__title">{{ t('admin.auditLog') }}</h1>
+    <header class="audit-page__header">
+      <h1 class="audit-page__title">{{ t('admin.auditTitle') }}</h1>
+      <div class="audit-page__controls">
+        <ui-input
+          [placeholder]="t('admin.auditSearch')"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+        <ui-button variant="secondary" size="sm" (click)="onDateFilter()">
+          <ui-icon name="calendar" [size]="16" />
+          {{ t('admin.auditDate') }}
+        </ui-button>
+      </div>
+    </header>
 
     @if (facade.isLoading()) {
       <p class="audit-page__loading">{{ t('common.loading') }}</p>
-    }
+    } @else {
 
     @if (facade.error(); as errorMsg) {
       <p class="audit-page__error">{{ errorMsg }}</p>
     }
 
-    <div class="audit-page__list">
-      @for (entry of facade.auditLog(); track entry.id) {
-        <ui-card padding="md">
-          <div class="audit-entry">
-            <div class="audit-entry__header">
-              <ui-badge variant="info" size="sm">{{ entry.action }}</ui-badge>
-              <span class="audit-entry__time">{{ entry.createdAt | date:'medium' }}</span>
-            </div>
-            <div class="audit-entry__body">
-              <span class="audit-entry__actor">{{ entry.actorName }}</span>
-              <span class="audit-entry__entity">{{ entry.entityType }}
+    <div class="audit-page__table-wrapper">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>{{ t('admin.colDateTime') }}</th>
+            <th>{{ t('admin.colUser') }}</th>
+            <th>{{ t('admin.colAction') }}</th>
+            <th>{{ t('admin.colObject') }}</th>
+            <th>{{ t('admin.colDetails') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of filteredLog(); track entry.id) {
+            <tr>
+              <td class="audit-table__date">{{ entry.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+              <td>{{ entry.actorName }}</td>
+              <td>
+                <ui-badge [variant]="getActionBadgeVariant(entry.action)" size="sm">
+                  {{ entry.action }}
+                </ui-badge>
+              </td>
+              <td>
+                {{ entry.entityType }}
                 @if (entry.entityId) {
-                  <span class="audit-entry__entity-id">#{{ entry.entityId }}</span>
+                  <span class="audit-table__entity-id">#{{ entry.entityId }}</span>
                 }
-              </span>
-            </div>
-            @if (entry.details) {
-              <p class="audit-entry__details">{{ entry.details }}</p>
+              </td>
+              <td class="audit-table__details">{{ entry.details ?? '—' }}</td>
+            </tr>
+          } @empty {
+            @if (!facade.isLoading()) {
+              <tr>
+                <td colspan="5" class="audit-table__empty">{{ t('admin.noAuditEntries') }}</td>
+              </tr>
             }
-          </div>
-        </ui-card>
-      } @empty {
-        @if (!facade.isLoading()) {
-          <p class="audit-page__empty">{{ t('admin.noAuditEntries') }}</p>
-        }
-      }
+          }
+        </tbody>
+      </table>
     </div>
+
+    <footer class="audit-page__footer">
+      <div class="audit-page__gdpr">
+        <ui-badge variant="success" size="sm">GDPR</ui-badge>
+        <span class="audit-page__gdpr-text">{{ t('admin.gdprPendingAlert') }}</span>
+      </div>
+      <ui-button variant="primary" size="sm" (click)="onExportAll()">
+        {{ t('admin.exportAll') }}
+      </ui-button>
+    </footer>
+
+    }
   </section>
 </ng-container>

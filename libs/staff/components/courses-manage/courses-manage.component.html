@@ -1,8 +1,89 @@
 <ng-container *transloco="let t">
-  <section class="courses-manage-page">
-    <h1 class="courses-manage-page__title">{{ t('admin.courseManagement') }}</h1>
-    <ui-card padding="md">
-      <p class="courses-manage-page__placeholder">{{ t('admin.courseManagementPlaceholder') }}</p>
-    </ui-card>
+  <section class="courses-page">
+    <div class="courses-page__header">
+      <h1 class="courses-page__title">{{ t('admin.courseManagement') }}</h1>
+      <div class="courses-page__actions">
+        <ui-button variant="primary" (click)="onCreateCourse()">
+          {{ t('admin.createCourse') }}
+        </ui-button>
+      </div>
+    </div>
+
+    @if (facade.isLoading()) {
+      <p class="courses-page__loading">{{ t('common.loading') }}</p>
+    } @else {
+
+    @if (facade.error(); as errorMsg) {
+      <p class="courses-page__error">{{ errorMsg }}</p>
+    }
+
+    <div class="courses-page__grid">
+      @for (course of facade.courses(); track course.id) {
+        <ui-card padding="md">
+          <div class="course-card">
+            <div class="course-card__header">
+              <span class="course-card__title">{{ course.title }}</span>
+              <ui-badge [variant]="facade.getStatusBadgeVariant(course.status)" size="sm">
+                {{ t('admin.courseStatus_' + course.status) }}
+              </ui-badge>
+            </div>
+            <p class="course-card__description">{{ course.description }}</p>
+            <div class="course-card__meta">
+              <span class="course-card__stat">
+                {{ t('admin.lessonsCount') }}: {{ course.lessonsCount }}
+              </span>
+              <span class="course-card__stat">
+                {{ t('admin.enrollmentsCount') }}: {{ course.enrollmentsCount }}
+              </span>
+              <span class="course-card__date">{{ course.createdAt | date:'shortDate' }}</span>
+            </div>
+            @if (course.status !== 'ARCHIVED') {
+              <div class="course-card__actions">
+                <ui-button variant="secondary" size="sm" (click)="onArchiveCourse(course.id)">
+                  {{ t('admin.archiveCourse') }}
+                </ui-button>
+              </div>
+            }
+          </div>
+        </ui-card>
+      } @empty {
+        @if (!facade.isLoading()) {
+          <p class="courses-page__empty">{{ t('admin.noCourses') }}</p>
+        }
+      }
+    </div>
+
+    }
   </section>
+
+  <ui-modal
+    [isOpen]="facade.showCreateModal()"
+    [title]="t('admin.createCourse')"
+    (closed)="onCloseCreateModal()"
+  >
+    <form class="modal-form" (submit)="onSubmitCreate()">
+      <ui-input
+        [label]="t('admin.courseTitle')"
+        [placeholder]="t('admin.courseTitlePlaceholder')"
+        [ngModel]="facade.createCourseModel().title"
+        (ngModelChange)="onFieldChange('title', $event)"
+        name="title"
+      />
+      <ui-textarea
+        [label]="t('admin.courseDescription')"
+        [placeholder]="t('admin.courseDescriptionPlaceholder')"
+        [ngModel]="facade.createCourseModel().description"
+        (ngModelChange)="onFieldChange('description', $event)"
+        name="description"
+      />
+      <div modal-footer>
+        <ui-button variant="secondary" (click)="onCloseCreateModal()">
+          {{ t('admin.cancel') }}
+        </ui-button>
+        <ui-button variant="primary" type="submit" [loading]="facade.isLoading()">
+          {{ t('admin.create') }}
+        </ui-button>
+      </div>
+    </form>
+  </ui-modal>
 </ng-container>

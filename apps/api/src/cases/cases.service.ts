@@ -107,6 +107,74 @@ export class CasesService {
   }
 
   // ---------------------------------------------------------------------------
+  // Dashboard
+  // ---------------------------------------------------------------------------
+
+  async getDashboard(actor: JwtPayload) {
+    let consultantFilter: Prisma.CareCaseWhereInput = {};
+    if (actor.role === 'CONSULTANT') {
+      consultantFilter = { consultantId: actor.sub };
+    }
+
+    const [activeCases, pendingCases, resolvedThisWeek, todayMeetings] =
+      await Promise.all([
+        this.prisma.careCase.count({
+          where: {
+            ...consultantFilter,
+            status: { notIn: TERMINAL_STATUSES },
+          },
+        }),
+        this.prisma.careCase.count({
+          where: {
+            ...consultantFilter,
+            status: { in: [CaseStatus.NEW, CaseStatus.ON_HOLD] },
+          },
+        }),
+        this.prisma.careCase.count({
+          where: {
+            ...consultantFilter,
+            status: CaseStatus.COMPLETED,
+            resolvedAt: { gte: this.startOfWeek() },
+          },
+        }),
+        this.prisma.meeting.count({
+          where: {
+            ...(actor.role === 'CONSULTANT'
+              ? { consultantId: actor.sub }
+              : {}),
+            scheduledAt: {
+              gte: this.startOfDay(),
+              lt: this.endOfDay(),
+            },
+          },
+        }),
+      ]);
+
+    return { activeCases, pendingCases, todayMeetings, resolvedThisWeek };
+  }
+
+  private startOfDay(): Date {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  private endOfDay(): Date {
+    const d = new Date();
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }
+
+  private startOfWeek(): Date {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    d.setDate(diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  // ---------------------------------------------------------------------------
   // Read
   // ---------------------------------------------------------------------------
 
