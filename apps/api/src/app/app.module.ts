@@ -33,6 +33,8 @@ import { ChatModule } from '../chat/chat.module.js';
 import { LmsModule } from '../lms/lms.module.js';
 import { UsersModule } from '../users/users.module.js';
 import { EventsModule } from '../events/events.module.js';
+import { AssignmentModule } from '../assignment/assignment.module.js';
+import { MeetingsModule } from '../meetings/meetings.module.js';
 import { StorageModule } from '../storage/storage.module.js';
 
 @Module({
@@ -100,7 +102,9 @@ import { StorageModule } from '../storage/storage.module.js';
     LmsModule,
     UsersModule,
     EventsModule,
+    MeetingsModule,
     StorageModule,
+    AssignmentModule,
   ],
   controllers: [AppController],
   providers: [

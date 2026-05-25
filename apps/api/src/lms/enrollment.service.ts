@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { CourseStatus } from '@prisma/client';
+import { CourseStatus, EnrollmentStatus } from '@prisma/client';
 
 @Injectable()
 export class EnrollmentService {
@@ -30,6 +30,13 @@ export class EnrollmentService {
     });
 
     if (existing) {
+      // Allow re-enrollment if previously dropped
+      if (existing.status === EnrollmentStatus.DROPPED) {
+        return this.prisma.enrollment.update({
+          where: { id: existing.id },
+          data: { status: EnrollmentStatus.ACTIVE },
+        });
+      }
       throw new ConflictException('Already enrolled in this course');
     }
 

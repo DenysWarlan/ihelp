@@ -1,0 +1,142 @@
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Request } from 'express';
+import { PrismaService } from '@org/prisma-client';
+
+import { JwtPayload } from '../auth/auth.model.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
+import { CREATE_MEETING_ROLES, ELEVATED_ROLES } from './meetings.const.js';
+import {
+  CancelMeetingDto,
+  CreateMeetingDto,
+  MeetingResponse,
+} from './meetings.model.js';
+import { MeetingsService } from './meetings.service.js';
+
+@ApiTags('meetings')
+@ApiBearerAuth()
+@Controller()
+export class MeetingsController {
+  constructor(
+    private readonly meetingsService: MeetingsService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  @Post('meetings')
+  @Roles(...CREATE_MEETING_ROLES)
+  @ApiOperation({ summary: 'Create a meeting linked to a care case' })
+  @ApiResponse({ status: 201, description: 'Meeting created' })
+  @ApiResponse({ status: 400, description: 'Validation error or past date' })
+  @ApiConflictResponse({ description: 'Time slot overlaps with existing meeting' })
+  @ApiNotFoundResponse({ description: 'Care case not found' })
+  async create(
+    @Body() dto: CreateMeetingDto,
+    @Req() req: Request,
+  ): Promise<MeetingResponse> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.create(dto, actor.sub);
+  }
+
+  @Get('cases/:caseId/meetings')
+  @ApiOperation({ summary: 'List meetings for a specific care case' })
+  @ApiResponse({ status: 200, description: 'List of meetings for the case' })
+  @ApiNotFoundResponse({ description: 'Case not found or access denied' })
+  async findByCaseId(
+    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Req() req: Request,
+  ): Promise<MeetingResponse[]> {
+    const actor = req.user as JwtPayload;
+    await this.validateCaseAccess(caseId, actor);
+    return this.meetingsService.findByCaseId(caseId);
+  }
+
+  @Get('meetings/my')
+  @Roles(...CREATE_MEETING_ROLES)
+  @ApiOperation({ summary: "List the consultant's own meetings" })
+  @ApiResponse({ status: 200, description: "Consultant's meetings" })
+  @ApiQuery({ name: 'from', required: false, description: 'Filter from date (ISO 8601)' })
+  @ApiQuery({ name: 'to', required: false, description: 'Filter to date (ISO 8601)' })
+  async findMyMeetings(
+    @Req() req: Request,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ): Promise<MeetingResponse[]> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.findByConsultant(actor.sub, from, to);
+  }
+
+  @Get('meetings/:id')
+  @ApiOperation({ summary: 'Get a single meeting by ID' })
+  @ApiResponse({ status: 200, description: 'Meeting details' })
+  @ApiNotFoundResponse({ description: 'Meeting not found' })
+  async findById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<MeetingResponse> {
+    return this.meetingsService.findById(id);
+  }
+
+  @Patch('meetings/:id/cancel')
+  @Roles(...CREATE_MEETING_ROLES)
+  @ApiOperation({ summary: 'Cancel a meeting' })
+  @ApiResponse({ status: 200, description: 'Meeting cancelled' })
+  @ApiResponse({ status: 400, description: 'Meeting cannot be cancelled' })
+  @ApiNotFoundResponse({ description: 'Meeting not found' })
+  async cancel(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CancelMeetingDto,
+    @Req() req: Request,
+  ): Promise<MeetingResponse> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.cancel(id, dto, actor.sub);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  private async validateCaseAccess(
+    caseId: string,
+    actor: JwtPayload,
+  ): Promise<void> {
+    // Elevated roles can access any case's meetings
+    if ((ELEVATED_ROLES as readonly string[]).includes(actor.role)) {
+      return;
+    }
+
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { consultantId: true, personId: true },
+    });
+
+    if (!careCase) {
+      throw new NotFoundException('Case not found');
+    }
+
+    if (actor.role === 'CONSULTANT' && careCase.consultantId !== actor.sub) {
+      throw new NotFoundException('Case not found');
+    }
+
+    if (actor.role === 'PERSON' && careCase.personId !== actor.sub) {
+      throw new NotFoundException('Case not found');
+    }
+  }
+}

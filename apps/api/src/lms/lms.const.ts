@@ -13,3 +13,9 @@ export const ALLOWED_COURSE_TRANSITIONS: Record<CourseStatus, CourseStatus[]> = 
 
 /** Number of days enrolled users retain access after a course is archived. */
 export const ARCHIVE_GRACE_PERIOD_DAYS = 90;
+
+/** Maximum number of progress resets allowed per person per course. */
+export const MAX_PROGRESS_RESETS = 3;
+
+/** Deduplication window for "I'm struggling" requests (milliseconds). */
+export const STRUGGLING_DEDUP_WINDOW_MS = 60_000;

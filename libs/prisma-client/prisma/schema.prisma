@@ -53,7 +53,16 @@ model User {
   messagesSent Message[] @relation("MessageSender")
 
   // LMS relations
-  enrollments Enrollment[]
+  enrollments    Enrollment[]
+  lessonProgress LessonProgress[]
+  progressResets ProgressReset[]
+
+  // Assignment relations
+  consultantProfile ConsultantProfile?
+
+  // Meetings relations
+  meetingsAsConsultant Meeting[] @relation("MeetingConsultant")
+  meetingsAsPerson     Meeting[] @relation("MeetingPerson")
 
   @@index([role])
   @@map("users")
@@ -218,7 +227,8 @@ model Lesson {
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime          @updatedAt @map("updated_at")
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course   Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
 
   @@index([courseId])
   @@map("lessons")
@@ -280,6 +290,7 @@ model CareCase {
   messages     Message[]
   feedback     CaseFeedback?
   tags         CaseTag[]
+  meetings     Meeting[]
 
   @@index([status])
   @@index([consultantId])
@@ -435,4 +446,116 @@ model CaseTag {
   @@unique([careCaseId, tagId])
   @@index([tagId])
   @@map("case_tags")
+}
+
+// ============================================================
+// LESSON PROGRESS (per-person per-lesson completion)
+// ============================================================
+
+model LessonProgress {
+  id          String    @id @default(uuid()) @db.Uuid
+  personId    String    @map("person_id") @db.Uuid
+  lessonId    String    @map("lesson_id") @db.Uuid
+  courseId     String    @map("course_id") @db.Uuid
+  isCompleted Boolean   @default(false) @map("is_completed")
+  isSkipped   Boolean   @default(false) @map("is_skipped")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  person User   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, lessonId])
+  @@index([personId, courseId])
+  @@map("lesson_progress")
+}
+
+// ============================================================
+// PROGRESS RESET (tracks reset count per enrollment)
+// ============================================================
+
+model ProgressReset {
+  id        String   @id @default(uuid()) @db.Uuid
+  personId  String   @map("person_id") @db.Uuid
+  courseId   String   @map("course_id") @db.Uuid
+  resetAt   DateTime @default(now()) @map("reset_at")
+
+  person User @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, courseId])
+  @@map("progress_resets")
+}
+
+// ============================================================
+// CONSULTANT PROFILE (assignment algorithm data)
+// ============================================================
+
+enum ConsultantStatus {
+  AVAILABLE
+  BUSY
+  ON_VACATION
+  DEACTIVATED
+  LEAVING
+}
+
+model ConsultantProfile {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @unique @map("user_id") @db.Uuid
+  specializations String[]         @default([])
+  languages       String[]         @default([])
+  maxCases        Int              @default(10) @map("max_cases")
+  currentCases    Int              @default(0) @map("current_cases")
+  maxCrisisCases  Int              @default(3) @map("max_crisis_cases")
+  currentCrisis   Int              @default(0) @map("current_crisis")
+  status          ConsultantStatus @default(AVAILABLE)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([status, currentCases])
+  @@map("consultant_profiles")
+}
+
+// ============================================================
+// MEETINGS
+// ============================================================
+
+enum MeetingStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW_PERSON
+  NO_SHOW_CONSULTANT
+}
+
+model Meeting {
+  id            String        @id @default(uuid()) @db.Uuid
+  careCaseId    String        @map("care_case_id") @db.Uuid
+  consultantId  String        @map("consultant_id") @db.Uuid
+  personId      String        @map("person_id") @db.Uuid
+  status        MeetingStatus @default(SCHEDULED)
+  scheduledAt   DateTime      @map("scheduled_at")
+  durationMin   Int           @default(60) @map("duration_min")
+  personTz      String        @default("UTC") @map("person_tz")
+  consultantTz  String        @default("UTC") @map("consultant_tz")
+  meetingUrl    String?       @map("meeting_url")
+  notes         String?
+  cancelledAt   DateTime?     @map("cancelled_at")
+  cancelReason  String?       @map("cancel_reason")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  careCase   CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+  consultant User     @relation("MeetingConsultant", fields: [consultantId], references: [id])
+  person     User     @relation("MeetingPerson", fields: [personId], references: [id])
+
+  @@index([careCaseId])
+  @@index([consultantId, scheduledAt])
+  @@index([personId])
+  @@index([status])
+  @@map("meetings")
 }
