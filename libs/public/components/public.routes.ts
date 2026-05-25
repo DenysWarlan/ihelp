@@ -8,6 +8,13 @@ export const publicRoutes: Routes = [
       import('./login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'auth/callback',
+    loadComponent: () =>
+      import('./auth-callback/auth-callback.component').then(
+        (m) => m.AuthCallbackComponent
+      ),
+  },
+  {
     path: '',
     component: PublicLayoutComponent,
     children: [

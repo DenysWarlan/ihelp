@@ -7,12 +7,66 @@
           <span class="public-header__title">{{ t('layout.appName') }}</span>
         </a>
 
+        <!-- Desktop nav -->
         <nav class="public-header__nav" aria-label="Main navigation">
-          <a routerLink="/catalog" class="public-header__link">{{ t('nav.courses') }}</a>
-          <a routerLink="/about" class="public-header__link">{{ t('nav.about') }}</a>
-          <a routerLink="/login" class="public-header__signin">{{ t('common.signIn') }}</a>
+          <a routerLink="/catalog" class="public-header__link" (click)="closeMobileMenu()">{{ t('nav.courses') }}</a>
+          <a routerLink="/about" class="public-header__link" (click)="closeMobileMenu()">{{ t('nav.about') }}</a>
+
+          @if (!isAuthenticated()) {
+            <a routerLink="/login" class="public-header__signin">{{ t('common.signIn') }}</a>
+          } @else {
+            <div class="public-header__user-menu">
+              <div class="public-header__avatar" [attr.aria-label]="t('layout.userMenu')">
+                <span class="public-header__avatar-initials">{{ userInitials() }}</span>
+              </div>
+              <div class="public-header__dropdown">
+                <a routerLink="/person" class="public-header__dropdown-item">
+                  <ui-icon name="LayoutDashboard" [size]="16" />
+                  <span>{{ t('person.cabinet') }}</span>
+                </a>
+                <a routerLink="/person/courses" class="public-header__dropdown-item">
+                  <ui-icon name="BookOpen" [size]="16" />
+                  <span>{{ t('person.courses') }}</span>
+                </a>
+                <button type="button" class="public-header__dropdown-item public-header__dropdown-item--danger">
+                  <ui-icon name="LogOut" [size]="16" />
+                  <span>{{ t('common.signOut') }}</span>
+                </button>
+              </div>
+            </div>
+          }
         </nav>
+
+        <!-- Hamburger (mobile) -->
+        <button
+          type="button"
+          class="public-header__hamburger"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-controls="mobile-nav"
+          [attr.aria-label]="mobileMenuOpen() ? t('layout.collapseSidebar') : t('layout.expandSidebar')"
+        >
+          @if (mobileMenuOpen()) {
+            <ui-icon name="X" [size]="24" />
+          } @else {
+            <ui-icon name="Menu" [size]="24" />
+          }
+        </button>
       </div>
+
+      <!-- Mobile nav -->
+      @if (mobileMenuOpen()) {
+        <nav class="public-header__mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+          <a routerLink="/catalog" class="public-header__mobile-link" (click)="closeMobileMenu()">{{ t('nav.courses') }}</a>
+          <a routerLink="/about" class="public-header__mobile-link" (click)="closeMobileMenu()">{{ t('nav.about') }}</a>
+          @if (!isAuthenticated()) {
+            <a routerLink="/login" class="public-header__mobile-signin" (click)="closeMobileMenu()">{{ t('common.signIn') }}</a>
+          } @else {
+            <a routerLink="/person" class="public-header__mobile-link" (click)="closeMobileMenu()">{{ t('person.cabinet') }}</a>
+            <a routerLink="/person/courses" class="public-header__mobile-link" (click)="closeMobileMenu()">{{ t('person.courses') }}</a>
+          }
+        </nav>
+      }
     </header>
 
     <main class="public-content" role="main">

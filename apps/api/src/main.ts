@@ -4,6 +4,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Logger } from 'nestjs-pino';
 import { createAdapter } from '@socket.io/redis-adapter';
 import Redis from 'ioredis';
+import helmet from 'helmet';
 
 import { AppModule } from './app/app.module.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
@@ -15,6 +16,15 @@ async function bootstrap() {
   // Structured logging via Pino
   const logger = app.get(Logger);
   app.useLogger(logger);
+
+  // Security headers
+  app.use(helmet());
+
+  // CORS
+  app.enableCors({
+    origin: process.env['CORS_ORIGINS']?.split(',') ?? ['http://localhost:4333'],
+    credentials: true,
+  });
 
   // Global prefix (exclude health for load balancer probes)
   const globalPrefix = 'api';

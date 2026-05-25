@@ -50,23 +50,24 @@ E01 Auth ───────────┼──→ E14 Public Web
 
 ---
 
-## Sprint 1: Фундамент — Iнфраструктура та UI Shell
+## Sprint 1: Фундамент — Iнфраструктура та UI Shell ✅ DONE
 
 **Дати:** Тижнi 1-2
+**Статус:** Завершено 2026-05-23
 **Цiль:** Розгорнути базову iнфраструктуру (backend, frontend, DB, Docker) та створити UI-каркас з дизайн-системою. Пiсля спринту — працююче dev-середовище з one-command startup.
 
-| Epic | Story | Назва | Прiоритет |
-|------|-------|-------|-----------|
-| E17 | S-E17-01 | NestJS Backend Scaffold | Високий |
-| E17 | S-E17-02 | Angular Frontend Scaffold | Високий |
-| E17 | S-E17-03 | PostgreSQL + Prisma ORM | Високий |
-| E17 | S-E17-04 | Redis — Bull Queues та Socket.io Adapter | Високий |
-| E17 | S-E17-06 | Docker Compose (dev stack) | Високий |
-| E17 | S-E17-09 | Structured Logging та Correlation ID | Середнiй |
-| E16 | S-E16-01 | Angular App Shell | Високий |
-| E16 | S-E16-05 | Design Tokens та типографiка | Високий |
-| E16 | S-E16-06 | Iконки (Lucide) | Середнiй |
-| E16 | S-E16-10 | Layout Grid та responsive breakpoints | Високий |
+| Epic | Story | Назва | Прiоритет | Статус |
+|------|-------|-------|-----------|--------|
+| E17 | S-E17-01 | NestJS Backend Scaffold | Високий | ✅ |
+| E17 | S-E17-02 | Angular Frontend Scaffold | Високий | ✅ |
+| E17 | S-E17-03 | PostgreSQL + Prisma ORM | Високий | ✅ |
+| E17 | S-E17-04 | Redis — Bull Queues та Socket.io Adapter | Високий | ✅ |
+| E17 | S-E17-06 | Docker Compose (dev stack) | Високий | ✅ |
+| E17 | S-E17-09 | Structured Logging та Correlation ID | Середнiй | ✅ |
+| E16 | S-E16-01 | Angular App Shell | Високий | ✅ |
+| E16 | S-E16-05 | Design Tokens та типографiка | Високий | ✅ |
+| E16 | S-E16-06 | Iконки (Lucide) | Середнiй | ✅ |
+| E16 | S-E16-10 | Layout Grid та responsive breakpoints | Високий | ✅ |
 
 **Залежностi:** —
 **Ризики:** Затримка з налаштуванням Docker-оточення може вплинути на всi наступнi спринти.
@@ -74,24 +75,25 @@ E01 Auth ───────────┼──→ E14 Public Web
 
 ---
 
-## Sprint 2: Iнфраструктура (завершення) + UI компоненти + Auth (початок)
+## Sprint 2: Iнфраструктура (завершення) + UI компоненти + Auth (початок) ✅ DONE
 
 **Дати:** Тижнi 3-4
+**Статус:** Завершено 2026-05-25
 **Цiль:** Завершити iнфраструктурнi stories, побудувати бiблiотеку UI-компонентiв, розпочати автентифiкацiю.
 
-| Epic | Story | Назва | Прiоритет |
-|------|-------|-------|-----------|
-| E17 | S-E17-05 | Файлове сховище (S3-compatible) | Високий |
-| E17 | S-E17-07 | Nginx Reverse Proxy | Високий |
-| E17 | S-E17-08 | CI/CD Pipeline | Високий |
-| E17 | S-E17-10 | Rate Limiting та безпека | Високий |
-| E16 | S-E16-02 | Публiчний Navbar | Середнiй |
-| E16 | S-E16-03 | Sidebar навiгацiя (рольова) | Високий |
-| E16 | S-E16-04 | Sidebar — responsive поведiнка | Середнiй |
-| E16 | S-E16-07 | Базовi UI-компоненти (частина 1 — елементи форм) | Високий |
-| E16 | S-E16-08 | Базовi UI-компоненти (частина 2 — вiдображення даних) | Високий |
-| E16 | S-E16-09 | Modal компонент | Середнiй |
-| E01 | S-E01-01 | OAuth-автентифiкацiя Person | Високий |
+| Epic | Story | Назва | Прiоритет | Статус |
+|------|-------|-------|-----------|--------|
+| E17 | S-E17-05 | Файлове сховище (S3-compatible) | Високий | ✅ |
+| E17 | S-E17-07 | Nginx Reverse Proxy | Високий | ✅ |
+| E17 | S-E17-08 | CI/CD Pipeline | Високий | ✅ |
+| E17 | S-E17-10 | Rate Limiting та безпека | Високий | ✅ |
+| E16 | S-E16-02 | Публiчний Navbar | Середнiй | ✅ |
+| E16 | S-E16-03 | Sidebar навiгацiя (рольова) | Високий | ✅ |
+| E16 | S-E16-04 | Sidebar — responsive поведiнка | Середнiй | ✅ |
+| E16 | S-E16-07 | Базовi UI-компоненти (частина 1 — елементи форм) | Високий | ✅ |
+| E16 | S-E16-08 | Базовi UI-компоненти (частина 2 — вiдображення даних) | Високий | ✅ |
+| E16 | S-E16-09 | Modal компонент | Середнiй | ✅ |
+| E01 | S-E01-01 | OAuth-автентифiкацiя Person | Високий | ✅ |
 
 **Залежностi:** E17 (Sprint 1)
 **Ризики:** CI/CD pipeline може потребувати додаткового налаштування для Docker image push.

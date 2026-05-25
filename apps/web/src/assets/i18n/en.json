@@ -7,7 +7,9 @@
   },
   "nav": {
     "courses": "Courses",
-    "about": "About us"
+    "about": "About us",
+    "profile": "Profile",
+    "openMenu": "Open menu"
   },
   "landing": {
     "title": "iHelp",
@@ -88,6 +90,8 @@
     "google": "Sign in with Google",
     "facebook": "Sign in with Facebook",
     "telegram": "Sign in with Telegram",
+    "oauthError": "Sign-in failed. Please try again or choose another method.",
+    "retry": "Try again",
     "consent": "Signing in means you agree to the processing of personal data",
     "brandSubtitle": "Care Coordination Platform",
     "placeholder": "Authentication will be implemented in E01."

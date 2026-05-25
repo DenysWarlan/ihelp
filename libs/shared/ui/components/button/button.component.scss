@@ -1,0 +1,123 @@
+:host {
+  display: inline-block;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ihelp-space-2);
+  font-family: var(--ihelp-font-body);
+  font-weight: var(--ihelp-font-medium);
+  border: 2px solid transparent;
+  border-radius: var(--ihelp-radius-md);
+  cursor: pointer;
+  transition: background-color var(--ihelp-transition-fast),
+    border-color var(--ihelp-transition-fast),
+    color var(--ihelp-transition-fast),
+    box-shadow var(--ihelp-transition-fast);
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ihelp-accent-light);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  // Variants
+  &--primary {
+    background-color: var(--ihelp-accent);
+    color: var(--ihelp-text-inverse);
+
+    &:hover:not(:disabled) {
+      background-color: var(--ihelp-surface-dark);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--ihelp-surface-dark);
+    }
+  }
+
+  &--secondary {
+    background-color: transparent;
+    color: var(--ihelp-accent);
+    border-color: var(--ihelp-accent);
+
+    &:hover:not(:disabled) {
+      background-color: var(--ihelp-accent-light);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--ihelp-accent-light);
+    }
+  }
+
+  &--danger {
+    background-color: var(--ihelp-error);
+    color: var(--ihelp-text-inverse);
+
+    &:hover:not(:disabled) {
+      background-color: #a71d2a;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #a71d2a;
+    }
+  }
+
+  // Sizes
+  &--sm {
+    padding: var(--ihelp-space-1) var(--ihelp-space-3);
+    font-size: var(--ihelp-text-sm);
+    min-height: 32px;
+  }
+
+  &--md {
+    padding: var(--ihelp-space-2) var(--ihelp-space-4);
+    font-size: var(--ihelp-text-base);
+    min-height: 40px;
+  }
+
+  &--lg {
+    padding: var(--ihelp-space-3) var(--ihelp-space-6);
+    font-size: var(--ihelp-text-lg);
+    min-height: 48px;
+  }
+
+  // Loading
+  &--loading {
+    pointer-events: none;
+  }
+
+  &__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: var(--ihelp-radius-full);
+    animation: spin 0.6s linear infinite;
+    position: absolute;
+  }
+
+  &__content {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ihelp-space-2);
+
+    &--hidden {
+      visibility: hidden;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

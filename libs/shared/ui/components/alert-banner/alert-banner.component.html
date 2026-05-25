@@ -1,0 +1,28 @@
+@if (isVisible()) {
+  <div
+    class="alert-banner"
+    [class.alert-banner--crisis]="variant() === 'crisis'"
+    [class.alert-banner--warning]="variant() === 'warning'"
+    [class.alert-banner--info]="variant() === 'info'"
+    role="alert"
+  >
+    <ui-icon
+      class="alert-banner__icon"
+      [name]="iconName"
+      [size]="20"
+    />
+    <div class="alert-banner__content">
+      <ng-content />
+    </div>
+    @if (dismissible()) {
+      <button
+        class="alert-banner__dismiss"
+        type="button"
+        aria-label="Dismiss alert"
+        (click)="onDismiss()"
+      >
+        <ui-icon name="X" [size]="16" />
+      </button>
+    }
+  </div>
+}

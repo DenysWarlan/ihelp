@@ -1,0 +1,24 @@
+<label
+  class="checkbox"
+  [class.checkbox--checked]="checked()"
+  [class.checkbox--disabled]="isDisabled()"
+>
+  <span
+    class="checkbox__box"
+    role="checkbox"
+    [attr.aria-checked]="checked()"
+    [attr.aria-disabled]="isDisabled()"
+    [attr.tabindex]="isDisabled() ? -1 : 0"
+    (click)="toggle()"
+    (keydown)="onKeyDown($event)"
+  >
+    @if (checked()) {
+      <svg class="checkbox__check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    }
+  </span>
+  @if (label()) {
+    <span class="checkbox__label">{{ label() }}</span>
+  }
+</label>

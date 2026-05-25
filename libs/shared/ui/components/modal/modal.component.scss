@@ -1,0 +1,123 @@
+:host {
+  display: contents;
+}
+
+.modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ihelp-z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ihelp-space-4);
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: overlay-fade-in var(--ihelp-transition-fast) ease;
+}
+
+.modal__dialog {
+  position: relative;
+  z-index: var(--ihelp-z-modal);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100vh - var(--ihelp-space-8));
+  background-color: var(--ihelp-white);
+  border-radius: var(--ihelp-radius-2xl);
+  box-shadow: var(--ihelp-shadow-lg);
+  animation: dialog-enter var(--ihelp-transition-normal) ease;
+
+  &--sm {
+    max-width: 400px;
+  }
+
+  &--md {
+    max-width: 560px;
+  }
+
+  &--lg {
+    max-width: 720px;
+  }
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ihelp-space-4) var(--ihelp-space-6);
+  border-bottom: 1px solid var(--ihelp-border);
+  flex-shrink: 0;
+}
+
+.modal__title {
+  margin: 0;
+  font-family: var(--ihelp-font-heading);
+  font-size: var(--ihelp-text-lg);
+  font-weight: var(--ihelp-font-semibold);
+  color: var(--ihelp-text-primary);
+  line-height: var(--ihelp-leading-tight);
+}
+
+.modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ihelp-space-1);
+  background: none;
+  border: none;
+  border-radius: var(--ihelp-radius-sm);
+  color: var(--ihelp-text-muted);
+  cursor: pointer;
+  transition: color var(--ihelp-transition-fast), background-color var(--ihelp-transition-fast);
+
+  &:hover {
+    color: var(--ihelp-text-primary);
+    background-color: var(--ihelp-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ihelp-accent);
+    outline-offset: 2px;
+  }
+}
+
+.modal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ihelp-space-6);
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-base);
+  color: var(--ihelp-text-primary);
+  line-height: var(--ihelp-leading-normal);
+}
+
+.modal__footer {
+  &:empty {
+    display: none;
+  }
+
+  &:not(:empty) {
+    padding: var(--ihelp-space-4) var(--ihelp-space-6);
+    border-top: 1px solid var(--ihelp-border);
+    flex-shrink: 0;
+  }
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

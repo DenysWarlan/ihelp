@@ -61,6 +61,32 @@
   margin-bottom: var(--ihelp-space-8);
 }
 
+.login__error {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+  padding: 12px 16px;
+  background-color: rgba(200, 35, 51, 0.08);
+  border: 1px solid var(--ihelp-error);
+  border-radius: var(--ihelp-radius-lg);
+  margin-bottom: var(--ihelp-space-4);
+  font-size: 13px;
+  color: var(--ihelp-error);
+}
+
+.login__error-retry {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--ihelp-error);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { text-decoration: underline; }
+}
+
 .login__oauth {
   display: flex;
   flex-direction: column;

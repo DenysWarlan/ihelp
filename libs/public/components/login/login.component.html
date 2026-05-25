@@ -13,14 +13,24 @@
         <h2 class="login__title">{{ t('login.title') }}</h2>
         <p class="login__subtitle">{{ t('login.subtitle') }}</p>
 
+        @if (errorMessage()) {
+          <div class="login__error" role="alert">
+            <ui-icon name="AlertCircle" [size]="18" color="var(--ihelp-error)" />
+            <span>{{ t('login.oauthError') }}</span>
+            <button type="button" class="login__error-retry" (click)="retry()">
+              {{ t('login.retry') }}
+            </button>
+          </div>
+        }
+
         <div class="login__oauth">
-          <button type="button" class="login__oauth-btn login__oauth-btn--google">
+          <button type="button" class="login__oauth-btn login__oauth-btn--google" (click)="loginWith('google')">
             {{ t('login.google') }}
           </button>
-          <button type="button" class="login__oauth-btn login__oauth-btn--facebook">
+          <button type="button" class="login__oauth-btn login__oauth-btn--facebook" (click)="loginWith('facebook')">
             {{ t('login.facebook') }}
           </button>
-          <button type="button" class="login__oauth-btn login__oauth-btn--telegram">
+          <button type="button" class="login__oauth-btn login__oauth-btn--telegram" (click)="loginWith('telegram')">
             {{ t('login.telegram') }}
           </button>
         </div>

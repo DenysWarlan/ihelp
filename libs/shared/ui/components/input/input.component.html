@@ -1,0 +1,19 @@
+<div class="input-field" [class.input-field--error]="errorMessage()" [class.input-field--disabled]="isDisabled()">
+  @if (label()) {
+    <label class="input-field__label">{{ label() }}</label>
+  }
+  <input
+    class="input-field__control"
+    [type]="type()"
+    [placeholder]="placeholder()"
+    [value]="value()"
+    [disabled]="isDisabled()"
+    [attr.aria-label]="label() || placeholder()"
+    [attr.aria-invalid]="!!errorMessage()"
+    (input)="onInput($any($event))"
+    (blur)="onBlur()"
+  />
+  @if (errorMessage()) {
+    <span class="input-field__error" role="alert">{{ errorMessage() }}</span>
+  }
+</div>

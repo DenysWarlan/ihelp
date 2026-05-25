@@ -1,6 +1,16 @@
 <ng-container *transloco="let t">
   <div class="auth-layout">
-    <aside class="sidebar" role="navigation" [attr.aria-label]="t('layout.appName')">
+    <!-- Overlay for mobile sidebar -->
+    @if (sidebarOpen()) {
+      <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+    }
+
+    <aside
+      class="sidebar"
+      [class.sidebar--open]="sidebarOpen()"
+      role="navigation"
+      [attr.aria-label]="t('layout.appName')"
+    >
       <div class="sidebar__header">
         <a routerLink="/" class="sidebar__logo" [attr.aria-label]="t('layout.appName')">
           <ui-icon name="HeartHandshake" [size]="28" color="var(--ihelp-accent)" />
@@ -9,7 +19,18 @@
       </div>
 
       <nav class="sidebar__nav">
-        <!-- Placeholder nav items - will be populated per role -->
+        @for (item of navItems(); track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="sidebar__nav-item--active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/person' }"
+            class="sidebar__nav-item"
+            (click)="closeSidebar()"
+          >
+            <ui-icon [name]="item.icon" [size]="20" />
+            <span>{{ t(item.label) }}</span>
+          </a>
+        }
       </nav>
 
       <div class="sidebar__footer">
@@ -26,8 +47,19 @@
 
     <div class="auth-main">
       <div class="auth-main__topbar">
+        <!-- Hamburger (mobile/tablet) -->
+        <button
+          type="button"
+          class="auth-main__hamburger"
+          (click)="toggleSidebar()"
+          [attr.aria-expanded]="sidebarOpen()"
+          [attr.aria-label]="sidebarOpen() ? t('layout.collapseSidebar') : t('layout.expandSidebar')"
+        >
+          <ui-icon name="Menu" [size]="24" />
+        </button>
+
         <div class="auth-main__avatar" [attr.aria-label]="t('layout.userMenu')">
-          <span class="auth-main__avatar-initials">КО</span>
+          <span class="auth-main__avatar-initials">{{ userInitials() }}</span>
         </div>
       </div>
 

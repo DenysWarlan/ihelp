@@ -1,6 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { BullModule } from '@nestjs/bullmq';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 
 import { envValidationSchema } from '../common/config/env.validation.js';
@@ -8,6 +10,10 @@ import { createLoggerConfig } from '../common/logging/logger.config.js';
 import { CorrelationIdMiddleware } from '../common/middleware/correlation-id.middleware.js';
 import { CorrelationIdService } from '../common/middleware/correlation-id.service.js';
 import { CorrelationIdModule } from '../common/middleware/correlation-id.module.js';
+import {
+  GLOBAL_THROTTLE_TTL,
+  GLOBAL_THROTTLE_LIMIT,
+} from '../common/security/throttler.const.js';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -20,11 +26,20 @@ import { ChatModule } from '../chat/chat.module.js';
 import { LmsModule } from '../lms/lms.module.js';
 import { UsersModule } from '../users/users.module.js';
 import { EventsModule } from '../events/events.module.js';
+import { StorageModule } from '../storage/storage.module.js';
 
 @Module({
   imports: [
     // Correlation ID must be first so it's available to other modules
     CorrelationIdModule,
+
+    // Global rate limiting
+    ThrottlerModule.forRoot([
+      {
+        ttl: GLOBAL_THROTTLE_TTL * 1000,
+        limit: GLOBAL_THROTTLE_LIMIT,
+      },
+    ]),
 
     // Configuration with env validation
     ConfigModule.forRoot({
@@ -70,9 +85,16 @@ import { EventsModule } from '../events/events.module.js';
     LmsModule,
     UsersModule,
     EventsModule,
+    StorageModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

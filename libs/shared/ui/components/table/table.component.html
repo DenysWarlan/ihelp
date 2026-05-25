@@ -1,0 +1,43 @@
+<div class="table-wrapper">
+  <table class="table" role="table">
+    <thead class="table__head">
+      <tr>
+        @for (column of columns(); track column.key) {
+          <th
+            class="table__th"
+            [class.table__th--sortable]="sortable() && column.sortable !== false"
+            [style.width]="column.width ?? 'auto'"
+            [attr.aria-sort]="sortKey() === column.key ? sortDirection() === 'asc' ? 'ascending' : 'descending' : null"
+            (click)="onSort(column)"
+          >
+            <span class="table__th-content">
+              {{ column.label }}
+              @if (sortable() && column.sortable !== false) {
+                <span class="table__sort-icon">
+                  @if (sortKey() === column.key) {
+                    <ui-icon
+                      [name]="sortDirection() === 'asc' ? 'ArrowUp' : 'ArrowDown'"
+                      [size]="14"
+                      color="var(--ihelp-accent)"
+                    />
+                  } @else {
+                    <ui-icon name="ArrowUpDown" [size]="14" color="var(--ihelp-text-muted)" />
+                  }
+                </span>
+              }
+            </span>
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody class="table__body">
+      @for (row of data(); track $index) {
+        <tr class="table__row">
+          @for (column of columns(); track column.key) {
+            <td class="table__td">{{ getCellValue(row, column.key) }}</td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

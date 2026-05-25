@@ -7,7 +7,9 @@
   },
   "nav": {
     "courses": "Курси",
-    "about": "Про нас"
+    "about": "Про нас",
+    "profile": "Профіль",
+    "openMenu": "Відкрити меню"
   },
   "landing": {
     "title": "Є турбота",
@@ -88,6 +90,8 @@
     "google": "Увійти через Google",
     "facebook": "Увійти через Facebook",
     "telegram": "Увійти через Telegram",
+    "oauthError": "Не вдалося увійти. Спробуйте ще раз або оберіть інший спосіб входу.",
+    "retry": "Спробувати ще",
     "consent": "Вхід означає згоду з обробкою персональних даних",
     "brandSubtitle": "Care Coordination Platform",
     "placeholder": "Автентифікація буде реалізована в E01."

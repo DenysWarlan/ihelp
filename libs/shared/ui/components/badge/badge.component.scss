@@ -1,0 +1,45 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ihelp-radius-full);
+  font-family: var(--ihelp-font-body);
+  font-weight: var(--ihelp-font-medium);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badge--sm {
+  padding: var(--ihelp-space-1) var(--ihelp-space-2);
+  font-size: var(--ihelp-text-xs);
+}
+
+.badge--md {
+  padding: var(--ihelp-space-1) var(--ihelp-space-3);
+  font-size: var(--ihelp-text-sm);
+}
+
+.badge--success {
+  background-color: var(--ihelp-accent-light);
+  color: var(--ihelp-success);
+}
+
+.badge--warning {
+  background-color: #fef3c7;
+  color: var(--ihelp-warning);
+}
+
+.badge--error {
+  background-color: #fde8ea;
+  color: var(--ihelp-error);
+}
+
+.badge--info {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge--neutral {
+  background-color: var(--ihelp-bg);
+  color: var(--ihelp-text-secondary);
+}
