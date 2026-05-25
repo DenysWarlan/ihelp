@@ -40,7 +40,10 @@ import { CrisisModule } from '../crisis/crisis.module.js';
 import { PersonCabinetModule } from '../person-cabinet/person-cabinet.module.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { WorkloadModule } from '../workload/workload.module.js';
+import { AdminModule } from '../admin/admin.module.js';
 import { TransferModule } from '../transfer/transfer.module.js';
+import { AnalyticsModule } from '../analytics/analytics.module.js';
+import { GdprModule } from '../gdpr/gdpr.module.js';
 
 @Module({
   imports: [
@@ -114,6 +117,9 @@ import { TransferModule } from '../transfer/transfer.module.js';
     WorkloadModule,
     TransferModule,
     SlaModule,
+    AdminModule,
+    AnalyticsModule,
+    GdprModule,
   ],
   controllers: [AppController],
   providers: [

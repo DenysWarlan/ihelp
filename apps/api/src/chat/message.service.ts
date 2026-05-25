@@ -16,6 +16,7 @@ import DOMPurify from 'isomorphic-dompurify';
 import { JwtPayload } from '../auth/auth.model.js';
 import { CrisisService } from '../crisis/crisis.service.js';
 import { AttachmentScanMeta } from '../crisis/crisis.model.js';
+import { GdprService } from '../gdpr/gdpr.service.js';
 import { ResponseTimeService } from '../sla/response-time.service.js';
 import { SlaService } from '../sla/sla.service.js';
 import {
@@ -44,6 +45,7 @@ export class MessageService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly crisisService: CrisisService,
+    @Inject(forwardRef(() => GdprService)) private readonly gdprService: GdprService,
     @Inject(forwardRef(() => SlaService)) private readonly slaService: SlaService,
     @Inject(forwardRef(() => ResponseTimeService)) private readonly responseTimeService: ResponseTimeService,
   ) {}
@@ -86,6 +88,9 @@ export class MessageService {
 
     // Crisis keyword scanning (S-E08-01) — runs synchronously before return
     await this.scanForCrisis(caseId, message.id, sanitizedContent, channel, dto.attachments);
+
+    // SAR keyword scanning (S-E12-07) — detect subject access requests
+    await this.scanForSarKeywords(sanitizedContent, actor.sub, caseId);
 
     // SLA & response-time hooks (S-E07-03, S-E07-04, S-E07-05, S-E07-07)
     await this.handleSlaOnMessage(caseId, message.id, actor);
@@ -171,6 +176,9 @@ export class MessageService {
       undefined,
       attachmentScanMeta,
     );
+
+    // SAR keyword scanning (S-E12-07) — detect subject access requests in webhook messages
+    await this.scanForSarKeywords(input.content, message.senderId, caseId);
 
     // SLA hooks for webhook (person) messages — open response-time entry + resume paused timer
     await this.handleSlaOnPersonMessage(caseId, message.id);
@@ -669,6 +677,29 @@ export class MessageService {
     return attachments.map((att) => ({
       fileName: att.fileName,
     }));
+  }
+
+  // ---------------------------------------------------------------------------
+  // SAR scanning (S-E12-07)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Scan message content for Subject Access Request (SAR) keywords.
+   * Must never block message delivery.
+   */
+  private async scanForSarKeywords(
+    content: string,
+    senderId: string,
+    caseId: string,
+  ): Promise<void> {
+    try {
+      await this.gdprService.scanForSar(content, senderId, caseId);
+    } catch (error) {
+      // SAR scanning must never block message delivery
+      this.logger.error(
+        `SAR scanning failed for case ${caseId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 
   // ---------------------------------------------------------------------------

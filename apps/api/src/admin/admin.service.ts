@@ -6,11 +6,22 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { Prisma, Role, User } from '@prisma/client';
+import { CaseStatus, Prisma, Role } from '@prisma/client';
 
-import { DEFAULT_PAGE_SIZE } from './admin.const.js';
+import { AuditService } from '../common/audit/audit.service.js';
+import {
+  AUDIT_ACTIONS,
+  DEFAULT_PAGE_SIZE,
+  DUPLICATE_EXACT_EMAIL_REASON,
+  DUPLICATE_NAME_REASON,
+  ERROR_CONSULTANT_ACTIVE_CASES,
+  ERROR_LAST_ADMIN,
+  ERROR_SELF_ROLE_CHANGE,
+} from './admin.const.js';
 import {
   CreateStaffUserDto,
+  DuplicateAccountEntry,
+  DuplicateAccountsResponse,
   ListStaffUsersDto,
   PaginatedStaffUsersResponse,
   StaffUserResponse,
@@ -21,7 +32,10 @@ import {
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // List staff users with filters and pagination
@@ -111,6 +125,16 @@ export class AdminService {
       },
     });
 
+    await this.auditService.log(
+      AUDIT_ACTIONS.USER_CREATED,
+      undefined,
+      JSON.stringify({
+        userId: user.id,
+        email: dto.email,
+        role: dto.role,
+      }),
+    );
+
     this.logger.log(
       `Staff user created: ${user.id} (${dto.email}, role: ${dto.role})`,
     );
@@ -151,10 +175,9 @@ export class AdminService {
     dto: UpdateStaffUserDto,
     actorId: string,
   ): Promise<StaffUserResponse> {
+    // S-E13-03: Block self-role-change
     if (userId === actorId && dto.role !== undefined) {
-      throw new BadRequestException(
-        'Cannot change your own role — this could cause admin lockout',
-      );
+      throw new BadRequestException(ERROR_SELF_ROLE_CHANGE);
     }
 
     const existing = await this.prisma.user.findUnique({
@@ -163,6 +186,16 @@ export class AdminService {
 
     if (!existing) {
       throw new NotFoundException('User not found');
+    }
+
+    // S-E13-03: Last admin protection — role change or deactivation
+    const isRemovingAdmin =
+      existing.role === Role.ADMIN &&
+      ((dto.role !== undefined && dto.role !== Role.ADMIN) ||
+        (dto.isActive !== undefined && !dto.isActive));
+
+    if (isRemovingAdmin) {
+      await this.ensureNotLastAdmin(userId);
     }
 
     const data: Prisma.UserUpdateInput = {};
@@ -183,6 +216,20 @@ export class AdminService {
         updatedAt: true,
       },
     });
+
+    await this.auditService.log(
+      AUDIT_ACTIONS.USER_UPDATED,
+      actorId,
+      JSON.stringify({
+        userId,
+        changes: dto,
+        oldValues: {
+          name: existing.name,
+          role: existing.role,
+          isActive: existing.isActive,
+        },
+      }),
+    );
 
     this.logger.log(
       `Staff user updated: ${userId} by ${actorId}`,
@@ -212,14 +259,151 @@ export class AdminService {
       throw new NotFoundException('User not found');
     }
 
+    // S-E13-03: Last admin protection
+    if (existing.role === Role.ADMIN) {
+      await this.ensureNotLastAdmin(userId);
+    }
+
+    // S-E13-04: Block deactivation if consultant has active cases
+    if (existing.role === Role.CONSULTANT) {
+      const activeCases = await this.prisma.careCase.findMany({
+        where: {
+          consultantId: userId,
+          status: {
+            in: [
+              CaseStatus.ASSIGNED,
+              CaseStatus.IN_PROGRESS,
+              CaseStatus.ON_HOLD,
+              CaseStatus.MEETING_SCHEDULED,
+            ],
+          },
+        },
+        select: {
+          id: true,
+          topic: true,
+          status: true,
+          person: { select: { name: true } },
+        },
+      });
+
+      if (activeCases.length > 0) {
+        throw new ConflictException({
+          message: ERROR_CONSULTANT_ACTIVE_CASES,
+          blockingCases: activeCases.map((c) => ({
+            caseId: c.id,
+            topic: c.topic,
+            status: c.status,
+            personName: c.person?.name ?? null,
+          })),
+          count: activeCases.length,
+          suggestion: 'Use the transfer endpoint to reassign active cases before deactivating.',
+        });
+      }
+    }
+
     await this.prisma.user.update({
       where: { id: userId },
       data: { isActive: false },
     });
 
+    await this.auditService.log(
+      AUDIT_ACTIONS.USER_DEACTIVATED,
+      actorId,
+      JSON.stringify({
+        userId,
+        email: existing.email,
+        role: existing.role,
+      }),
+    );
+
     this.logger.log(
       `Staff user deactivated: ${userId} by ${actorId}`,
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E13-05: Duplicate Account Detection
+  // ---------------------------------------------------------------------------
+
+  async findDuplicates(): Promise<DuplicateAccountsResponse> {
+    const allUsers = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const duplicates: DuplicateAccountEntry[] = [];
+    const seen = new Set<string>();
+
+    for (let i = 0; i < allUsers.length; i++) {
+      for (let j = i + 1; j < allUsers.length; j++) {
+        const a = allUsers[i];
+        const b = allUsers[j];
+        const pairKey = [a.id, b.id].sort().join(':');
+
+        if (seen.has(pairKey)) continue;
+
+        // Exact email match (should be unique, but check across case)
+        if (a.email.toLowerCase() === b.email.toLowerCase() && a.id !== b.id) {
+          seen.add(pairKey);
+          duplicates.push({
+            id: b.id,
+            email: b.email,
+            name: b.name,
+            role: b.role,
+            isActive: b.isActive,
+            reason: DUPLICATE_EXACT_EMAIL_REASON,
+            matchedWith: a.id,
+          });
+          continue;
+        }
+
+        // Case-insensitive name match
+        if (
+          a.name.toLowerCase().trim() === b.name.toLowerCase().trim() &&
+          a.name.trim().length > 0
+        ) {
+          seen.add(pairKey);
+          duplicates.push({
+            id: b.id,
+            email: b.email,
+            name: b.name,
+            role: b.role,
+            isActive: b.isActive,
+            reason: DUPLICATE_NAME_REASON,
+            matchedWith: a.id,
+          });
+        }
+      }
+    }
+
+    return {
+      duplicates,
+      total: duplicates.length,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // S-E13-03: Last Admin Protection — Helper
+  // ---------------------------------------------------------------------------
+
+  private async ensureNotLastAdmin(userId: string): Promise<void> {
+    const activeAdminCount = await this.prisma.user.count({
+      where: {
+        role: Role.ADMIN,
+        isActive: true,
+        id: { not: userId },
+      },
+    });
+
+    if (activeAdminCount === 0) {
+      throw new ConflictException(ERROR_LAST_ADMIN);
+    }
   }
 
   // ---------------------------------------------------------------------------

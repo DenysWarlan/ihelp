@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy as TgStrategy } from 'passport-telegram';
 
 import { OAuthProfile } from '../auth.model.js';
+// import {Strategy} from 'passport-telegram';
 
 @Injectable()
-export class TelegramStrategy extends PassportStrategy(TgStrategy, 'telegram') {
+export class TelegramStrategy extends PassportStrategy(Strategy, 'telegram') {
   constructor(config: ConfigService) {
     super({
       botToken: config.getOrThrow<string>('TELEGRAM_BOT_TOKEN'),

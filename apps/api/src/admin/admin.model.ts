@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsEmail,
   IsEnum,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -14,7 +15,12 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { Role } from '@prisma/client';
 
-import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from './admin.const.js';
+import {
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  SETTINGS_CATEGORIES,
+  SettingsCategory,
+} from './admin.const.js';
 
 // ---------------------------------------------------------------------------
 // Staff user CRUD DTOs (S-E13-01)
@@ -162,6 +168,197 @@ export interface InviteResponse {
 
 export interface PaginatedInvitesResponse {
   readonly data: InviteResponse[];
+  readonly total: number;
+  readonly page: number;
+  readonly pageSize: number;
+  readonly totalPages: number;
+}
+
+// ---------------------------------------------------------------------------
+// S-E13-05: Duplicate Account Detection DTOs
+// ---------------------------------------------------------------------------
+
+export interface DuplicateAccountEntry {
+  readonly id: string;
+  readonly email: string;
+  readonly name: string;
+  readonly role: string;
+  readonly isActive: boolean;
+  readonly reason: string;
+  readonly matchedWith: string;
+}
+
+export interface DuplicateAccountsResponse {
+  readonly duplicates: DuplicateAccountEntry[];
+  readonly total: number;
+}
+
+// ---------------------------------------------------------------------------
+// S-E13-07: Automation Settings DTOs
+// ---------------------------------------------------------------------------
+
+export class GetSettingsDto {
+  @ApiProperty({
+    description: 'Settings category',
+    enum: SETTINGS_CATEGORIES,
+  })
+  @IsString()
+  @IsIn([...SETTINGS_CATEGORIES])
+  readonly category!: SettingsCategory;
+}
+
+export class UpdateSettingsDto {
+  @ApiProperty({
+    description: 'Key-value pairs to update',
+    example: { threshold_hours: '24', max_cases: '10' },
+  })
+  readonly settings!: Record<string, string>;
+}
+
+export interface SettingEntry {
+  readonly id: string;
+  readonly key: string;
+  readonly value: string;
+  readonly description: string | null;
+  readonly updatedAt: Date;
+}
+
+export interface SettingsResponse {
+  readonly category: string;
+  readonly settings: SettingEntry[];
+}
+
+// ---------------------------------------------------------------------------
+// S-E13-08: Integration Settings DTOs
+// ---------------------------------------------------------------------------
+
+export class UpdateIntegrationDto {
+  @ApiProperty({ description: 'Value for the integration setting' })
+  @IsString()
+  @IsNotEmpty()
+  readonly value!: string;
+
+  @ApiPropertyOptional({ description: 'Human-readable description' })
+  @IsOptional()
+  @IsString()
+  readonly description?: string;
+}
+
+export interface IntegrationEntry {
+  readonly id: string;
+  readonly key: string;
+  readonly value: string;
+  readonly description: string | null;
+  readonly isEncrypted: boolean;
+  readonly updatedAt: Date;
+}
+
+export interface IntegrationTestResult {
+  readonly key: string;
+  readonly success: boolean;
+  readonly message: string;
+}
+
+// ---------------------------------------------------------------------------
+// S-E13-09: Weekly Duty Schedule DTOs
+// ---------------------------------------------------------------------------
+
+export class GetWeeklyScheduleDto {
+  @ApiPropertyOptional({
+    description: 'Start date for the weekly view (ISO 8601). Defaults to today.',
+  })
+  @IsOptional()
+  @IsString()
+  readonly startDate?: string;
+}
+
+export interface WeeklyScheduleDay {
+  readonly date: string;
+  readonly dayOfWeek: string;
+  readonly schedules: DutyScheduleEntry[];
+  readonly hasGap: boolean;
+}
+
+export interface DutyScheduleEntry {
+  readonly id: string;
+  readonly userId: string;
+  readonly userName: string | null;
+  readonly startTime: Date;
+  readonly endTime: Date;
+  readonly isActive: boolean;
+}
+
+export interface WeeklyScheduleResponse {
+  readonly startDate: string;
+  readonly endDate: string;
+  readonly days: WeeklyScheduleDay[];
+  readonly totalGaps: number;
+  readonly overlaps: ScheduleOverlap[];
+}
+
+export interface ScheduleOverlap {
+  readonly date: string;
+  readonly scheduleA: string;
+  readonly scheduleB: string;
+  readonly overlapStart: Date;
+  readonly overlapEnd: Date;
+}
+
+// ---------------------------------------------------------------------------
+// S-E13-10: Admin Audit Log DTOs
+// ---------------------------------------------------------------------------
+
+export class ListAuditLogDto {
+  @ApiPropertyOptional({ description: 'Filter by user ID' })
+  @IsOptional()
+  @IsUUID()
+  readonly userId?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by action type' })
+  @IsOptional()
+  @IsString()
+  readonly action?: string;
+
+  @ApiPropertyOptional({ description: 'Start date filter (ISO 8601)' })
+  @IsOptional()
+  @IsString()
+  readonly dateFrom?: string;
+
+  @ApiPropertyOptional({ description: 'End date filter (ISO 8601)' })
+  @IsOptional()
+  @IsString()
+  readonly dateTo?: string;
+
+  @ApiPropertyOptional({ description: 'Page number (1-based)', default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  readonly page?: number;
+
+  @ApiPropertyOptional({
+    description: 'Page size',
+    default: DEFAULT_PAGE_SIZE,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(MAX_PAGE_SIZE)
+  readonly pageSize?: number;
+}
+
+export interface AuditLogEntry {
+  readonly id: string;
+  readonly userId: string | null;
+  readonly action: string;
+  readonly details: string | null;
+  readonly ipAddress: string | null;
+  readonly createdAt: Date;
+}
+
+export interface PaginatedAuditLogResponse {
+  readonly data: AuditLogEntry[];
   readonly total: number;
   readonly page: number;
   readonly pageSize: number;

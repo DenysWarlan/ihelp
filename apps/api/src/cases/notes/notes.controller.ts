@@ -22,7 +22,7 @@ import { JwtPayload } from '../../auth/auth.model.js';
 import { Roles } from '../../auth/decorators/roles.decorator.js';
 import { STAFF_ROLES } from '../cases.const.js';
 import { CreateNoteDto, NoteResponse, UpdateNoteDto } from './notes.model.js';
-import { NotesService } from './notes.service.js';
+import { NotesService, NoteWithPiiWarnings } from './notes.service.js';
 
 @ApiTags('case-notes')
 @ApiBearerAuth()
@@ -39,7 +39,7 @@ export class NotesController {
     @Param('caseId', ParseUUIDPipe) caseId: string,
     @Body() dto: CreateNoteDto,
     @Req() req: Request,
-  ): Promise<NoteResponse> {
+  ): Promise<NoteResponse | NoteWithPiiWarnings> {
     const actor = req.user as JwtPayload;
     return this.notesService.create(caseId, dto, actor);
   }
@@ -64,7 +64,7 @@ export class NotesController {
     @Param('noteId', ParseUUIDPipe) noteId: string,
     @Body() dto: UpdateNoteDto,
     @Req() req: Request,
-  ): Promise<NoteResponse> {
+  ): Promise<NoteResponse | NoteWithPiiWarnings> {
     const actor = req.user as JwtPayload;
     return this.notesService.update(caseId, noteId, dto, actor);
   }

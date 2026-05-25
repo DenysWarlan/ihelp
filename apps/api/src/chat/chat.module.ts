@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
 import { CrisisModule } from '../crisis/crisis.module.js';
+import { GdprModule } from '../gdpr/gdpr.module.js';
 import { SlaModule } from '../sla/sla.module.js';
 import { MessageService } from './message.service.js';
 import {
@@ -21,6 +22,7 @@ import { AdapterFactory } from './adapters/adapter.factory.js';
 @Module({
   imports: [
     CrisisModule,
+    forwardRef(() => GdprModule),
     forwardRef(() => SlaModule),
     JwtModule.registerAsync({
       inject: [ConfigService],
