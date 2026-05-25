@@ -1,17 +1,29 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { CaseStatus } from '@prisma/client';
+import { CaseStatus, ConsultantStatus } from '@prisma/client';
 
 import {
   AUDIT_ACTION_AUTO_ASSIGN,
   AUDIT_ACTION_AUTO_ASSIGN_FALLBACK,
+  AUDIT_ACTION_MANUAL_ASSIGN,
+  AUDIT_ACTION_REASSIGN,
   ELIGIBLE_STATUSES,
   FALLBACK_PERSON_MESSAGE,
   FallbackReason,
+  NOTIFICATION_ASSIGNED_TO_PERSON,
+  NOTIFICATION_NEW_CASE_TO_CONSULTANT,
+  NOTIFICATION_QUEUED_TO_PERSON,
 } from './assignment.const.js';
 import {
   AssignmentResult,
   EligibleConsultant,
+  ManualAssignResult,
+  ReassignResult,
   ScoredConsultant,
 } from './assignment.model.js';
 
@@ -344,5 +356,312 @@ export class AssignmentService {
       consultantProfileId: null,
       fallbackReason: reason,
     };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Manual assignment (S-E06-05)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Manually assign a consultant to an unassigned case.
+   * Returns warnings (not errors) when the consultant is unavailable
+   * or over capacity.
+   */
+  async manualAssign(
+    caseId: string,
+    consultantUserId: string,
+    actorId: string,
+  ): Promise<ManualAssignResult> {
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { id: true, status: true, consultantId: true, version: true },
+    });
+
+    if (!careCase) {
+      throw new NotFoundException('Case not found');
+    }
+
+    if (careCase.consultantId) {
+      throw new BadRequestException(
+        'Case is already assigned. Use reassign endpoint instead.',
+      );
+    }
+
+    const profile = await this.prisma.consultantProfile.findUnique({
+      where: { userId: consultantUserId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException(
+        `Consultant profile not found for userId=${consultantUserId}`,
+      );
+    }
+
+    // Collect warnings (non-blocking)
+    const warnings: string[] = [];
+
+    if (profile.status !== ConsultantStatus.AVAILABLE && profile.status !== ConsultantStatus.BUSY) {
+      warnings.push(
+        `Consultant status is ${profile.status} — not typically available for assignment`,
+      );
+    }
+
+    if (profile.currentCases >= profile.maxCases) {
+      warnings.push(
+        `Consultant is at or over capacity (${profile.currentCases}/${profile.maxCases} cases)`,
+      );
+    }
+
+    // Perform assignment in a transaction
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`
+        UPDATE consultant_profiles
+        SET current_cases = current_cases + 1,
+            updated_at = NOW()
+        WHERE user_id = ${consultantUserId}::uuid
+      `;
+
+      await tx.careCase.update({
+        where: { id: caseId, version: careCase.version },
+        data: {
+          consultantId: consultantUserId,
+          status: CaseStatus.ASSIGNED,
+          version: { increment: 1 },
+        },
+      });
+
+      await tx.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId,
+          action: AUDIT_ACTION_MANUAL_ASSIGN,
+          details: {
+            consultantUserId,
+            warnings,
+          },
+        },
+      });
+    });
+
+    // MVP notifications (log-based)
+    this.logger.log(
+      `[MVP NOTIFICATION] Person notification for case ${caseId}: ${NOTIFICATION_ASSIGNED_TO_PERSON}`,
+    );
+    this.logger.log(
+      `[MVP NOTIFICATION] Consultant ${consultantUserId} notification: ${NOTIFICATION_NEW_CASE_TO_CONSULTANT}`,
+    );
+
+    return {
+      assigned: true,
+      caseId,
+      consultantUserId,
+      warnings,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Reassignment (S-E06-05)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Reassign a case from one consultant to another.
+   * Decrements old consultant's currentCases, increments new one's.
+   */
+  async reassign(
+    caseId: string,
+    newConsultantUserId: string,
+    actorId: string,
+  ): Promise<ReassignResult> {
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { id: true, status: true, consultantId: true, version: true },
+    });
+
+    if (!careCase) {
+      throw new NotFoundException('Case not found');
+    }
+
+    const previousConsultantUserId = careCase.consultantId;
+
+    if (previousConsultantUserId === newConsultantUserId) {
+      throw new BadRequestException(
+        'New consultant is the same as the current consultant',
+      );
+    }
+
+    const newProfile = await this.prisma.consultantProfile.findUnique({
+      where: { userId: newConsultantUserId },
+    });
+
+    if (!newProfile) {
+      throw new NotFoundException(
+        `Consultant profile not found for userId=${newConsultantUserId}`,
+      );
+    }
+
+    const warnings: string[] = [];
+
+    if (newProfile.status !== ConsultantStatus.AVAILABLE && newProfile.status !== ConsultantStatus.BUSY) {
+      warnings.push(
+        `New consultant status is ${newProfile.status} — not typically available for assignment`,
+      );
+    }
+
+    if (newProfile.currentCases >= newProfile.maxCases) {
+      warnings.push(
+        `New consultant is at or over capacity (${newProfile.currentCases}/${newProfile.maxCases} cases)`,
+      );
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      // Decrement old consultant
+      if (previousConsultantUserId) {
+        await tx.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_cases = GREATEST(current_cases - 1, 0),
+              updated_at = NOW()
+          WHERE user_id = ${previousConsultantUserId}::uuid
+        `;
+      }
+
+      // Increment new consultant
+      await tx.$executeRaw`
+        UPDATE consultant_profiles
+        SET current_cases = current_cases + 1,
+            updated_at = NOW()
+        WHERE user_id = ${newConsultantUserId}::uuid
+      `;
+
+      // Update case
+      await tx.careCase.update({
+        where: { id: caseId, version: careCase.version },
+        data: {
+          consultantId: newConsultantUserId,
+          status: CaseStatus.ASSIGNED,
+          version: { increment: 1 },
+        },
+      });
+
+      // Audit
+      await tx.caseAuditEntry.create({
+        data: {
+          careCaseId: caseId,
+          actorId,
+          action: AUDIT_ACTION_REASSIGN,
+          details: {
+            previousConsultantUserId,
+            newConsultantUserId,
+            warnings,
+          },
+        },
+      });
+    });
+
+    // MVP notifications (log-based)
+    this.logger.log(
+      `[MVP NOTIFICATION] Consultant ${newConsultantUserId} notification: ${NOTIFICATION_NEW_CASE_TO_CONSULTANT}`,
+    );
+    this.logger.log(
+      `[MVP NOTIFICATION] Person notification for case ${caseId}: ${NOTIFICATION_ASSIGNED_TO_PERSON}`,
+    );
+
+    return {
+      assigned: true,
+      caseId,
+      previousConsultantUserId,
+      newConsultantUserId,
+      warnings,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Queue processing (S-E06-07, S-E06-08)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Process the queue of unassigned cases (FIFO by createdAt).
+   * Attempts auto-assignment for each case in order.
+   */
+  async processQueue(): Promise<void> {
+    const unassignedCases = await this.prisma.careCase.findMany({
+      where: {
+        status: CaseStatus.NEW,
+        consultantId: null,
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    });
+
+    if (unassignedCases.length === 0) {
+      this.logger.debug('No unassigned cases in queue');
+      return;
+    }
+
+    this.logger.log(
+      `Processing queue: ${unassignedCases.length} unassigned case(s)`,
+    );
+
+    // Log queued status for persons waiting
+    for (const c of unassignedCases) {
+      this.logger.debug(
+        `[MVP NOTIFICATION] Person status update for case ${c.id}: ${NOTIFICATION_QUEUED_TO_PERSON}`,
+      );
+    }
+
+    for (const { id } of unassignedCases) {
+      const result = await this.autoAssign(id, 'system');
+
+      if (result.assigned) {
+        this.logger.log(
+          `Queue: assigned case ${id} to consultant ${result.consultantUserId}`,
+        );
+      } else {
+        // No more eligible consultants, stop processing
+        this.logger.debug(
+          `Queue: could not assign case ${id} (${result.fallbackReason}). Stopping queue processing.`,
+        );
+        break;
+      }
+    }
+  }
+
+  /**
+   * Handle case completion: free up the consultant slot and process queue.
+   */
+  async onCaseCompleted(caseId: string): Promise<void> {
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { consultantId: true },
+    });
+
+    if (!careCase) {
+      throw new NotFoundException('Case not found');
+    }
+
+    if (careCase.consultantId) {
+      await this.prisma.$executeRaw`
+        UPDATE consultant_profiles
+        SET current_cases = GREATEST(current_cases - 1, 0),
+            updated_at = NOW()
+        WHERE user_id = ${careCase.consultantId}::uuid
+      `;
+
+      this.logger.log(
+        `Decremented currentCases for consultant ${careCase.consultantId} after case ${caseId} completed`,
+      );
+    }
+
+    // Re-run auto-assign on the queue
+    await this.processQueue();
+  }
+
+  /**
+   * Handle consultant becoming available: process queue for pending cases.
+   */
+  async onConsultantAvailable(userId: string): Promise<void> {
+    this.logger.log(
+      `Consultant ${userId} became available. Processing queue.`,
+    );
+    await this.processQueue();
   }
 }

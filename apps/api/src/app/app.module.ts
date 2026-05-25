@@ -34,6 +34,7 @@ import { LmsModule } from '../lms/lms.module.js';
 import { UsersModule } from '../users/users.module.js';
 import { EventsModule } from '../events/events.module.js';
 import { AssignmentModule } from '../assignment/assignment.module.js';
+import { SlaModule } from '../sla/sla.module.js';
 import { MeetingsModule } from '../meetings/meetings.module.js';
 import { StorageModule } from '../storage/storage.module.js';
 
@@ -80,7 +81,6 @@ import { StorageModule } from '../storage/storage.module.js';
     BullModule.registerQueue(
       { name: 'email' },
       { name: 'notifications' },
-      { name: 'sla-timers' },
       { name: 'auto-pause' },
     ),
 
@@ -105,6 +105,7 @@ import { StorageModule } from '../storage/storage.module.js';
     MeetingsModule,
     StorageModule,
     AssignmentModule,
+    SlaModule,
   ],
   controllers: [AppController],
   providers: [

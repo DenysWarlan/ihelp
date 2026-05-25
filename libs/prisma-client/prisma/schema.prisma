@@ -291,6 +291,7 @@ model CareCase {
   feedback     CaseFeedback?
   tags         CaseTag[]
   meetings     Meeting[]
+  slaTimer     SlaTimer?
 
   @@index([status])
   @@index([consultantId])
@@ -558,4 +559,35 @@ model Meeting {
   @@index([personId])
   @@index([status])
   @@map("meetings")
+}
+
+// ============================================================
+// SLA TIMER
+// ============================================================
+
+enum SlaStatus {
+  ACTIVE
+  PAUSED
+  ESCALATED
+  RESOLVED
+}
+
+model SlaTimer {
+  id              String    @id @default(uuid()) @db.Uuid
+  careCaseId      String    @map("care_case_id") @db.Uuid
+  startedAt       DateTime  @map("started_at")
+  pausedAt        DateTime? @map("paused_at")
+  resolvedAt      DateTime? @map("resolved_at")
+  currentLevel    Int       @default(0) @map("current_level")
+  status          SlaStatus @default(ACTIVE)
+  lastEscalatedAt DateTime? @map("last_escalated_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+
+  @@unique([careCaseId])
+  @@index([status])
+  @@index([status, currentLevel])
+  @@map("sla_timers")
 }

@@ -5,10 +5,26 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { PrismaService } from '@org/prisma-client';
 import { Meeting, MeetingStatus } from '@prisma/client';
+import { Queue } from 'bullmq';
 
-import { ACTIVE_MEETING_STATUSES, DEFAULT_DURATION } from './meetings.const.js';
+import {
+  ACTIVE_MEETING_STATUSES,
+  ALLOWED_STATUS_TRANSITIONS,
+  DEFAULT_DURATION,
+  GENERATE_LINK_MAX_RETRIES,
+  JOB_GENERATE_LINK,
+  JOB_NO_SHOW_CHECK,
+  JOB_NO_SHOW_WAIT_5MIN,
+  JOB_REMINDER,
+  MEETINGS_QUEUE,
+  NO_SHOW_DELAY_MS,
+  REMINDER_15MIN_MS,
+  REMINDER_1H_MS,
+  WAIT_DELAY_MS,
+} from './meetings.const.js';
 import {
   CancelMeetingDto,
   CreateMeetingDto,
@@ -19,7 +35,10 @@ import {
 export class MeetingsService {
   private readonly logger = new Logger(MeetingsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue(MEETINGS_QUEUE) private readonly meetingsQueue: Queue,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Create
@@ -87,6 +106,9 @@ export class MeetingsService {
     this.logger.log(
       `Meeting ${meeting.id} created for case ${dto.careCaseId} at ${scheduledAt.toISOString()}`,
     );
+
+    // Schedule Bull jobs for the new meeting
+    await this.scheduleJobs(meeting);
 
     return this.formatWithTimezones(meeting);
   }
@@ -181,6 +203,178 @@ export class MeetingsService {
     this.logger.log(`Meeting ${meetingId} cancelled by ${actorId}`);
 
     return this.formatWithTimezones(updated);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Read — Person
+  // ---------------------------------------------------------------------------
+
+  async findByPerson(
+    personId: string,
+    from?: string,
+    to?: string,
+  ): Promise<MeetingResponse[]> {
+    const where: Record<string, unknown> = { personId };
+
+    if (from || to) {
+      const scheduledAtFilter: Record<string, Date> = {};
+      if (from) scheduledAtFilter['gte'] = new Date(from);
+      if (to) scheduledAtFilter['lte'] = new Date(to);
+      where['scheduledAt'] = scheduledAtFilter;
+    }
+
+    const meetings = await this.prisma.meeting.findMany({
+      where,
+      orderBy: { scheduledAt: 'asc' },
+    });
+
+    return meetings.map((m) => this.formatWithTimezones(m));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Complete
+  // ---------------------------------------------------------------------------
+
+  async complete(meetingId: string, actorId: string): Promise<MeetingResponse> {
+    const meeting = await this.prisma.meeting.findUnique({
+      where: { id: meetingId },
+      select: { id: true, status: true, consultantId: true },
+    });
+
+    if (!meeting) {
+      throw new NotFoundException('Meeting not found');
+    }
+
+    if (meeting.consultantId !== actorId) {
+      throw new BadRequestException('Only the assigned consultant can complete the meeting');
+    }
+
+    const allowed = ALLOWED_STATUS_TRANSITIONS[meeting.status] ?? [];
+    if (!allowed.includes(MeetingStatus.COMPLETED)) {
+      throw new BadRequestException(
+        `Cannot transition from ${meeting.status} to COMPLETED`,
+      );
+    }
+
+    const updated = await this.prisma.meeting.update({
+      where: { id: meetingId },
+      data: { status: MeetingStatus.COMPLETED },
+    });
+
+    this.logger.log(`Meeting ${meetingId} completed by ${actorId}`);
+
+    return this.formatWithTimezones(updated);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Update status (used by processor)
+  // ---------------------------------------------------------------------------
+
+  async updateStatus(meetingId: string, status: MeetingStatus): Promise<MeetingResponse> {
+    const meeting = await this.prisma.meeting.findUnique({
+      where: { id: meetingId },
+      select: { id: true, status: true },
+    });
+
+    if (!meeting) {
+      throw new NotFoundException('Meeting not found');
+    }
+
+    const allowed = ALLOWED_STATUS_TRANSITIONS[meeting.status] ?? [];
+    if (!allowed.includes(status)) {
+      throw new BadRequestException(
+        `Cannot transition from ${meeting.status} to ${status}`,
+      );
+    }
+
+    const updated = await this.prisma.meeting.update({
+      where: { id: meetingId },
+      data: { status },
+    });
+
+    this.logger.log(`Meeting ${meetingId} status updated to ${status}`);
+
+    return this.formatWithTimezones(updated);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Job scheduling
+  // ---------------------------------------------------------------------------
+
+  private async scheduleJobs(meeting: Meeting): Promise<void> {
+    const scheduledAt = meeting.scheduledAt.getTime();
+    const now = Date.now();
+
+    // 1. Generate meeting link immediately
+    await this.meetingsQueue.add(
+      JOB_GENERATE_LINK,
+      { meetingId: meeting.id },
+      {
+        attempts: GENERATE_LINK_MAX_RETRIES,
+        backoff: { type: 'exponential', delay: 3000 },
+        removeOnComplete: true,
+        removeOnFail: { count: 10 },
+      },
+    );
+
+    // 2. Reminder 1 hour before (only if > 1h away)
+    const delay1h = scheduledAt - REMINDER_1H_MS - now;
+    if (delay1h > 0) {
+      await this.meetingsQueue.add(
+        JOB_REMINDER,
+        {
+          meetingId: meeting.id,
+          reminderType: '1h',
+          personId: meeting.personId,
+          consultantId: meeting.consultantId,
+        },
+        { delay: delay1h, removeOnComplete: true },
+      );
+    }
+
+    // 3. Reminder 15 min before (only if > 15min away)
+    const delay15m = scheduledAt - REMINDER_15MIN_MS - now;
+    if (delay15m > 0) {
+      await this.meetingsQueue.add(
+        JOB_REMINDER,
+        {
+          meetingId: meeting.id,
+          reminderType: '15min',
+          personId: meeting.personId,
+          consultantId: meeting.consultantId,
+        },
+        { delay: delay15m, removeOnComplete: true },
+      );
+    }
+
+    // 4. "We are waiting" nudge — 5 min after scheduledAt
+    const delayWait = scheduledAt + WAIT_DELAY_MS - now;
+    if (delayWait > 0) {
+      await this.meetingsQueue.add(
+        JOB_NO_SHOW_WAIT_5MIN,
+        {
+          meetingId: meeting.id,
+          personId: meeting.personId,
+        },
+        { delay: delayWait, removeOnComplete: true },
+      );
+    }
+
+    // 5. No-show check — 15 min after scheduledAt
+    const delayNoShow = scheduledAt + NO_SHOW_DELAY_MS - now;
+    if (delayNoShow > 0) {
+      await this.meetingsQueue.add(
+        JOB_NO_SHOW_CHECK,
+        {
+          meetingId: meeting.id,
+          personId: meeting.personId,
+          consultantId: meeting.consultantId,
+        },
+        { delay: delayNoShow, removeOnComplete: true },
+      );
+    }
+
+    this.logger.log(`Scheduled Bull jobs for meeting ${meeting.id}`);
   }
 
   // ---------------------------------------------------------------------------

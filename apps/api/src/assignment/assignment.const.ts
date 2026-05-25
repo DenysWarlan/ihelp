@@ -36,7 +36,21 @@ export const FALLBACK_PERSON_MESSAGE =
   'Ваше звернення зареєстровано, з вами зв\'яжуться найближчим часом' as const;
 
 /**
- * Audit action for auto-assignment events.
+ * Audit action for assignment events.
  */
 export const AUDIT_ACTION_AUTO_ASSIGN = 'AUTO_ASSIGN' as const;
 export const AUDIT_ACTION_AUTO_ASSIGN_FALLBACK = 'AUTO_ASSIGN_FALLBACK' as const;
+export const AUDIT_ACTION_MANUAL_ASSIGN = 'MANUAL_ASSIGN' as const;
+export const AUDIT_ACTION_REASSIGN = 'REASSIGN' as const;
+
+/**
+ * Notification messages (Ukrainian).
+ */
+export const NOTIFICATION_ASSIGNED_TO_PERSON =
+  'Вашу справу прийнято. Консультант зв\'яжеться з вами найближчим часом.' as const;
+
+export const NOTIFICATION_QUEUED_TO_PERSON =
+  'Ваше звернення в черзі. Ми повідомимо вас, коли консультант буде призначений.' as const;
+
+export const NOTIFICATION_NEW_CASE_TO_CONSULTANT =
+  'Вам призначено нове звернення.' as const;

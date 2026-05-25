@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsUUID } from 'class-validator';
 import { ConsultantStatus } from '@prisma/client';
 
 import { FallbackReason } from './assignment.const.js';
@@ -42,4 +44,56 @@ export interface ScoredConsultant {
   readonly score: number;
   /** Available capacity: maxCases - currentCases. */
   readonly freeSlots: number;
+}
+
+// ---------------------------------------------------------------------------
+// Manual assignment / reassignment DTOs
+// ---------------------------------------------------------------------------
+
+/**
+ * DTO for manual consultant assignment to a case.
+ */
+export class ManualAssignDto {
+  @ApiProperty({ description: 'User ID of the consultant to assign' })
+  @IsUUID()
+  consultantUserId!: string;
+}
+
+/**
+ * DTO for reassigning a case to a different consultant.
+ */
+export class ReassignDto {
+  @ApiProperty({ description: 'User ID of the new consultant to assign' })
+  @IsUUID()
+  consultantUserId!: string;
+}
+
+/**
+ * Result of a manual assignment including any non-blocking warnings.
+ */
+export interface ManualAssignResult {
+  /** Whether the assignment succeeded. */
+  readonly assigned: boolean;
+  /** ID of the CareCase. */
+  readonly caseId: string;
+  /** User ID of the assigned consultant. */
+  readonly consultantUserId: string;
+  /** Non-blocking warnings (e.g., consultant unavailable or over capacity). */
+  readonly warnings: string[];
+}
+
+/**
+ * Result of reassignment including info about old and new consultant.
+ */
+export interface ReassignResult {
+  /** Whether the reassignment succeeded. */
+  readonly assigned: boolean;
+  /** ID of the CareCase. */
+  readonly caseId: string;
+  /** User ID of the previous consultant (null if unassigned). */
+  readonly previousConsultantUserId: string | null;
+  /** User ID of the new consultant. */
+  readonly newConsultantUserId: string;
+  /** Non-blocking warnings. */
+  readonly warnings: string[];
 }

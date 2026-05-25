@@ -84,6 +84,21 @@ export class MeetingsController {
     return this.meetingsService.findByConsultant(actor.sub, from, to);
   }
 
+  @Get('meetings/person/my')
+  @Roles('PERSON')
+  @ApiOperation({ summary: "List the person's own meetings" })
+  @ApiResponse({ status: 200, description: "Person's meetings" })
+  @ApiQuery({ name: 'from', required: false, description: 'Filter from date (ISO 8601)' })
+  @ApiQuery({ name: 'to', required: false, description: 'Filter to date (ISO 8601)' })
+  async findPersonMeetings(
+    @Req() req: Request,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ): Promise<MeetingResponse[]> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.findByPerson(actor.sub, from, to);
+  }
+
   @Get('meetings/:id')
   @ApiOperation({ summary: 'Get a single meeting by ID' })
   @ApiResponse({ status: 200, description: 'Meeting details' })
@@ -107,6 +122,20 @@ export class MeetingsController {
   ): Promise<MeetingResponse> {
     const actor = req.user as JwtPayload;
     return this.meetingsService.cancel(id, dto, actor.sub);
+  }
+
+  @Patch('meetings/:id/complete')
+  @Roles(...CREATE_MEETING_ROLES)
+  @ApiOperation({ summary: 'Mark a meeting as completed' })
+  @ApiResponse({ status: 200, description: 'Meeting completed' })
+  @ApiResponse({ status: 400, description: 'Invalid status transition' })
+  @ApiNotFoundResponse({ description: 'Meeting not found' })
+  async complete(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ): Promise<MeetingResponse> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.complete(id, actor.sub);
   }
 
   // ---------------------------------------------------------------------------
