@@ -52,6 +52,9 @@ model User {
   // Chat relations
   messagesSent Message[] @relation("MessageSender")
 
+  // LMS relations
+  enrollments Enrollment[]
+
   @@index([role])
   @@map("users")
 }
@@ -170,38 +173,75 @@ enum CourseStatus {
   ARCHIVED
 }
 
+enum LessonContentType {
+  TEXT
+  VIDEO
+  MIXED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
 model Course {
   id          String       @id @default(uuid()) @db.Uuid
   title       String
   description String
   status      CourseStatus @default(DRAFT)
   imageUrl    String?      @map("image_url")
+  language    String?
   tags        String[]     @default([])
   lessonCount Int          @default(0) @map("lesson_count")
+  gracePeriodEnd DateTime? @map("grace_period_end")
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  lessons   Lesson[]
-  careCases CareCase[]
+  lessons     Lesson[]
+  careCases   CareCase[]
+  enrollments Enrollment[]
 
   @@index([status])
   @@map("courses")
 }
 
 model Lesson {
-  id        String   @id @default(uuid()) @db.Uuid
-  courseId   String   @map("course_id") @db.Uuid
-  title     String
-  content   String   @default("")
-  videoUrl  String?  @map("video_url")
-  sortOrder Int      @default(0) @map("sort_order")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                String            @id @default(uuid()) @db.Uuid
+  courseId           String            @map("course_id") @db.Uuid
+  title             String
+  content           String            @default("")
+  contentType       LessonContentType @default(TEXT) @map("content_type")
+  videoUrl          String?           @map("video_url")
+  sortOrder         Int               @default(0) @map("sort_order")
+  hasTriggerWarning Boolean           @default(false) @map("has_trigger_warning")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
 
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
   @@map("lessons")
+}
+
+// ============================================================
+// ENROLLMENT (course enrollment for Persons)
+// ============================================================
+
+model Enrollment {
+  id        String           @id @default(uuid()) @db.Uuid
+  personId  String           @map("person_id") @db.Uuid
+  courseId   String           @map("course_id") @db.Uuid
+  status    EnrollmentStatus @default(ACTIVE)
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  person User   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, courseId])
+  @@index([courseId])
+  @@map("enrollments")
 }
 
 // ============================================================
@@ -316,18 +356,41 @@ model Message {
   attachments   Json?
   isRead        Boolean        @default(false) @map("is_read")
   isEdited      Boolean        @default(false) @map("is_edited")
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  deletedAt     DateTime?      @map("deleted_at")
+  originalTs    DateTime?      @map("original_ts")
   readAt        DateTime?      @map("read_at")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
-  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
-  sender   User     @relation("MessageSender", fields: [senderId], references: [id])
+  careCase CareCase         @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+  sender   User             @relation("MessageSender", fields: [senderId], references: [id])
+  versions MessageVersion[]
 
   @@index([careCaseId, createdAt])
   @@index([senderId])
   @@index([channel, channelChatId])
+  @@index([channel, channelMsgId])
   @@index([careCaseId, isRead])
   @@map("messages")
+}
+
+// ============================================================
+// MESSAGE VERSION (append-only edit/delete history)
+// ============================================================
+
+model MessageVersion {
+  id        String   @id @default(uuid()) @db.Uuid
+  messageId String   @map("message_id") @db.Uuid
+  version   Int
+  content   String?  @db.VarChar(10000)
+  editedAt  DateTime @default(now()) @map("edited_at")
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, version])
+  @@index([messageId])
+  @@map("message_versions")
 }
 
 // ============================================================

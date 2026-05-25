@@ -1,0 +1,103 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '@org/prisma-client';
+import { CreateLessonDto } from './dto/create-lesson.dto.js';
+import { UpdateLessonDto } from './dto/update-lesson.dto.js';
+
+@Injectable()
+export class LessonsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(courseId: string, dto: CreateLessonDto) {
+    await this.assertCourseExists(courseId);
+
+    const sortOrder =
+      dto.sortOrder ??
+      (await this.prisma.lesson.count({ where: { courseId } }));
+
+    const [lesson] = await this.prisma.$transaction([
+      this.prisma.lesson.create({
+        data: {
+          courseId,
+          title: dto.title,
+          content: dto.content,
+          contentType: dto.contentType,
+          videoUrl: dto.videoUrl,
+          sortOrder,
+          hasTriggerWarning: dto.hasTriggerWarning ?? false,
+        },
+      }),
+      this.prisma.course.update({
+        where: { id: courseId },
+        data: { lessonCount: { increment: 1 } },
+      }),
+    ]);
+
+    return lesson;
+  }
+
+  async update(lessonId: string, dto: UpdateLessonDto) {
+    await this.assertLessonExists(lessonId);
+
+    return this.prisma.lesson.update({
+      where: { id: lessonId },
+      data: {
+        ...(dto.title !== undefined && { title: dto.title }),
+        ...(dto.content !== undefined && { content: dto.content }),
+        ...(dto.contentType !== undefined && { contentType: dto.contentType }),
+        ...(dto.videoUrl !== undefined && { videoUrl: dto.videoUrl }),
+        ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
+        ...(dto.hasTriggerWarning !== undefined && { hasTriggerWarning: dto.hasTriggerWarning }),
+      },
+    });
+  }
+
+  async delete(lessonId: string) {
+    const lesson = await this.assertLessonExists(lessonId);
+
+    await this.prisma.$transaction([
+      this.prisma.lesson.delete({ where: { id: lessonId } }),
+      this.prisma.course.update({
+        where: { id: lesson.courseId },
+        data: { lessonCount: { decrement: 1 } },
+      }),
+    ]);
+  }
+
+  async reorder(courseId: string, lessonIds: string[]) {
+    await this.assertCourseExists(courseId);
+
+    const updates = lessonIds.map((id, index) =>
+      this.prisma.lesson.update({
+        where: { id },
+        data: { sortOrder: index },
+      }),
+    );
+
+    await this.prisma.$transaction(updates);
+  }
+
+  async findByCourse(courseId: string) {
+    await this.assertCourseExists(courseId);
+
+    return this.prisma.lesson.findMany({
+      where: { courseId },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  private async assertCourseExists(courseId: string) {
+    const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+    if (!course) {
+      throw new NotFoundException(`Course with id "${courseId}" not found`);
+    }
+    return course;
+  }
+
+  private async assertLessonExists(lessonId: string) {
+    const lesson = await this.prisma.lesson.findUnique({ where: { id: lessonId } });
+    if (!lesson) {
+      throw new NotFoundException(`Lesson with id "${lessonId}" not found`);
+    }
+    return lesson;
+  }
+}

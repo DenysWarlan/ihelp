@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -11,6 +12,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
@@ -21,8 +23,11 @@ import { Request } from 'express';
 
 import { JwtPayload } from '../auth/auth.model.js';
 import {
+  ActiveChannelResponse,
+  EditMessageDto,
   MessageQueryDto,
   MessageResponse,
+  MessageVersionResponse,
   PaginatedMessagesResponse,
   SendMessageDto,
 } from './chat.model.js';
@@ -69,6 +74,25 @@ export class MessageController {
 
 @ApiTags('chat')
 @ApiBearerAuth()
+@Controller('cases/:caseId')
+export class CaseChannelController {
+  constructor(private readonly messageService: MessageService) {}
+
+  @Get('active-channel')
+  @ApiOperation({ summary: 'Get the active channel for a case' })
+  @ApiResponse({ status: 200, description: 'Active channel information' })
+  @ApiNotFoundResponse({ description: 'Case not found' })
+  async getActiveChannel(
+    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Req() req: Request,
+  ): Promise<ActiveChannelResponse> {
+    const actor = req.user as JwtPayload;
+    return this.messageService.getActiveChannel(caseId, actor);
+  }
+}
+
+@ApiTags('chat')
+@ApiBearerAuth()
 @Controller('messages')
 export class MessageReadController {
   constructor(private readonly messageService: MessageService) {}
@@ -83,5 +107,45 @@ export class MessageReadController {
   ): Promise<MessageResponse> {
     const actor = req.user as JwtPayload;
     return this.messageService.markAsRead(id, actor);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Edit a message' })
+  @ApiResponse({ status: 200, description: 'Message updated' })
+  @ApiNotFoundResponse({ description: 'Message not found' })
+  @ApiForbiddenResponse({ description: 'Cannot edit another user\'s message' })
+  async editMessage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: EditMessageDto,
+    @Req() req: Request,
+  ): Promise<MessageResponse> {
+    const actor = req.user as JwtPayload;
+    return this.messageService.editMessage(id, dto.content, actor);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Soft-delete a message' })
+  @ApiResponse({ status: 200, description: 'Message deleted' })
+  @ApiNotFoundResponse({ description: 'Message not found' })
+  @ApiForbiddenResponse({ description: 'Cannot delete another user\'s message' })
+  async softDeleteMessage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ): Promise<MessageResponse> {
+    const actor = req.user as JwtPayload;
+    return this.messageService.softDeleteMessage(id, actor);
+  }
+
+  @Get(':id/versions')
+  @ApiOperation({ summary: 'Get version history for a message (elevated roles only)' })
+  @ApiResponse({ status: 200, description: 'Message version history' })
+  @ApiNotFoundResponse({ description: 'Message not found' })
+  @ApiForbiddenResponse({ description: 'Insufficient permissions' })
+  async getVersionHistory(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ): Promise<MessageVersionResponse[]> {
+    const actor = req.user as JwtPayload;
+    return this.messageService.getVersionHistory(id, actor);
   }
 }

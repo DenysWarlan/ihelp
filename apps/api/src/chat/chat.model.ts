@@ -39,6 +39,14 @@ export class SendMessageDto {
   attachments?: Record<string, unknown>;
 }
 
+export class EditMessageDto {
+  @ApiProperty({ description: 'Updated message content', maxLength: MAX_MESSAGE_LENGTH })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(MAX_MESSAGE_LENGTH)
+  content!: string;
+}
+
 export class MessageQueryDto {
   @ApiPropertyOptional({ description: 'Cursor: message ID to start after' })
   @IsOptional()
@@ -52,7 +60,7 @@ export class MessageQueryDto {
 }
 
 // ---------------------------------------------------------------------------
-// Response
+// Response interfaces
 // ---------------------------------------------------------------------------
 
 export interface MessageResponse {
@@ -64,7 +72,11 @@ export interface MessageResponse {
   readonly content: string | null;
   readonly attachments: unknown;
   readonly isRead: boolean;
+  readonly isEdited: boolean;
+  readonly isDeleted: boolean;
+  readonly originalTs: Date | null;
   readonly readAt: Date | null;
+  readonly deletedAt: Date | null;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
@@ -73,6 +85,102 @@ export interface PaginatedMessagesResponse {
   readonly data: MessageResponse[];
   readonly nextCursor: string | null;
   readonly hasMore: boolean;
+}
+
+export interface MessageVersionResponse {
+  readonly id: string;
+  readonly messageId: string;
+  readonly version: number;
+  readonly content: string | null;
+  readonly editedAt: Date;
+}
+
+export interface ActiveChannelResponse {
+  readonly caseId: string;
+  readonly activeChannel: MessageChannel | null;
+}
+
+// ---------------------------------------------------------------------------
+// Delivery result (used by adapters)
+// ---------------------------------------------------------------------------
+
+export interface DeliveryResult {
+  readonly success: boolean;
+  readonly channel: MessageChannel;
+  readonly externalMessageId?: string;
+  readonly error?: string;
+  readonly fallbackUsed?: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Attachment metadata (stored in Message.attachments JSON)
+// ---------------------------------------------------------------------------
+
+export interface AttachmentMeta {
+  readonly type: 'document' | 'photo' | 'voice' | 'video' | 'audio';
+  readonly fileId: string;
+  readonly fileName?: string;
+  readonly mimeType?: string;
+  readonly fileSize?: number;
+  readonly width?: number;
+  readonly height?: number;
+  readonly duration?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Telegram webhook types (subset of Bot API)
+// ---------------------------------------------------------------------------
+
+export interface TelegramUpdate {
+  readonly update_id: number;
+  readonly message?: TelegramMessage;
+  readonly edited_message?: TelegramMessage;
+}
+
+export interface TelegramMessage {
+  readonly message_id: number;
+  readonly date: number;
+  readonly chat: { readonly id: number; readonly type: string };
+  readonly from?: {
+    readonly id: number;
+    readonly first_name: string;
+    readonly last_name?: string;
+    readonly username?: string;
+  };
+  readonly text?: string;
+  readonly caption?: string;
+  readonly document?: {
+    readonly file_id: string;
+    readonly file_name?: string;
+    readonly mime_type?: string;
+    readonly file_size?: number;
+  };
+  readonly photo?: ReadonlyArray<{
+    readonly file_id: string;
+    readonly width: number;
+    readonly height: number;
+    readonly file_size?: number;
+  }>;
+  readonly voice?: {
+    readonly file_id: string;
+    readonly mime_type?: string;
+    readonly file_size?: number;
+    readonly duration: number;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Webhook creation DTO (internal, not exposed via API)
+// ---------------------------------------------------------------------------
+
+export interface WebhookMessageInput {
+  readonly channel: MessageChannel;
+  readonly channelMsgId: string;
+  readonly channelChatId: string;
+  readonly content: string;
+  readonly originalTs: Date;
+  readonly attachments?: AttachmentMeta[];
+  readonly senderName?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -97,6 +205,17 @@ export interface ChatTypingPayload {
 
 export interface ChatReadPayload {
   readonly messageIds: string[];
+}
+
+export interface ChatEditPayload {
+  readonly messageId: string;
+  readonly caseId: string;
+  readonly content: string;
+}
+
+export interface ChatDeletePayload {
+  readonly messageId: string;
+  readonly caseId: string;
 }
 
 export interface SocketUser {

@@ -19,6 +19,8 @@ import { MessageChannel } from '@prisma/client';
 import { JwtPayload } from '../auth/auth.model.js';
 import { CASE_ROOM_PREFIX, CHAT_EVENTS } from './chat.const.js';
 import {
+  ChatDeletePayload,
+  ChatEditPayload,
   ChatJoinPayload,
   ChatMessagePayload,
   ChatReadPayload,
@@ -178,6 +180,57 @@ export class ChatGateway
           error instanceof Error
             ? error.message
             : 'Failed to mark as read',
+      });
+    }
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.MESSAGE_EDITED)
+  async handleEdit(
+    @ConnectedSocket() client: Socket & { user: SocketUser },
+    @MessageBody() payload: ChatEditPayload,
+  ): Promise<void> {
+    try {
+      const actor = this.toJwtPayload(client.user);
+      const updated = await this.messageService.editMessage(
+        payload.messageId,
+        payload.content,
+        actor,
+      );
+
+      const room = `${CASE_ROOM_PREFIX}${payload.caseId}`;
+      this.server.to(room).emit(CHAT_EVENTS.MESSAGE_EDITED, updated);
+    } catch (error) {
+      client.emit(CHAT_EVENTS.ERROR, {
+        event: CHAT_EVENTS.MESSAGE_EDITED,
+        message:
+          error instanceof Error ? error.message : 'Failed to edit message',
+      });
+    }
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.MESSAGE_DELETED)
+  async handleDelete(
+    @ConnectedSocket() client: Socket & { user: SocketUser },
+    @MessageBody() payload: ChatDeletePayload,
+  ): Promise<void> {
+    try {
+      const actor = this.toJwtPayload(client.user);
+      const deleted = await this.messageService.softDeleteMessage(
+        payload.messageId,
+        actor,
+      );
+
+      const room = `${CASE_ROOM_PREFIX}${payload.caseId}`;
+      this.server.to(room).emit(CHAT_EVENTS.MESSAGE_DELETED, {
+        id: deleted.id,
+        caseId: payload.caseId,
+        deletedBy: client.user.sub,
+      });
+    } catch (error) {
+      client.emit(CHAT_EVENTS.ERROR, {
+        event: CHAT_EVENTS.MESSAGE_DELETED,
+        message:
+          error instanceof Error ? error.message : 'Failed to delete message',
       });
     }
   }
