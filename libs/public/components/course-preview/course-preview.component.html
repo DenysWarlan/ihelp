@@ -5,7 +5,7 @@
         <p>{{ t('common.comingSoon') }}</p>
       </div>
     } @else if (course(); as course) {
-      <a routerLink="/catalog" class="course-preview__back">
+      <a routerLink="/catalog" class="course-preview__back" [attr.aria-label]="t('coursePreview.backToCatalog')">
         <ui-icon name="ArrowLeft" [size]="16" color="var(--ihelp-accent)" />
         {{ t('coursePreview.backToCatalog') }}
       </a>
@@ -63,14 +63,25 @@
               <span class="course-preview__cta-meta">
                 {{ course.lessonCount }} {{ t('catalog.lessons') }}
               </span>
-              <a routerLink="/login" class="course-preview__cta-btn">
+              <button
+                type="button"
+                class="course-preview__cta-btn"
+                (click)="openAuthModal()"
+                [attr.aria-label]="t('coursePreview.startCourse')"
+              >
                 {{ t('coursePreview.startCourse') }}
-              </a>
+              </button>
               <p class="course-preview__cta-note">{{ t('coursePreview.loginToStart') }}</p>
             </div>
           </div>
         </aside>
       </div>
     }
+
+    <app-auth-modal
+      [isOpen]="isAuthModalOpen()"
+      [courseId]="currentCourseId"
+      (closed)="closeAuthModal()"
+    />
   </section>
 </ng-container>

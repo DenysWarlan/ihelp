@@ -1,0 +1,64 @@
+<ng-container *transloco="let t">
+  <ui-modal
+    [isOpen]="isOpen()"
+    [title]="t('authModal.title')"
+    size="sm"
+    (closed)="onClose()"
+  >
+    <p class="auth-modal__description">{{ t('authModal.description') }}</p>
+
+    <div class="auth-modal__consent">
+      <span
+        class="auth-modal__checkbox"
+        role="checkbox"
+        [attr.aria-checked]="consentChecked()"
+        [attr.tabindex]="0"
+        [class.auth-modal__checkbox--checked]="consentChecked()"
+        (click)="toggleConsent()"
+        (keydown)="onConsentKeydown($event)"
+      >
+        @if (consentChecked()) {
+          <svg class="auth-modal__check-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        }
+      </span>
+      <span class="auth-modal__consent-text" (click)="toggleConsent()">
+        {{ t('authModal.consent') }}
+      </span>
+    </div>
+
+    <div class="auth-modal__oauth">
+      <button
+        type="button"
+        class="auth-modal__oauth-btn auth-modal__oauth-btn--google"
+        [disabled]="!consentChecked()"
+        [attr.aria-label]="t('login.google')"
+        (click)="loginWith('google')"
+      >
+        <ui-icon name="Chrome" [size]="18" />
+        {{ t('login.google') }}
+      </button>
+      <button
+        type="button"
+        class="auth-modal__oauth-btn auth-modal__oauth-btn--facebook"
+        [disabled]="!consentChecked()"
+        [attr.aria-label]="t('login.facebook')"
+        (click)="loginWith('facebook')"
+      >
+        <ui-icon name="Facebook" [size]="18" />
+        {{ t('login.facebook') }}
+      </button>
+      <button
+        type="button"
+        class="auth-modal__oauth-btn auth-modal__oauth-btn--telegram"
+        [disabled]="!consentChecked()"
+        [attr.aria-label]="t('login.telegram')"
+        (click)="loginWith('telegram')"
+      >
+        <ui-icon name="Send" [size]="18" />
+        {{ t('login.telegram') }}
+      </button>
+    </div>
+  </ui-modal>
+</ng-container>

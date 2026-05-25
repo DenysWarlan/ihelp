@@ -79,6 +79,7 @@ import { StorageModule } from '../storage/storage.module.js';
       { name: 'email' },
       { name: 'notifications' },
       { name: 'sla-timers' },
+      { name: 'auto-pause' },
     ),
 
     // Database

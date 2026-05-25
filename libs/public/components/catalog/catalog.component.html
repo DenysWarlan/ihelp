@@ -43,7 +43,7 @@
           <span class="catalog__help-subtitle">{{ t('catalog.helpSubtitle') }}</span>
         </div>
       </div>
-      <a routerLink="/need-help" class="catalog__help-btn">{{ t('catalog.helpButton') }}</a>
+      <a routerLink="/need-help" class="catalog__help-btn" [attr.aria-label]="t('catalog.helpTitle')">{{ t('catalog.helpButton') }}</a>
     </div>
   </section>
 </ng-container>

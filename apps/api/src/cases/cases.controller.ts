@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import {
@@ -13,6 +14,7 @@ import {
   ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -49,11 +51,15 @@ export class CasesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List cases (filtered by role)' })
+  @ApiOperation({ summary: 'List cases (filtered by role, optionally by tag)' })
   @ApiResponse({ status: 200, description: 'List of cases' })
-  async findAll(@Req() req: Request): Promise<CaseResponse[]> {
+  @ApiQuery({ name: 'tagId', required: false, description: 'Filter by tag ID' })
+  async findAll(
+    @Req() req: Request,
+    @Query('tagId') tagId?: string,
+  ): Promise<CaseResponse[]> {
     const actor = req.user as JwtPayload;
-    return this.casesService.findAll(actor);
+    return this.casesService.findAll(actor, tagId);
   }
 
   @Get(':id')

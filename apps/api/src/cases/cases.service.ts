@@ -110,7 +110,7 @@ export class CasesService {
   // Read
   // ---------------------------------------------------------------------------
 
-  async findAll(actor: JwtPayload): Promise<CaseResponse[]> {
+  async findAll(actor: JwtPayload, tagId?: string): Promise<CaseResponse[]> {
     let where: Prisma.CareCaseWhereInput = {};
 
     if (actor.role === 'PERSON') {
@@ -119,6 +119,14 @@ export class CasesService {
       where = { consultantId: actor.sub };
     }
     // COORDINATOR and ADMIN see all
+
+    // Filter by tag if provided
+    if (tagId) {
+      where = {
+        ...where,
+        tags: { some: { tagId } },
+      };
+    }
 
     const cases = await this.prisma.careCase.findMany({
       where,

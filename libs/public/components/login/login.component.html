@@ -24,18 +24,41 @@
         }
 
         <div class="login__oauth">
-          <button type="button" class="login__oauth-btn login__oauth-btn--google" (click)="loginWith('google')">
+          <button
+            type="button"
+            class="login__oauth-btn login__oauth-btn--google"
+            [attr.aria-label]="t('login.google')"
+            (click)="loginWith('google')"
+          >
             {{ t('login.google') }}
           </button>
-          <button type="button" class="login__oauth-btn login__oauth-btn--facebook" (click)="loginWith('facebook')">
+          <button
+            type="button"
+            class="login__oauth-btn login__oauth-btn--facebook"
+            [attr.aria-label]="t('login.facebook')"
+            (click)="loginWith('facebook')"
+          >
             {{ t('login.facebook') }}
           </button>
-          <button type="button" class="login__oauth-btn login__oauth-btn--telegram" (click)="loginWith('telegram')">
+          <button
+            type="button"
+            class="login__oauth-btn login__oauth-btn--telegram"
+            [attr.aria-label]="t('login.telegram')"
+            (click)="loginWith('telegram')"
+          >
             {{ t('login.telegram') }}
           </button>
         </div>
 
-        <p class="login__consent">{{ t('login.consent') }}</p>
+        <p class="login__consent">
+          {{ t('login.consent') }}
+          <a
+            href="/privacy"
+            class="login__privacy-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ t('login.privacyPolicy') }}</a>
+        </p>
       </div>
     </div>
   </div>

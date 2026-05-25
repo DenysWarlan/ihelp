@@ -49,6 +49,9 @@ model User {
   careCasesAsConsultant CareCase[] @relation("CaseConsultant")
   caseNotes             CaseNote[] @relation("NoteAuthor")
 
+  // Chat relations
+  messagesSent Message[] @relation("MessageSender")
+
   @@index([role])
   @@map("users")
 }
@@ -234,6 +237,9 @@ model CareCase {
   sourceCourse Course?  @relation(fields: [sourceCourseId], references: [id], onDelete: SetNull)
   notes        CaseNote[]
   auditEntries CaseAuditEntry[]
+  messages     Message[]
+  feedback     CaseFeedback?
+  tags         CaseTag[]
 
   @@index([status])
   @@index([consultantId])
@@ -284,4 +290,86 @@ model CaseAuditEntry {
   @@index([actorId])
   @@index([action])
   @@map("case_audit_entries")
+}
+
+// ============================================================
+// MESSAGES (unified omnichannel)
+// ============================================================
+
+enum MessageChannel {
+  WEB
+  TELEGRAM
+  INSTAGRAM
+  FACEBOOK
+  VIBER
+}
+
+model Message {
+  id            String         @id @default(uuid()) @db.Uuid
+  careCaseId    String         @map("care_case_id") @db.Uuid
+  senderId      String         @map("sender_id") @db.Uuid
+  senderRole    Role           @map("sender_role")
+  channel       MessageChannel @default(WEB)
+  channelChatId String?        @map("channel_chat_id")
+  channelMsgId  String?        @map("channel_msg_id")
+  content       String?        @db.VarChar(10000)
+  attachments   Json?
+  isRead        Boolean        @default(false) @map("is_read")
+  isEdited      Boolean        @default(false) @map("is_edited")
+  readAt        DateTime?      @map("read_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+  sender   User     @relation("MessageSender", fields: [senderId], references: [id])
+
+  @@index([careCaseId, createdAt])
+  @@index([senderId])
+  @@index([channel, channelChatId])
+  @@index([careCaseId, isRead])
+  @@map("messages")
+}
+
+// ============================================================
+// CASE FEEDBACK
+// ============================================================
+
+model CaseFeedback {
+  id         String   @id @default(uuid()) @db.Uuid
+  careCaseId String   @unique @map("care_case_id") @db.Uuid
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+
+  @@map("case_feedbacks")
+}
+
+// ============================================================
+// TAGS (case categorization)
+// ============================================================
+
+model Tag {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  cases CaseTag[]
+
+  @@map("tags")
+}
+
+model CaseTag {
+  id         String   @id @default(uuid()) @db.Uuid
+  careCaseId String   @map("care_case_id") @db.Uuid
+  tagId      String   @map("tag_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+  tag      Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([careCaseId, tagId])
+  @@index([tagId])
+  @@map("case_tags")
 }

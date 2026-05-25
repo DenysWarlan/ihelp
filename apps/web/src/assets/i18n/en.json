@@ -87,6 +87,11 @@
     "browseCourses": "Browse courses while you wait",
     "telegramNote": "Or message us on Telegram: @ye_turbota_bot"
   },
+  "authModal": {
+    "title": "Start Course",
+    "description": "Sign in to access the course and start learning.",
+    "consent": "I agree to account creation and personal data processing in accordance with the privacy policy"
+  },
   "login": {
     "title": "Sign In",
     "subtitle": "Choose a convenient sign-in method",
@@ -95,7 +100,8 @@
     "telegram": "Sign in with Telegram",
     "oauthError": "Sign-in failed. Please try again or choose another method.",
     "retry": "Try again",
-    "consent": "Signing in means you agree to the processing of personal data",
+    "consent": "Signing in means you agree to the processing of personal data.",
+    "privacyPolicy": "Privacy Policy",
     "brandSubtitle": "Care Coordination Platform",
     "placeholder": "Authentication will be implemented in E01."
   },

@@ -108,6 +108,11 @@
     opacity: 0.9;
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--ihelp-accent);
+    outline-offset: 2px;
+  }
+
   &--google {
     background-color: var(--ihelp-white);
     color: var(--ihelp-text-primary);
@@ -131,6 +136,23 @@
   font-size: 11px;
   color: var(--ihelp-text-muted);
   text-align: center;
+  line-height: 1.5;
+}
+
+.login__privacy-link {
+  color: var(--ihelp-accent);
+  text-decoration: underline;
+  transition: opacity var(--ihelp-transition-fast);
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ihelp-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 @media (max-width: 768px) {
