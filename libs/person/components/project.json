@@ -1,0 +1,8 @@
+{
+  "name": "person-components",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/person/components",
+  "projectType": "library",
+  "tags": [],
+  "targets": {}
+}

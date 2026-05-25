@@ -1,0 +1,4076 @@
+{
+  "version": "6.0",
+  "nxVersion": "22.7.1",
+  "pathMappings": {
+    "@org/shared/ui": [
+      "./libs/shared/ui/index.ts"
+    ],
+    "@org/shared/data-access": [
+      "./libs/shared/data-access/index.ts"
+    ],
+    "@org/public/components": [
+      "./libs/public/components/index.ts"
+    ],
+    "@org/public/data-access": [
+      "./libs/public/data-access/index.ts"
+    ],
+    "@org/person/components": [
+      "./libs/person/components/index.ts"
+    ],
+    "@org/person/data-access": [
+      "./libs/person/data-access/index.ts"
+    ],
+    "@org/staff/components": [
+      "./libs/staff/components/index.ts"
+    ],
+    "@org/staff/data-access": [
+      "./libs/staff/data-access/index.ts"
+    ],
+    "@org/prisma-client": [
+      "./libs/prisma-client/src/index.ts"
+    ]
+  },
+  "nxJsonPlugins": [
+    {
+      "name": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      }
+    },
+    {
+      "name": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "name": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e"
+      }
+    },
+    {
+      "name": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    }
+  ],
+  "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S01.md",
+        "hash": "10409656600430162222"
+      },
+      {
+        "file": ".claude/skills/lead-workflow/phases/3-solutioning.md",
+        "hash": "455692248712412997"
+      },
+      {
+        "file": "vault/00-system/templates/consultant.pdf",
+        "hash": "2117962179579347013"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-01.md",
+        "hash": "16375083123489957480"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/data-access/person.routes.d.ts.map",
+        "hash": "6195276086936794749"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-02-context.md",
+        "hash": "15495132615718287014"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S02.md",
+        "hash": "5015641664151943432"
+      },
+      {
+        "file": "vault/30-bmad/stories/E09-workload/S-E09-01.md",
+        "hash": "12588392493082767515"
+      },
+      {
+        "file": "vault/30-bmad/prd.md",
+        "hash": "9513565279535588221"
+      },
+      {
+        "file": "dist/apps/web/browser/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S04.md",
+        "hash": "16208494253190879844"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S10.md",
+        "hash": "7281461515870373104"
+      },
+      {
+        "file": ".claude/skills/bmad-sprint-planning/sprint-status-template.yaml",
+        "hash": "2641083988029770941"
+      },
+      {
+        "file": "_bmad/core/config.yaml",
+        "hash": "2470148379785957975"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S07.md",
+        "hash": "7319062741764398384"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/templates/deep-dive-template.md",
+        "hash": "2511489597787371349"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/fonts/Inter-Medium.woff2",
+        "hash": "5936672058402702467"
+      },
+      {
+        "file": "vault/80-retros/CLAUDE.md",
+        "hash": "9317860569474950649"
+      },
+      {
+        "file": ".claude/skills/bmad-product-brief/customize.toml",
+        "hash": "5895004617710552400"
+      },
+      {
+        "file": ".claude/skills/bmad-create-story/SKILL.md",
+        "hash": "4673497357314868733"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/supervisor/supervisor.component.d.ts.map",
+        "hash": "7826745844481512258"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/SKILL.md",
+        "hash": "6130339708214234014"
+      },
+      {
+        "file": ".claude/skills/bmad-create-epics-and-stories/customize.toml",
+        "hash": "16125077428737130102"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S02.md",
+        "hash": "12143402946864084792"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/data-access/index.d.ts",
+        "hash": "5756038251165551014"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-01.md",
+        "hash": "11805094726039329589"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-02a-user-selected.md",
+        "hash": "5392286491338829459"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/data-access/staff.routes.d.ts",
+        "hash": "6262136227686264558"
+      },
+      {
+        "file": ".claude/skills/bmad-create-epics-and-stories/steps/step-01-validate-prerequisites.md",
+        "hash": "416066201582181438"
+      },
+      {
+        "file": "AGENTS.md",
+        "hash": "10408874829042633214"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-03.md",
+        "hash": "11051600419386720755"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-03.md",
+        "hash": "14454684360152756405"
+      },
+      {
+        "file": ".env",
+        "hash": "14545527601596895650"
+      },
+      {
+        "file": "package.json",
+        "hash": "5672085280031066094"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-07.md",
+        "hash": "17536482663288905718"
+      },
+      {
+        "file": ".claude/skills/bmad-generate-project-context/customize.toml",
+        "hash": "10804439767196991377"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-06.md",
+        "hash": "123691646315972622"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E09-workload/TC-S-E09-S06.md",
+        "hash": "12605105198781974223"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S03.md",
+        "hash": "3248199608604763968"
+      },
+      {
+        "file": ".claude/skills/bmad-generate-project-context/steps/step-03-complete.md",
+        "hash": "12646706273869368812"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-01.md",
+        "hash": "18196063425374295460"
+      },
+      {
+        "file": "tsconfig.json",
+        "hash": "5584962205187471146"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-09.md",
+        "hash": "18243199042756534940"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-04.md",
+        "hash": "18401566192537018083"
+      },
+      {
+        "file": ".claude/skills/bmad-advanced-elicitation/methods.csv",
+        "hash": "4269225937876627502"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/domain-steps/step-03-competitive-landscape.md",
+        "hash": "17603580477608479958"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-08.md",
+        "hash": "12938182789811976935"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-02.md",
+        "hash": "8999471433195983839"
+      },
+      {
+        "file": ".claude/skills/bmad-create-story/checklist.md",
+        "hash": "7135310456281647113"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/references/internal-faq.md",
+        "hash": "17440018059483964548"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-CY43S2DA.js",
+        "hash": "11501139496604248771"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-10.md",
+        "hash": "11529508151087623285"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/customize.toml",
+        "hash": "7404318681128365349"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S02.md",
+        "hash": "9782739633132630031"
+      },
+      {
+        "file": ".claude/skills/bmad-code-review/steps/step-03-triage.md",
+        "hash": "18244984906042793509"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-02.md",
+        "hash": "13297590730409429649"
+      },
+      {
+        "file": "vault/30-bmad/epics/E14-public-web.md",
+        "hash": "11581008245394579256"
+      },
+      {
+        "file": "vault/30-bmad/architecture/architecture.md",
+        "hash": "15162484637833831780"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-04-decisions.md",
+        "hash": "6283292366583030028"
+      },
+      {
+        "file": "vault/30-bmad/epics/E04-lms.md",
+        "hash": "9212322119455036797"
+      },
+      {
+        "file": ".claude/skills/bmad-editorial-review-structure/SKILL.md",
+        "hash": "18089304471567278123"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-06-design-system.md",
+        "hash": "15069423263686481055"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-05.md",
+        "hash": "5080970794855112811"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/public.routes.d.ts.map",
+        "hash": "5064871503874383262"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S05.md",
+        "hash": "1133506396425625697"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-03.md",
+        "hash": "13122521074586862156"
+      },
+      {
+        "file": ".claude/skills/bmad-create-epics-and-stories/SKILL.md",
+        "hash": "524755273102506136"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S04.md",
+        "hash": "5215013742902587959"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-02b-ai-recommended.md",
+        "hash": "9537440435253699235"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S02.md",
+        "hash": "10047942997564123328"
+      },
+      {
+        "file": ".claude/skills/bmad-qa-generate-e2e-tests/SKILL.md",
+        "hash": "6096278430973294757"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-04-idea-organization.md",
+        "hash": "12239911745354665302"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S05.md",
+        "hash": "8810690880214301078"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-01.md",
+        "hash": "2488970658357361030"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-01.md",
+        "hash": "10413729779081445868"
+      },
+      {
+        "file": ".claude/skills/bmad-investigate/customize.toml",
+        "hash": "7281846860288576730"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-09.md",
+        "hash": "7691773016415580062"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/chat/chat.component.d.ts",
+        "hash": "16751780051732844810"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-02-discovery.md",
+        "hash": "18090641639779088239"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-01b-continue.md",
+        "hash": "12081079859169260261"
+      },
+      {
+        "file": "vault/30-bmad/analysis/system-analysis.md",
+        "hash": "6265850834873993039"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/fonts/Inter-SemiBold.woff2",
+        "hash": "6023072882627121216"
+      },
+      {
+        "file": ".claude/skills/bmad-product-brief/SKILL.md",
+        "hash": "17459298439627832923"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-04.md",
+        "hash": "14309035963251281070"
+      },
+      {
+        "file": "vault/30-bmad/epics/E02-cases.md",
+        "hash": "16627376626636605799"
+      },
+      {
+        "file": ".claude/skills/bmad-shard-doc/SKILL.md",
+        "hash": "15230813634832680332"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-03.md",
+        "hash": "1867824020316556108"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/SKILL.md",
+        "hash": "9294499727725915706"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/SKILL.md",
+        "hash": "1418235942156629616"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S06.md",
+        "hash": "12554424186592294386"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S06.md",
+        "hash": "135347095382845639"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-09.md",
+        "hash": "10594661967589145187"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/workflows/deep-dive-instructions.md",
+        "hash": "13105487388062719283"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S09.md",
+        "hash": "928357453516866623"
+      },
+      {
+        "file": ".vscode/launch.json",
+        "hash": "3029887420840362970"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/steps/step-06-research-completion.md",
+        "hash": "9984393019687295203"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S02.md",
+        "hash": "15069695885876776536"
+      },
+      {
+        "file": ".claude/skills/bmad-sprint-planning/SKILL.md",
+        "hash": "1725102461295520307"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S06.md",
+        "hash": "14107181050570093671"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-08.md",
+        "hash": "10833499747801944338"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/step-01-orientation.md",
+        "hash": "4647551586874704886"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S03.md",
+        "hash": "17508007025327301684"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/customize.toml",
+        "hash": "5774186961394729008"
+      },
+      {
+        "file": "dist/apps/web/prerendered-routes.json",
+        "hash": "15049165521752226651"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-H3J5BFVY.js",
+        "hash": "16932025796446227334"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S04.md",
+        "hash": "11503442769489051925"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-01.md",
+        "hash": "5088022002449523014"
+      },
+      {
+        "file": "vault/20-design/coordinator.pdf",
+        "hash": "17332924254192218893"
+      },
+      {
+        "file": "vault/20-design/supervisor.pdf",
+        "hash": "13229785615968520444"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-02.md",
+        "hash": "2326125247296984647"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-09-design-directions.md",
+        "hash": "16894094613034898411"
+      },
+      {
+        "file": ".claude/skills/bmad-customize/SKILL.md",
+        "hash": "18106874368130513033"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-05-inspiration.md",
+        "hash": "4096190377401527105"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S10.md",
+        "hash": "3512310420453928734"
+      },
+      {
+        "file": ".claude/skills/bmad-index-docs/SKILL.md",
+        "hash": "15971880724061991689"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S04.md",
+        "hash": "2055345837642288319"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S02.md",
+        "hash": "9559643571144295511"
+      },
+      {
+        "file": "vault/00-system/templates/admin.pdf",
+        "hash": "5356998084796962209"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S09.md",
+        "hash": "6461657427788018098"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/SKILL.md",
+        "hash": "17331438619070935001"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-02c-random-selection.md",
+        "hash": "16441178638953388330"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S01.md",
+        "hash": "3861105475573652640"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S04.md",
+        "hash": "16690904811773150985"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-14-complete.md",
+        "hash": "8854761490029709143"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-09.md",
+        "hash": "14679427950703250386"
+      },
+      {
+        "file": "vault/30-bmad/epics/E07-sla.md",
+        "hash": "5955853975744684209"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-pm/SKILL.md",
+        "hash": "11498910802168405559"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-03.md",
+        "hash": "1198213929617689438"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/checklist.md",
+        "hash": "13517806405993629391"
+      },
+      {
+        "file": "_bmad/bmm/config.yaml",
+        "hash": "13651714076866719088"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/customize.toml",
+        "hash": "14163447240341753972"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/SKILL.md",
+        "hash": "6610247470642291249"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-ux-designer/customize.toml",
+        "hash": "6843539501074337648"
+      },
+      {
+        "file": "vault/30-bmad/analysis/business-analysis-lms.md",
+        "hash": "4841841744866026104"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/data-access/guard/auth.guard.d.ts.map",
+        "hash": "1775114917670899116"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/data-access/index.d.ts",
+        "hash": "3747904521724063856"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/dashboard/dashboard.component.d.ts.map",
+        "hash": "12583172474991292955"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S08.md",
+        "hash": "14621835051264326385"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-11.md",
+        "hash": "7275435590649309444"
+      },
+      {
+        "file": "dist/apps/web/browser/main-UBHSGHNM.js",
+        "hash": "11714235565855898886"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/step-02-walkthrough.md",
+        "hash": "464471841910844081"
+      },
+      {
+        "file": ".env.example",
+        "hash": "8825690778075135004"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S03.md",
+        "hash": "8962952132407476148"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/SKILL.md",
+        "hash": "13725118421061186890"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/compile-epic-context.md",
+        "hash": "6400515359921826616"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S07.md",
+        "hash": "7725478392441269815"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-04.md",
+        "hash": "8862167662878424149"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-05.md",
+        "hash": "2153061570921741487"
+      },
+      {
+        "file": ".claude/skills/bmad-validate-prd/SKILL.md",
+        "hash": "1740610254351873030"
+      },
+      {
+        "file": "vault/30-bmad/epics/E17-infrastructure.md",
+        "hash": "16015289156467466412"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/supervisor/supervisor.component.d.ts",
+        "hash": "17599311153065491543"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/steps/step-03-epic-coverage-validation.md",
+        "hash": "1048413516544641665"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/components/layout/public-layout/public-layout.component.d.ts",
+        "hash": "18326859162911791637"
+      },
+      {
+        "file": "vault/30-bmad/vision.md",
+        "hash": "3958642077717358857"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-04.md",
+        "hash": "11531010093066544378"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-06.md",
+        "hash": "14187848673682001812"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S04.md",
+        "hash": "197264368277251108"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S02.md",
+        "hash": "3634076003700322214"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/index.d.ts.map",
+        "hash": "12649616255063617421"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-08-visual-foundation.md",
+        "hash": "12743993130630158518"
+      },
+      {
+        "file": "vault/00-system/templates/40-features--feature.md",
+        "hash": "9268578999945111581"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/domain-steps/step-01-init.md",
+        "hash": "594712294254123811"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/workflows/deep-dive-workflow.md",
+        "hash": "2822561097695135149"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S08.md",
+        "hash": "8945411691822443645"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S01.md",
+        "hash": "3529117261408610271"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/i18n/en.json",
+        "hash": "14155995456839483693"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-05-patterns.md",
+        "hash": "397424671711582871"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-10-user-journeys.md",
+        "hash": "9427858417360331037"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/step-04-testing.md",
+        "hash": "15424294836203395637"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/steps/step-03-customer-pain-points.md",
+        "hash": "10745517216175081277"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/assets/headless-schemas.md",
+        "hash": "15594040004349754514"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/index.d.ts.map",
+        "hash": "12281560731477834838"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/login/login.component.d.ts.map",
+        "hash": "11883459398726266879"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-12-ux-patterns.md",
+        "hash": "13448125866054414702"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-01.md",
+        "hash": "5497822920924616110"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-01.md",
+        "hash": "2122427014022276744"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-02.md",
+        "hash": "4314491989671380726"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/public.routes.d.ts.map",
+        "hash": "2414350296386213122"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/domain-steps/step-02-domain-analysis.md",
+        "hash": "3536273127717059215"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "11573629717667328485"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/data-access/tsconfig.lib.tsbuildinfo",
+        "hash": "3759317576418395446"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-05.md",
+        "hash": "1753068996275761083"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/references/press-release.md",
+        "hash": "2379355368799073588"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/sync-sprint-status.md",
+        "hash": "30356023360251359"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-09.md",
+        "hash": "17272413187510117223"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-07-validation.md",
+        "hash": "13685675550626450611"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-07.md",
+        "hash": "1939473650230991472"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-HRAG6DOF.js",
+        "hash": "13279258249252057394"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S03.md",
+        "hash": "2769514909179655307"
+      },
+      {
+        "file": ".claude/skills/bmad-generate-project-context/SKILL.md",
+        "hash": "12318511986177179975"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-2TCE5YMG.js",
+        "hash": "6573985038916815594"
+      },
+      {
+        "file": ".claude/skills/bmad-help/SKILL.md",
+        "hash": "5416564636898888568"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/agents/artifact-analyzer.md",
+        "hash": "16011652104537167723"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S08.md",
+        "hash": "14303823259023550903"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-08.md",
+        "hash": "4108217412987689522"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S05.md",
+        "hash": "2782416295854685715"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S09.md",
+        "hash": "11221678402349701481"
+      },
+      {
+        "file": ".claude/skills/bmad-customize/scripts/tests/test_list_customizable_skills.py",
+        "hash": "15666507427258362985"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-08.md",
+        "hash": "2659270127561196789"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/service/courses-facade.service.d.ts",
+        "hash": "12699233571747506081"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-09.md",
+        "hash": "15584606418365679630"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S01.md",
+        "hash": "8862153001143323234"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-05.md",
+        "hash": "10640684764852134917"
+      },
+      {
+        "file": ".claude/skills/bmad-generate-project-context/steps/step-02-generate.md",
+        "hash": "14055435619033099137"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-07.md",
+        "hash": "8441718817957414408"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/brain-methods.csv",
+        "hash": "6797318140385168639"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S08.md",
+        "hash": "16751442821098542534"
+      },
+      {
+        "file": ".claude/skills/bmad-edit-prd/SKILL.md",
+        "hash": "9406093596335769400"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/step-03-implement.md",
+        "hash": "16307461627961596834"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S01.md",
+        "hash": "8945095941189300950"
+      },
+      {
+        "file": "vault/20-design/consultant.pdf",
+        "hash": "2117962179579347013"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/data/project-types.csv",
+        "hash": "1085203530622102022"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S07.md",
+        "hash": "8213593112618250592"
+      },
+      {
+        "file": "_bmad/_config/skill-manifest.csv",
+        "hash": "9881352006128820926"
+      },
+      {
+        "file": "vault/00-system/templates/supervisor.pdf",
+        "hash": "13229785615968520444"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/service/courses-facade.service.d.ts.map",
+        "hash": "5379516409547895559"
+      },
+      {
+        "file": ".claude/skills/bmad-party-mode/SKILL.md",
+        "hash": "4589498465608310557"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-05.md",
+        "hash": "138670223404355061"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-02.md",
+        "hash": "3498278423483744945"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-pm/customize.toml",
+        "hash": "1377415999391419122"
+      },
+      {
+        "file": ".claude/skills/bmad-product-brief/assets/brief-template.md",
+        "hash": "17488311357654851692"
+      },
+      {
+        "file": ".idea/nx-angular-config.xml",
+        "hash": "3012924966580641808"
+      },
+      {
+        "file": ".claude/skills/bmad-investigate/references/case-file-template.md",
+        "hash": "5284951775148273140"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S06.md",
+        "hash": "9698019794391903251"
+      },
+      {
+        "file": "vault/00-system/templates/60-decisions--adr.md",
+        "hash": "4904433803340952995"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S09.md",
+        "hash": "11502617627613687219"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/service/courses.service.d.ts",
+        "hash": "17043408485663364418"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/components/layout/authenticated-layout/authenticated-layout.component.d.ts.map",
+        "hash": "7884192724867154016"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/dashboard/dashboard.component.d.ts",
+        "hash": "17115371006677392401"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S08.md",
+        "hash": "13910014910003690430"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/technical-steps/step-04-architectural-patterns.md",
+        "hash": "7714458535121214640"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/references/headless.md",
+        "hash": "4448193507353991318"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-FBFBXIUP.js",
+        "hash": "9228888541604563578"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/architecture-decision-template.md",
+        "hash": "3985922240680874413"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-analyst/SKILL.md",
+        "hash": "5447359921733820111"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-YWTF7FOO.js",
+        "hash": "1540337654174269147"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S06.md",
+        "hash": "11879660928228965574"
+      },
+      {
+        "file": ".claude/skills/bmad-editorial-review-prose/SKILL.md",
+        "hash": "5072801115167372301"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-ZPLKO66L.js",
+        "hash": "14060289443074760220"
+      },
+      {
+        "file": ".claude/skills/bmad-create-story/customize.toml",
+        "hash": "14034723737756383628"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/tsconfig.lib.tsbuildinfo",
+        "hash": "1858287878506546427"
+      },
+      {
+        "file": ".claude/skills/bmad-retrospective/customize.toml",
+        "hash": "6707996072722251461"
+      },
+      {
+        "file": "vault/00-system/templates/coordinator.pdf",
+        "hash": "17332924254192218893"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-03-technique-execution.md",
+        "hash": "8088881054781925172"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-10.md",
+        "hash": "11084246974417842179"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/workflow.md",
+        "hash": "4304134187593397981"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/data-access/tsconfig.lib.tsbuildinfo",
+        "hash": "11015346330062730908"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/need-help/need-help.component.d.ts.map",
+        "hash": "12960909990988232280"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/scripts/analyze_sources.py",
+        "hash": "9718338868258507334"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-08.md",
+        "hash": "8313146518252140194"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S07.md",
+        "hash": "4133641169805875951"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-09.md",
+        "hash": "1958765238525297000"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S03.md",
+        "hash": "17245711101918714633"
+      },
+      {
+        "file": "_bmad/bmm/module-help.csv",
+        "hash": "11267139413805594858"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S04.md",
+        "hash": "10595140783545167614"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S02.md",
+        "hash": "9054209103652860597"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S06.md",
+        "hash": "4218309779990104190"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S03.md",
+        "hash": "16840230369312912984"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-07.md",
+        "hash": "10812955154209100402"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/coordinator/coordinator.component.d.ts.map",
+        "hash": "9803595733372895666"
+      },
+      {
+        "file": "vault/00-system/templates/person.pdf",
+        "hash": "6706027219992776495"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/tsconfig.lib.tsbuildinfo",
+        "hash": "13931965181087823524"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/step-03-detail-pass.md",
+        "hash": "8129996739524107914"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-04.md",
+        "hash": "9441984886320958830"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/public.routes.d.ts",
+        "hash": "18039865614754167789"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-04.md",
+        "hash": "2595279053097247242"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/course-preview/course-preview.component.d.ts.map",
+        "hash": "8483794812193354436"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-02.md",
+        "hash": "15989750307031367106"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/service/courses.service.d.ts.map",
+        "hash": "6074953095351377656"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S04.md",
+        "hash": "2304540336778919683"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-09.md",
+        "hash": "7865167733578850123"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S05.md",
+        "hash": "5854268417304710740"
+      },
+      {
+        "file": ".claude/skills/bmad-code-review/steps/step-01-gather-context.md",
+        "hash": "17144283155110627753"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/templates/readiness-report-template.md",
+        "hash": "5764164338930785967"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-05.md",
+        "hash": "5667978321722922810"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/domain-steps/step-05-technical-trends.md",
+        "hash": "7805163351506141088"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-13-responsive-accessibility.md",
+        "hash": "10764227330514859817"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-LP4XHTY7.js",
+        "hash": "18419419890940970866"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S01.md",
+        "hash": "17521787582706756266"
+      },
+      {
+        "file": ".claude/skills/bmad-create-epics-and-stories/steps/step-03-create-stories.md",
+        "hash": "15866588471055270333"
+      },
+      {
+        "file": "vault/00-system/templates/public.pdf",
+        "hash": "2115826156878186609"
+      },
+      {
+        "file": "vault/30-bmad/epics/E10-transfer.md",
+        "hash": "9031611747849066866"
+      },
+      {
+        "file": ".claude/skills/bmad-correct-course/customize.toml",
+        "hash": "17594447599846054919"
+      },
+      {
+        "file": ".claude/skills/bmad-create-epics-and-stories/steps/step-02-design-epics.md",
+        "hash": "2854142177638246412"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/courses/courses.component.d.ts.map",
+        "hash": "9273648806507513764"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/SKILL.md",
+        "hash": "12508976058827076607"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-06.md",
+        "hash": "2598238132800988824"
+      },
+      {
+        "file": "vault/30-bmad/epics/E12-gdpr.md",
+        "hash": "6644023662562049867"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-01-session-setup.md",
+        "hash": "15000475438974122359"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/steps/step-05-competitive-analysis.md",
+        "hash": "18339790969036131658"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-03-core-experience.md",
+        "hash": "3018405042204443040"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/fonts/InterVariable.woff2",
+        "hash": "11108578459905578210"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-08.md",
+        "hash": "17078692792526842568"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-01.md",
+        "hash": "5886954778939169723"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/assets/prd-validation-checklist.md",
+        "hash": "515927764367256221"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/components/layout/authenticated-layout/authenticated-layout.component.d.ts",
+        "hash": "962572444007930583"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/model/course.model.d.ts",
+        "hash": "1068123311451752681"
+      },
+      {
+        "file": ".claude/skills/bmad-validate-prd/customize.toml",
+        "hash": "18363332454122021629"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S08.md",
+        "hash": "8400329395748383936"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S05.md",
+        "hash": "4597414798418702685"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "5239574425950348867"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-10.md",
+        "hash": "16733830372076394657"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S07.md",
+        "hash": "10564920831402294201"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-05.md",
+        "hash": "9436722796526012871"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/tsconfig.lib.tsbuildinfo",
+        "hash": "117366654404230501"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/i18n/uk.json",
+        "hash": "10374322484616071595"
+      },
+      {
+        "file": ".claude/skills/bmad-advanced-elicitation/SKILL.md",
+        "hash": "12074388465175576469"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-architect/SKILL.md",
+        "hash": "2268494916566066872"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-03.md",
+        "hash": "6455220489863919603"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S05.md",
+        "hash": "3555315819962651513"
+      },
+      {
+        "file": ".idea/modules.xml",
+        "hash": "8866172472589684216"
+      },
+      {
+        "file": ".claude/skills/bmad-create-story/discover-inputs.md",
+        "hash": "526389429978100997"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-01.md",
+        "hash": "5075882100322358314"
+      },
+      {
+        "file": "_bmad/config.user.toml",
+        "hash": "15091057977057125877"
+      },
+      {
+        "file": "vault/20-design/person.pdf",
+        "hash": "9873872644228440259"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/cabinet/cabinet.component.d.ts",
+        "hash": "11891929782121605822"
+      },
+      {
+        "file": ".claude/skills/bmad-sprint-status/customize.toml",
+        "hash": "3255193639738544688"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S05.md",
+        "hash": "3121796130391462965"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-06.md",
+        "hash": "8239112596404044362"
+      },
+      {
+        "file": "vault/30-bmad/analysis/business-analysis.md",
+        "hash": "8033520829732940758"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/customize.toml",
+        "hash": "9457640638528216263"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/landing/landing.component.d.ts.map",
+        "hash": "15332965247323066557"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/resources/compression-rules.md",
+        "hash": "4278797456099243885"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/assets/validation-report-template.html",
+        "hash": "8590670703934485143"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S10.md",
+        "hash": "3704433659513694649"
+      },
+      {
+        "file": ".claude/skills/bmad-code-review/steps/step-02-review.md",
+        "hash": "7972865044669529973"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/need-help/need-help.component.d.ts",
+        "hash": "15848819524864601786"
+      },
+      {
+        "file": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+        "hash": "8106333142705907405"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/references/verdict.md",
+        "hash": "12765311773773005542"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S04.md",
+        "hash": "2658114646646349511"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S04.md",
+        "hash": "14864736873801621225"
+      },
+      {
+        "file": ".claude/skills/bmad-qa-generate-e2e-tests/customize.toml",
+        "hash": "12461496873316727245"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-02.md",
+        "hash": "13122690563602870845"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/fonts/Inter-Bold.woff2",
+        "hash": "10287025861357122382"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S05.md",
+        "hash": "9081775402558323739"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-4ECY2C4I.js",
+        "hash": "5575103014886411375"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S02.md",
+        "hash": "2204144889884462674"
+      },
+      {
+        "file": "vault/30-bmad/epics/epic-map.md",
+        "hash": "4312821731334012397"
+      },
+      {
+        "file": ".claude/skills/lead-workflow/phases/2-planning.md",
+        "hash": "5306125294743686188"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-tech-writer/mermaid-gen.md",
+        "hash": "3548601029317531940"
+      },
+      {
+        "file": ".claude/skills/bmad-generate-project-context/steps/step-01-discover.md",
+        "hash": "17761795400597804126"
+      },
+      {
+        "file": ".claude/skills/bmad-investigate/SKILL.md",
+        "hash": "4669857560990622091"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S08.md",
+        "hash": "585478814914948647"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-05.md",
+        "hash": "10163626165629501901"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S05.md",
+        "hash": "3521334973635906089"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/generate-trail.md",
+        "hash": "3557253631902194305"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-07.md",
+        "hash": "6663266671573488704"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E09-workload/TC-S-E09-S02.md",
+        "hash": "18093313370338956187"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-04.md",
+        "hash": "6976938708278477535"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/steps/step-02-prd-analysis.md",
+        "hash": "8664169635086795021"
+      },
+      {
+        "file": "nx.json",
+        "hash": "763694938324776777"
+      },
+      {
+        "file": ".claude/skills/bmad-retrospective/SKILL.md",
+        "hash": "12198313510057299795"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/catalog/catalog.component.d.ts.map",
+        "hash": "3372457257908431464"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/customize.toml",
+        "hash": "16281254232474397154"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-02.md",
+        "hash": "16456886422159158606"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/research.template.md",
+        "hash": "8066408025561159823"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S04.md",
+        "hash": "3367707043885086579"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S01.md",
+        "hash": "4426909156535705981"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-05.md",
+        "hash": "13724891370131295486"
+      },
+      {
+        "file": ".DS_Store",
+        "hash": "4508610131127887359"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/steps/step-01-document-discovery.md",
+        "hash": "18287501151159581707"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S06.md",
+        "hash": "14793874113708092933"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/chat/chat.component.d.ts.map",
+        "hash": "2977105830453759251"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/bmad-manifest.json",
+        "hash": "6913809331676336374"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-07.md",
+        "hash": "7014288750488529387"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-08.md",
+        "hash": "922336951464177430"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-04.md",
+        "hash": "9785096406924642643"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S08.md",
+        "hash": "9898100954839189098"
+      },
+      {
+        "file": ".idea/misc.xml",
+        "hash": "9955946235618467931"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/steps/step-04-customer-decisions.md",
+        "hash": "9511916271829004534"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/agents/distillate-compressor.md",
+        "hash": "1743318102071015253"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S03.md",
+        "hash": "741683446151646515"
+      },
+      {
+        "file": "vault/30-bmad/sprint-plan.md",
+        "hash": "16202845630788254211"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/instructions.md",
+        "hash": "1491299838225139831"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-03.md",
+        "hash": "17579503913565495268"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S07.md",
+        "hash": "5142942577822647767"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S08.md",
+        "hash": "13383200953972811845"
+      },
+      {
+        "file": "vault/30-bmad/analysis/site-map.md",
+        "hash": "17286038130305249820"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-06.md",
+        "hash": "7205725927759375973"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-06.md",
+        "hash": "18285791144422311929"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/customize.toml",
+        "hash": "4998148810688930522"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-dev/SKILL.md",
+        "hash": "1886437825733920410"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/catalog/catalog.component.d.ts",
+        "hash": "17692867788651892096"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-02.md",
+        "hash": "5875293155658303704"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/templates/project-scan-report-schema.json",
+        "hash": "7735753049242725413"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S08.md",
+        "hash": "12778256395458572229"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/store/courses.store.d.ts.map",
+        "hash": "11567641738517932827"
+      },
+      {
+        "file": "_bmad/_config/manifest.yaml",
+        "hash": "7168430971279544063"
+      },
+      {
+        "file": "vault/20-design/ihelp-design.pen",
+        "hash": "10545027533130830729"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/customize.toml",
+        "hash": "2453499115986520778"
+      },
+      {
+        "file": "vault/20-design/design-system.pdf",
+        "hash": "2774324377771059253"
+      },
+      {
+        "file": ".claude/skills/bmad-create-epics-and-stories/templates/epics-template.md",
+        "hash": "17239014006466638030"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-01.md",
+        "hash": "18015749724591182458"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-11-component-strategy.md",
+        "hash": "17092022655589589822"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-05.md",
+        "hash": "1174824933694080138"
+      },
+      {
+        "file": ".claude/skills/bmad-create-prd/SKILL.md",
+        "hash": "16968855829663586939"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-04.md",
+        "hash": "15155858187847612451"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-02.md",
+        "hash": "18013379069988257103"
+      },
+      {
+        "file": "_bmad/_config/bmad-help.csv",
+        "hash": "16342973093745150514"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-ux-designer/SKILL.md",
+        "hash": "12746120398994467827"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-06.md",
+        "hash": "8907165828811729305"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/steps/step-06-final-assessment.md",
+        "hash": "9225764908999565555"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/data-access/index.d.ts",
+        "hash": "10338273500434265508"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-09.md",
+        "hash": "18142850972615781108"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-02.md",
+        "hash": "16586655300110338763"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S02.md",
+        "hash": "8800718291499574127"
+      },
+      {
+        "file": "vault/30-bmad/epics/E08-crisis.md",
+        "hash": "15696316135587396662"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S01.md",
+        "hash": "3257350652872312882"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/SKILL.md",
+        "hash": "5229875013864257074"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S03.md",
+        "hash": "15460683688193573780"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-04.md",
+        "hash": "9103206901284170951"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S02.md",
+        "hash": "15917273850494997532"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-02.md",
+        "hash": "311699768496907720"
+      },
+      {
+        "file": ".claude/skills/bmad-dev-story/customize.toml",
+        "hash": "3256354852350576470"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S01.md",
+        "hash": "3305655721222763129"
+      },
+      {
+        "file": ".claude/skills/bmad-sprint-planning/checklist.md",
+        "hash": "5478054915995241315"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-01.md",
+        "hash": "5653904704315442103"
+      },
+      {
+        "file": ".claude/skills/bmad-generate-project-context/project-context-template.md",
+        "hash": "16198873307860029369"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S06.md",
+        "hash": "8004570000524070018"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-01.md",
+        "hash": "10275425477798028511"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/resources/distillate-format-reference.md",
+        "hash": "15662887494031865852"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/index.d.ts",
+        "hash": "3605005121555459125"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/course-preview/course-preview.component.d.ts",
+        "hash": "5910336734363598050"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S08.md",
+        "hash": "9756197955670929934"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/admin/admin.component.d.ts",
+        "hash": "6524330528200645122"
+      },
+      {
+        "file": "vault/00-system/templates/30-bmad--architecture.md",
+        "hash": "12000467018812653539"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-06.md",
+        "hash": "17386689411199814853"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/components/icon/icon.component.d.ts.map",
+        "hash": "1208312482196207044"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/scripts/tests/test_analyze_sources.py",
+        "hash": "16780751779440513285"
+      },
+      {
+        "file": "vault/30-bmad/epics/E13-admin.md",
+        "hash": "15376051298952145988"
+      },
+      {
+        "file": "docker-compose.yml",
+        "hash": "6564016661934791702"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/technical-steps/step-02-technical-overview.md",
+        "hash": "17603107249466842520"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-08.md",
+        "hash": "15250527254956962966"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/consultant/consultant.component.d.ts.map",
+        "hash": "10886368576878156500"
+      },
+      {
+        "file": "CLAUDE.md",
+        "hash": "13804498110707217917"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-tech-writer/explain-concept.md",
+        "hash": "11412247781637435837"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/SKILL.md",
+        "hash": "7396268792805690275"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/data-access/guard/auth.guard.d.ts",
+        "hash": "15625673285713428533"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/index.d.ts",
+        "hash": "8621446342873922435"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/SKILL.md",
+        "hash": "18169131328669489019"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/data-access/index.d.ts.map",
+        "hash": "10102288906852068593"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-09.md",
+        "hash": "7691125632392831657"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/step-05-wrapup.md",
+        "hash": "5165259231847743020"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S01.md",
+        "hash": "4476032412868995830"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S05.md",
+        "hash": "5049848967274157039"
+      },
+      {
+        "file": "vault/30-bmad/epics/E01-auth.md",
+        "hash": "15397134037031825703"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/fonts/Inter-Regular.woff2",
+        "hash": "3744118414032055438"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-01.md",
+        "hash": "14067447874756906740"
+      },
+      {
+        "file": "vault/00-system/templates/40-features--tasks.md",
+        "hash": "15114511059265210860"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S01.md",
+        "hash": "16589842497890797823"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S02.md",
+        "hash": "12189595594690625810"
+      },
+      {
+        "file": "output.json",
+        "hash": "14433442865827891773"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/SKILL.md",
+        "hash": "11485441830679133970"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S08.md",
+        "hash": "690862378647245977"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-03.md",
+        "hash": "883011661618699472"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/assets/prfaq-template.md",
+        "hash": "12383331898905589189"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/references/validate.md",
+        "hash": "16132174734065324438"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S04.md",
+        "hash": "10011151062644790946"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/landing/landing.component.d.ts",
+        "hash": "8630084378079327176"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-03-starter.md",
+        "hash": "295576729725029731"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S07.md",
+        "hash": "3139032870251602039"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/tsconfig.lib.tsbuildinfo",
+        "hash": "12103750346600687779"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S01.md",
+        "hash": "906619000029276694"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S04.md",
+        "hash": "7187512742769471060"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S11.md",
+        "hash": "3637572970084921832"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-tech-writer/validate-doc.md",
+        "hash": "17015027678945342854"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S03.md",
+        "hash": "10706130726096716785"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S06.md",
+        "hash": "3261325955199075587"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-05.md",
+        "hash": "9168448323618246307"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-04.md",
+        "hash": "17080162208223340894"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S02.md",
+        "hash": "9521892327796027186"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-03.md",
+        "hash": "3627171589273913756"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S08.md",
+        "hash": "8176870786037032134"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-02.md",
+        "hash": "8285312964905847994"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S03.md",
+        "hash": "6860508566528128482"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/references/customer-faq.md",
+        "hash": "1340280954205680341"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/research.template.md",
+        "hash": "8066408025561159823"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/steps/step-04-ux-alignment.md",
+        "hash": "17141089906793224721"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/research.template.md",
+        "hash": "8066408025561159823"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-10.md",
+        "hash": "17613561239312128340"
+      },
+      {
+        "file": "dist/apps/web/3rdpartylicenses.txt",
+        "hash": "12062674288744031131"
+      },
+      {
+        "file": "vault/30-bmad/stories/E06-assignment/S-E06-02.md",
+        "hash": "8611927051101456346"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/index.d.ts",
+        "hash": "10883637788326350027"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S06.md",
+        "hash": "8998971310312720239"
+      },
+      {
+        "file": "vault/00-system/templates/40-features--qa.md",
+        "hash": "6946037066146791511"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/step-01-clarify-and-route.md",
+        "hash": "6324753762334417049"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-07.md",
+        "hash": "10122587513583255065"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S03.md",
+        "hash": "18330738766421759002"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S07.md",
+        "hash": "4862012126710687808"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S03.md",
+        "hash": "3028221118745836968"
+      },
+      {
+        "file": "vault/30-bmad/epics/E15-person-cabinet.md",
+        "hash": "8765608773889545924"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-03.md",
+        "hash": "11603446668959704026"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-6ZZLGVWN.js",
+        "hash": "2625387962681251180"
+      },
+      {
+        "file": "dist/apps/web/browser/assets/fonts/GeistMono-Regular.woff2",
+        "hash": "10803224953941671097"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S06.md",
+        "hash": "2559143646955192009"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S07.md",
+        "hash": "10839085432633097418"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-06-structure.md",
+        "hash": "16021731466651024843"
+      },
+      {
+        "file": ".claude/skills/bmad-code-review/SKILL.md",
+        "hash": "11701563986025582611"
+      },
+      {
+        "file": ".claude/skills/bmad-create-story/template.md",
+        "hash": "2457671092916288064"
+      },
+      {
+        "file": ".claude/skills/bmad-checkpoint-preview/customize.toml",
+        "hash": "2890227700976121857"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-05.md",
+        "hash": "15520966815467981551"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-03.md",
+        "hash": "7350418834117200110"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-02.md",
+        "hash": "16356051129776781620"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/consultant/consultant.component.d.ts",
+        "hash": "8832684837589554483"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/components/layout/public-layout/public-layout.component.d.ts.map",
+        "hash": "8229744140341091413"
+      },
+      {
+        "file": "vault/.DS_Store",
+        "hash": "2836800590284381635"
+      },
+      {
+        "file": ".claude/skills/bmad-check-implementation-readiness/steps/step-05-epic-quality-review.md",
+        "hash": "3663629799875600608"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S07.md",
+        "hash": "3034120237557180868"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-04.md",
+        "hash": "1478865579556907643"
+      },
+      {
+        "file": "vault/30-bmad/stories/E04-lms/S-E04-08.md",
+        "hash": "11799447441063341054"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/templates/project-overview-template.md",
+        "hash": "8548723404852979920"
+      },
+      {
+        "file": ".idea/.gitignore",
+        "hash": "18109907959344192685"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S01.md",
+        "hash": "16600444912805940633"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-06.md",
+        "hash": "3371674694840498631"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/public.routes.d.ts",
+        "hash": "18039865614754167789"
+      },
+      {
+        "file": "vault/30-bmad/epics/E16-ui-shell.md",
+        "hash": "5503844168409256323"
+      },
+      {
+        "file": ".claude/skills/bmad-sprint-status/SKILL.md",
+        "hash": "15799433867769845794"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-03.md",
+        "hash": "12908999800313343070"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-analyst/customize.toml",
+        "hash": "1264845482718587732"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/spec-template.md",
+        "hash": "13446974597524170803"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/SKILL.md",
+        "hash": "9812591740927869284"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/cabinet/cabinet.component.d.ts.map",
+        "hash": "6423203467467200038"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-architect/customize.toml",
+        "hash": "18396151477054275315"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S09.md",
+        "hash": "1281512452011847540"
+      },
+      {
+        "file": "vault/30-bmad/epics/E11-analytics.md",
+        "hash": "5527280993495485650"
+      },
+      {
+        "file": ".claude/skills/lead-workflow/phases/4-implementation.md",
+        "hash": "300588019042311018"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-tech-writer/SKILL.md",
+        "hash": "2675141772910705529"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/domain-steps/step-06-research-synthesis.md",
+        "hash": "14291162288300858896"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-06.md",
+        "hash": "9950989531741392794"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/data-access/person.routes.d.ts",
+        "hash": "1380392877205698345"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S03.md",
+        "hash": "15209084955015952210"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/ui/components/icon/icon.component.d.ts",
+        "hash": "16005236564066782824"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-08-complete.md",
+        "hash": "17602345221439283055"
+      },
+      {
+        "file": ".claude/skills/bmad-dev-story/SKILL.md",
+        "hash": "4904552511822909602"
+      },
+      {
+        "file": ".vscode/extensions.json",
+        "hash": "10945013772211001795"
+      },
+      {
+        "file": ".claude/settings.json",
+        "hash": "4174402289047638020"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S10.md",
+        "hash": "16693621910461113760"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/resources/splitting-strategy.md",
+        "hash": "7546031276662922864"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E09-workload/TC-S-E09-S04.md",
+        "hash": "5702233298636457610"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/login/login.component.d.ts",
+        "hash": "15373481379078407252"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-Z6UQ47NK.js",
+        "hash": "1382756911810469528"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-MH2Q3FSG.js",
+        "hash": "11340060054450164380"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-01b-continue.md",
+        "hash": "4506905910604226017"
+      },
+      {
+        "file": ".claude/skills/bmad-qa-generate-e2e-tests/checklist.md",
+        "hash": "3950366603940392340"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-07.md",
+        "hash": "6967232015027459331"
+      },
+      {
+        "file": "_bmad/scripts/resolve_config.py",
+        "hash": "14127757454911182125"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S09.md",
+        "hash": "13767655006907791645"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/index.d.ts",
+        "hash": "8959214461383101053"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S05.md",
+        "hash": "1128338712042990473"
+      },
+      {
+        "file": "_bmad/core/module-help.csv",
+        "hash": "15592012535777819108"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/data-access/staff.routes.d.ts.map",
+        "hash": "921688865605324544"
+      },
+      {
+        "file": ".claude/skills/bmad-prd/assets/prd-template.md",
+        "hash": "465558489854123399"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S10.md",
+        "hash": "878044384999756243"
+      },
+      {
+        "file": "dist/apps/web/browser/index.html",
+        "hash": "15189593177313368089"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-05.md",
+        "hash": "4952776506189309833"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S05.md",
+        "hash": "9274504992541563992"
+      },
+      {
+        "file": ".claude/skills/lead-workflow/SKILL.md",
+        "hash": "4298227214473400843"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-06.md",
+        "hash": "2526323331910896790"
+      },
+      {
+        "file": "vault/30-bmad/stories/E09-workload/S-E09-02.md",
+        "hash": "10471034416966464998"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-01b-continue.md",
+        "hash": "10080228292504897685"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/step-05-present.md",
+        "hash": "5114039083772247998"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S01.md",
+        "hash": "16766514977368800626"
+      },
+      {
+        "file": "_bmad/scripts/resolve_customization.py",
+        "hash": "16851027704529920707"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-tech-writer/customize.toml",
+        "hash": "5233260916456971942"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/documentation-requirements.csv",
+        "hash": "2381007643084349864"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S05.md",
+        "hash": "2815688646744548302"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-06.md",
+        "hash": "6863256136657440406"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-DBXJ3UD4.js",
+        "hash": "10384710905209531139"
+      },
+      {
+        "file": "_bmad/custom/.gitignore",
+        "hash": "3902258329652006679"
+      },
+      {
+        "file": "vault/30-bmad/stories/E14-public-web/S-E14-03.md",
+        "hash": "2714372029024936118"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-07-defining-experience.md",
+        "hash": "10511175643748234229"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S07.md",
+        "hash": "13389576603176376958"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E09-workload/TC-S-E09-S03.md",
+        "hash": "407752632986875897"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/customize.toml",
+        "hash": "16034128943129548024"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/step-oneshot.md",
+        "hash": "13359393420488446497"
+      },
+      {
+        "file": "_bmad/_config/files-manifest.csv",
+        "hash": "14514312704503755458"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/ux-design-template.md",
+        "hash": "6910239554713659977"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S09.md",
+        "hash": "13785934276480244903"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S09.md",
+        "hash": "5377455412877510284"
+      },
+      {
+        "file": "dist/apps/web/browser/styles-VOXN4WZ3.css",
+        "hash": "42494925859319711"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-03.md",
+        "hash": "15240784204029509036"
+      },
+      {
+        "file": ".claude/skills/lead-workflow/phases/1-analysis.md",
+        "hash": "893022934537443487"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/domain-steps/step-04-regulatory-focus.md",
+        "hash": "1216667117839156007"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-01.md",
+        "hash": "8854427467273649282"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/template.md",
+        "hash": "1528142360999965003"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-09.md",
+        "hash": "11751697705049909287"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/store/courses.store.d.ts",
+        "hash": "7649318810052334788"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S04.md",
+        "hash": "13444031952120533426"
+      },
+      {
+        "file": ".claude/skills/bmad-sprint-planning/customize.toml",
+        "hash": "9237592085462225425"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-08.md",
+        "hash": "9005415379770741356"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S07.md",
+        "hash": "11313706663274445243"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S03.md",
+        "hash": "18394778721061085992"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S06.md",
+        "hash": "9182045387122456923"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-04.md",
+        "hash": "14384694660475498135"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/index.d.ts.map",
+        "hash": "16257691848360196449"
+      },
+      {
+        "file": ".claude/skills/bmad-correct-course/checklist.md",
+        "hash": "13362389289478283824"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S06.md",
+        "hash": "12545571607726050614"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S01.md",
+        "hash": "10630484191932032937"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/workflows/full-scan-workflow.md",
+        "hash": "5568165060204204964"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-08.md",
+        "hash": "1810647423461502905"
+      },
+      {
+        "file": "vault/30-bmad/.DS_Store",
+        "hash": "18066927264041758185"
+      },
+      {
+        "file": ".claude/skills/bmad-correct-course/SKILL.md",
+        "hash": "5549594835368474085"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/step-02-plan.md",
+        "hash": "10147435519189415280"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "1819377997624204198"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E01-auth/TC-S-E01-S08.md",
+        "hash": "7242064544975406952"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/data-access/index.d.ts.map",
+        "hash": "1391428365736176069"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-05.md",
+        "hash": "2299029721899389651"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-02.md",
+        "hash": "1909095889617998405"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/agents/web-researcher.md",
+        "hash": "3544490108623390824"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-07.md",
+        "hash": "13683848061979285500"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S09.md",
+        "hash": "1843374036862321758"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/index.d.ts",
+        "hash": "14920431918656499"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/data/domain-complexity.csv",
+        "hash": "14358474159462709493"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-10.md",
+        "hash": "14942274667019305547"
+      },
+      {
+        "file": "vault/30-bmad/analysis/edge-case-review.md",
+        "hash": "13150620855953964501"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-01-init.md",
+        "hash": "17054317128354602771"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-05.md",
+        "hash": "7425622826490555496"
+      },
+      {
+        "file": ".claude/skills/bmad-brainstorming/steps/step-02d-progressive-flow.md",
+        "hash": "18385421023485103342"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S07.md",
+        "hash": "1341003056363672519"
+      },
+      {
+        "file": "vault/30-bmad/stories/E09-workload/S-E09-05.md",
+        "hash": "6169976724389454813"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-C6HCZZS5.js",
+        "hash": "5655313683755586170"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/workflows/full-scan-instructions.md",
+        "hash": "3460332964411819332"
+      },
+      {
+        "file": ".claude/skills/bmad-prfaq/customize.toml",
+        "hash": "13969086782178917610"
+      },
+      {
+        "file": ".claude/skills/bmad-distillator/agents/round-trip-reconstructor.md",
+        "hash": "14266310956730231074"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/components/index.d.ts.map",
+        "hash": "15392900176715171346"
+      },
+      {
+        "file": ".claude/skills/bmad-edit-prd/customize.toml",
+        "hash": "11261474597889772635"
+      },
+      {
+        "file": "_bmad/config.toml",
+        "hash": "8198450987251502903"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-06.md",
+        "hash": "4731027264911261713"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S06.md",
+        "hash": "910938722614867063"
+      },
+      {
+        "file": ".claude/skills/bmad-code-review/customize.toml",
+        "hash": "16576271220645803623"
+      },
+      {
+        "file": "vault/00-system/templates/30-bmad--epics.md",
+        "hash": "3863654332837008980"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "16828165069394528645"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-SABOMO5L.js",
+        "hash": "6368523383270355846"
+      },
+      {
+        "file": ".claude/skills/bmad-review-adversarial-general/SKILL.md",
+        "hash": "9139653658767280730"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-5BAJNIH5.js",
+        "hash": "7667570258814493369"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S04.md",
+        "hash": "3586168201973280066"
+      },
+      {
+        "file": "vault/30-bmad/stories/E03-chat/S-E03-04.md",
+        "hash": "14437043972869210605"
+      },
+      {
+        "file": ".claude/skills/bmad-create-epics-and-stories/steps/step-04-final-validation.md",
+        "hash": "14782887072852837885"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/admin/admin.component.d.ts.map",
+        "hash": "11130947870634217548"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-08.md",
+        "hash": "7399417826332339465"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-03.md",
+        "hash": "9254726878349534985"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-04.md",
+        "hash": "5483324183484552160"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E12-gdpr/TC-S-E12-S09.md",
+        "hash": "17063397929391899700"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-10.md",
+        "hash": "14084032855662455097"
+      },
+      {
+        "file": "vault/30-bmad/stories/E12-gdpr/S-E12-01.md",
+        "hash": "14785744131967025347"
+      },
+      {
+        "file": ".claude/skills/bmad-create-architecture/steps/step-01-init.md",
+        "hash": "15360904298613964849"
+      },
+      {
+        "file": "vault/30-bmad/stories/E09-workload/S-E09-03.md",
+        "hash": "5732468307124654738"
+      },
+      {
+        "file": "dist/out-tsc/libs/shared/data-access/index.d.ts.map",
+        "hash": "9881099981723363792"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-07.md",
+        "hash": "6539154449506442176"
+      },
+      {
+        "file": "vault/30-bmad/epics/E09-workload.md",
+        "hash": "2739727132437668453"
+      },
+      {
+        "file": ".claude/skills/bmad-customize/scripts/list_customizable_skills.py",
+        "hash": "11891150574113339407"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/steps/step-02-customer-behavior.md",
+        "hash": "2244147414656396779"
+      },
+      {
+        "file": "vault/30-bmad/stories/E09-workload/S-E09-04.md",
+        "hash": "1009313681625176504"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S08.md",
+        "hash": "2398870205090277229"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/model/course.model.d.ts.map",
+        "hash": "10956187338896176644"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/coordinator/coordinator.component.d.ts",
+        "hash": "8736778010377846969"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-08.md",
+        "hash": "13596401242663289181"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/components/index.d.ts.map",
+        "hash": "1303671969768959001"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E10-transfer/TC-S-E10-S03.md",
+        "hash": "7568940443791415069"
+      },
+      {
+        "file": "vault/30-bmad/epics/E03-chat.md",
+        "hash": "15346235089776566983"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-08.md",
+        "hash": "8586648548506576117"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-08.md",
+        "hash": "13149741227561863411"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S05.md",
+        "hash": "17720530701974243991"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E07-sla/TC-S-E07-S07.md",
+        "hash": "2010894487722116483"
+      },
+      {
+        "file": "vault/30-bmad/stories/E16-ui-shell/S-E16-06.md",
+        "hash": "18277618457050806363"
+      },
+      {
+        "file": ".claude/skills/bmad-review-edge-case-hunter/SKILL.md",
+        "hash": "468865358474005404"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E15-person-cabinet/TC-S-E15-S01.md",
+        "hash": "8294249934774715672"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S04.md",
+        "hash": "1528232104391230030"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-07.md",
+        "hash": "12791690803820953798"
+      },
+      {
+        "file": ".claude/skills/bmad-market-research/steps/step-01-init.md",
+        "hash": "15797566555016269956"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E17-infrastructure/TC-S-E17-S09.md",
+        "hash": "8833217678844256627"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/technical-steps/step-06-research-synthesis.md",
+        "hash": "14472144105341730988"
+      },
+      {
+        "file": "vault/30-bmad/stories/E07-sla/S-E07-04.md",
+        "hash": "10174955515429228219"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-JU7K7R5D.js",
+        "hash": "1324489347333464365"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E09-workload/TC-S-E09-S05.md",
+        "hash": "16151704622096615100"
+      },
+      {
+        "file": ".claude/skills/bmad-dev-story/checklist.md",
+        "hash": "15551025423553642235"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E08-crisis/TC-S-E08-S03.md",
+        "hash": "13197635643368784187"
+      },
+      {
+        "file": "vault/30-bmad/stories/E05-meetings/S-E05-07.md",
+        "hash": "14385125839607043298"
+      },
+      {
+        "file": "vault/30-bmad/stories/E10-transfer/S-E10-05.md",
+        "hash": "2563804790511323721"
+      },
+      {
+        "file": "vault/00-system/templates/40-features--result.md",
+        "hash": "14690666210629111763"
+      },
+      {
+        "file": "vault/00-system/templates/40-features--review.md",
+        "hash": "5208674650796505112"
+      },
+      {
+        "file": "vault/20-design/admin.pdf",
+        "hash": "5356998084796962209"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-07.md",
+        "hash": "8704470064666909007"
+      },
+      {
+        "file": "vault/30-bmad/stories/E02-cases/S-E02-07.md",
+        "hash": "6229481068006469858"
+      },
+      {
+        "file": ".claude/skills/bmad-create-prd/customize.toml",
+        "hash": "9169244879057716765"
+      },
+      {
+        "file": "dist/out-tsc/libs/staff/data-access/tsconfig.lib.tsbuildinfo",
+        "hash": "651759418203943219"
+      },
+      {
+        "file": ".claude/skills/bmad-create-ux-design/steps/step-04-emotional-response.md",
+        "hash": "17156112824701660339"
+      },
+      {
+        "file": "vault/30-bmad/stories/E09-workload/S-E09-06.md",
+        "hash": "10235871424678187227"
+      },
+      {
+        "file": "vault/30-bmad/stories/E13-admin/S-E13-07.md",
+        "hash": "2315742910471094337"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-2B5BFB5D.js",
+        "hash": "6920319691807558242"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E02-cases/TC-S-E02-S05.md",
+        "hash": "2639243659246763349"
+      },
+      {
+        "file": "dist/out-tsc/libs/public/data-access/tsconfig.lib.tsbuildinfo",
+        "hash": "5207539986202613648"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/technical-steps/step-05-implementation-research.md",
+        "hash": "11463533761585550647"
+      },
+      {
+        "file": "vault/30-bmad/stories/E17-infrastructure/S-E17-06.md",
+        "hash": "17279373325904085548"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E09-workload/TC-S-E09-S01.md",
+        "hash": "14621712425806811710"
+      },
+      {
+        "file": "ihelp.iml",
+        "hash": "1676169262976523649"
+      },
+      {
+        "file": "dist/out-tsc/libs/person/components/courses/courses.component.d.ts",
+        "hash": "17240346976961535532"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/SKILL.md",
+        "hash": "2746940845295174827"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/templates/source-tree-template.md",
+        "hash": "7581822405268228692"
+      },
+      {
+        "file": "vault/30-bmad/epics/E06-assignment.md",
+        "hash": "8677802089973824605"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-tech-writer/write-document.md",
+        "hash": "4682785940492745310"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E05-meetings/TC-S-E05-S08.md",
+        "hash": "1072472607443140476"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E14-public-web/TC-S-E14-S02.md",
+        "hash": "18223892124450377491"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S02.md",
+        "hash": "17810782586383871165"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/technical-steps/step-03-integration-patterns.md",
+        "hash": "12929894768221916586"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E11-analytics/TC-S-E11-S05.md",
+        "hash": "18261215036225186886"
+      },
+      {
+        "file": ".claude/skills/bmad-document-project/templates/index-template.md",
+        "hash": "376465994295728646"
+      },
+      {
+        "file": "vault/30-bmad/stories/E11-analytics/S-E11-07.md",
+        "hash": "15406249384104019503"
+      },
+      {
+        "file": ".claude/skills/bmad-quick-dev/step-04-review.md",
+        "hash": "6531537390264823589"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S07.md",
+        "hash": "8248145613984099538"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E03-chat/TC-S-E03-S06.md",
+        "hash": "17187041370491459"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E04-lms/TC-S-E04-S07.md",
+        "hash": "62893287901248257"
+      },
+      {
+        "file": "vault/20-design/public.pdf",
+        "hash": "18340068227815171827"
+      },
+      {
+        "file": "vitest.workspace.ts",
+        "hash": "8851963806934849101"
+      },
+      {
+        "file": "_bmad/custom/config.toml",
+        "hash": "363573448571478403"
+      },
+      {
+        "file": ".claude/skills/bmad-domain-research/customize.toml",
+        "hash": "1239341413356805862"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E06-assignment/TC-S-E06-S06.md",
+        "hash": "4708233278374419017"
+      },
+      {
+        "file": "vault/00-system/templates/30-bmad--analysis.md",
+        "hash": "1419942630277817790"
+      },
+      {
+        "file": "vault/30-bmad/epics/E05-meetings.md",
+        "hash": "5400642490430413891"
+      },
+      {
+        "file": ".claude/skills/bmad-agent-dev/customize.toml",
+        "hash": "11666248337797135858"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E16-ui-shell/TC-S-E16-S10.md",
+        "hash": "15879329164717116253"
+      },
+      {
+        "file": "dist/apps/web/browser/chunk-TFA2WOML.js",
+        "hash": "4645675695997605194"
+      },
+      {
+        "file": "vault/30-bmad/stories/E08-crisis/S-E08-03.md",
+        "hash": "18078063229696557371"
+      },
+      {
+        "file": ".claude/skills/bmad-technical-research/technical-steps/step-01-init.md",
+        "hash": "4530043341371358371"
+      },
+      {
+        "file": "vault/30-bmad/stories/E01-auth/S-E01-06.md",
+        "hash": "10495546519620428226"
+      },
+      {
+        "file": "vault/30-bmad/stories/E15-person-cabinet/S-E15-08.md",
+        "hash": "15617826931005767825"
+      },
+      {
+        "file": "vault/30-bmad/test-cases/E13-admin/TC-S-E13-S02.md",
+        "hash": "2372060348813193732"
+      }
+    ],
+    "projectFileMap": {
+      "staff-data-access": [
+        {
+          "file": "libs/staff/data-access/index.ts",
+          "hash": "16572916655074115477"
+        },
+        {
+          "file": "libs/staff/data-access/project.json",
+          "hash": "1174663795630273770"
+        },
+        {
+          "file": "libs/staff/data-access/staff.routes.ts",
+          "hash": "6685474031931230856",
+          "deps": [
+            "npm:@angular/router",
+            "shared-ui",
+            [
+              "staff-components",
+              "dynamic"
+            ]
+          ]
+        },
+        {
+          "file": "libs/staff/data-access/tsconfig.json",
+          "hash": "1554888619020392112"
+        },
+        {
+          "file": "libs/staff/data-access/tsconfig.lib.json",
+          "hash": "2329905056975879047"
+        }
+      ],
+      "person-data-access": [
+        {
+          "file": "libs/person/data-access/index.ts",
+          "hash": "1119718804991243494"
+        },
+        {
+          "file": "libs/person/data-access/person.routes.ts",
+          "hash": "7917270308082096152",
+          "deps": [
+            "npm:@angular/router",
+            "shared-ui",
+            [
+              "person-components",
+              "dynamic"
+            ]
+          ]
+        },
+        {
+          "file": "libs/person/data-access/project.json",
+          "hash": "15244683797285789617"
+        },
+        {
+          "file": "libs/person/data-access/tsconfig.json",
+          "hash": "1554888619020392112"
+        },
+        {
+          "file": "libs/person/data-access/tsconfig.lib.json",
+          "hash": "15883895441607135244"
+        }
+      ],
+      "web": [
+        {
+          "file": "apps/web/eslint.config.mjs",
+          "hash": "10430629524713852104",
+          "deps": [
+            "npm:@nx/eslint-plugin"
+          ]
+        },
+        {
+          "file": "apps/web/project.json",
+          "hash": "5700296994204092975"
+        },
+        {
+          "file": "apps/web/proxy.conf.json",
+          "hash": "6055111125159223653"
+        },
+        {
+          "file": "apps/web/public/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/web/src/app/app.config.ts",
+          "hash": "2057171279544245030",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/common",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "apps/web/src/app/app.routes.ts",
+          "hash": "4050340305644004404",
+          "deps": [
+            "npm:@angular/router",
+            "shared-data-access",
+            [
+              "public-components",
+              "dynamic"
+            ],
+            [
+              "person-data-access",
+              "dynamic"
+            ],
+            [
+              "staff-data-access",
+              "dynamic"
+            ]
+          ]
+        },
+        {
+          "file": "apps/web/src/app/app.spec.ts",
+          "hash": "3863829106487854106",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/web/src/app/app.ts",
+          "hash": "6805964758848074141",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "apps/web/src/app/transloco-loader.ts",
+          "hash": "15976147219373546754",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "apps/web/src/assets/fonts/GeistMono-Regular.woff2",
+          "hash": "10803224953941671097"
+        },
+        {
+          "file": "apps/web/src/assets/fonts/Inter-Bold.woff2",
+          "hash": "10287025861357122382"
+        },
+        {
+          "file": "apps/web/src/assets/fonts/Inter-Medium.woff2",
+          "hash": "5936672058402702467"
+        },
+        {
+          "file": "apps/web/src/assets/fonts/Inter-Regular.woff2",
+          "hash": "3744118414032055438"
+        },
+        {
+          "file": "apps/web/src/assets/fonts/Inter-SemiBold.woff2",
+          "hash": "6023072882627121216"
+        },
+        {
+          "file": "apps/web/src/assets/fonts/InterVariable.woff2",
+          "hash": "11108578459905578210"
+        },
+        {
+          "file": "apps/web/src/assets/i18n/en.json",
+          "hash": "14155995456839483693"
+        },
+        {
+          "file": "apps/web/src/assets/i18n/uk.json",
+          "hash": "10374322484616071595"
+        },
+        {
+          "file": "apps/web/src/index.html",
+          "hash": "16867689278614360082"
+        },
+        {
+          "file": "apps/web/src/main.ts",
+          "hash": "3820470197416434450",
+          "deps": [
+            "npm:@angular/platform-browser"
+          ]
+        },
+        {
+          "file": "apps/web/src/styles.scss",
+          "hash": "1516378090889168511"
+        },
+        {
+          "file": "apps/web/tsconfig.app.json",
+          "hash": "3340774146052436629"
+        },
+        {
+          "file": "apps/web/tsconfig.json",
+          "hash": "12889091445351011630"
+        },
+        {
+          "file": "apps/web/tsconfig.spec.json",
+          "hash": "17489296883266577896"
+        }
+      ],
+      "staff-components": [
+        {
+          "file": "libs/staff/components/admin/admin.component.html",
+          "hash": "13599283090001228788"
+        },
+        {
+          "file": "libs/staff/components/admin/admin.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/staff/components/admin/admin.component.ts",
+          "hash": "3068203858553201262",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/staff/components/consultant/consultant.component.html",
+          "hash": "5705509403795546323"
+        },
+        {
+          "file": "libs/staff/components/consultant/consultant.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/staff/components/consultant/consultant.component.ts",
+          "hash": "12736474965590440008",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/staff/components/coordinator/coordinator.component.html",
+          "hash": "5729701051883798494"
+        },
+        {
+          "file": "libs/staff/components/coordinator/coordinator.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/staff/components/coordinator/coordinator.component.ts",
+          "hash": "1329465999579958524",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/staff/components/dashboard/dashboard.component.html",
+          "hash": "13784302476458424570"
+        },
+        {
+          "file": "libs/staff/components/dashboard/dashboard.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/staff/components/dashboard/dashboard.component.ts",
+          "hash": "12432565500602633324",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/staff/components/index.ts",
+          "hash": "17464486545315408508"
+        },
+        {
+          "file": "libs/staff/components/project.json",
+          "hash": "6075971494888250651"
+        },
+        {
+          "file": "libs/staff/components/supervisor/supervisor.component.html",
+          "hash": "402548804847335680"
+        },
+        {
+          "file": "libs/staff/components/supervisor/supervisor.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/staff/components/supervisor/supervisor.component.ts",
+          "hash": "8675966888325193833",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/staff/components/tsconfig.json",
+          "hash": "1554888619020392112"
+        },
+        {
+          "file": "libs/staff/components/tsconfig.lib.json",
+          "hash": "4119268646597709467"
+        }
+      ],
+      "shared-ui": [
+        {
+          "file": "libs/shared/ui/README.md",
+          "hash": "16248885516767211022"
+        },
+        {
+          "file": "libs/shared/ui/components/icon/icon.component.html",
+          "hash": "7401265145965696516"
+        },
+        {
+          "file": "libs/shared/ui/components/icon/icon.component.scss",
+          "hash": "10871925135467981111"
+        },
+        {
+          "file": "libs/shared/ui/components/icon/icon.component.ts",
+          "hash": "18393331794222856231",
+          "deps": [
+            "npm:@angular/core",
+            "npm:lucide-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/ui/components/layout/authenticated-layout/authenticated-layout.component.html",
+          "hash": "17098439662543209726"
+        },
+        {
+          "file": "libs/shared/ui/components/layout/authenticated-layout/authenticated-layout.component.scss",
+          "hash": "18359104464567966286"
+        },
+        {
+          "file": "libs/shared/ui/components/layout/authenticated-layout/authenticated-layout.component.ts",
+          "hash": "12412627234935745205",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/shared/ui/components/layout/public-layout/public-layout.component.html",
+          "hash": "1753797513025407155"
+        },
+        {
+          "file": "libs/shared/ui/components/layout/public-layout/public-layout.component.scss",
+          "hash": "6590604565676565724"
+        },
+        {
+          "file": "libs/shared/ui/components/layout/public-layout/public-layout.component.ts",
+          "hash": "2856398080252307392",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/shared/ui/eslint.config.mjs",
+          "hash": "6413410318951839719",
+          "deps": [
+            "npm:@nx/eslint-plugin"
+          ]
+        },
+        {
+          "file": "libs/shared/ui/index.ts",
+          "hash": "10585047044918660881"
+        },
+        {
+          "file": "libs/shared/ui/project.json",
+          "hash": "11328497555518869665"
+        },
+        {
+          "file": "libs/shared/ui/styles/_breakpoints.scss",
+          "hash": "14468545359566413897"
+        },
+        {
+          "file": "libs/shared/ui/styles/_fonts.scss",
+          "hash": "5511367626150863603"
+        },
+        {
+          "file": "libs/shared/ui/styles/_grid.scss",
+          "hash": "4465267437353798864"
+        },
+        {
+          "file": "libs/shared/ui/styles/_reset.scss",
+          "hash": "16009637387417409509"
+        },
+        {
+          "file": "libs/shared/ui/styles/_tokens.scss",
+          "hash": "210393640205250489"
+        },
+        {
+          "file": "libs/shared/ui/styles/_typography.scss",
+          "hash": "6833558943754200767"
+        },
+        {
+          "file": "libs/shared/ui/styles/_variables.scss",
+          "hash": "6508010313747949713"
+        },
+        {
+          "file": "libs/shared/ui/styles/index.scss",
+          "hash": "18433878963134423207"
+        },
+        {
+          "file": "libs/shared/ui/test-setup.ts",
+          "hash": "5201386931146563638",
+          "deps": [
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/ui/tsconfig.json",
+          "hash": "11019299255579356924"
+        },
+        {
+          "file": "libs/shared/ui/tsconfig.lib.json",
+          "hash": "5637341226113269511"
+        },
+        {
+          "file": "libs/shared/ui/tsconfig.spec.json",
+          "hash": "1487981111403435377"
+        },
+        {
+          "file": "libs/shared/ui/vite.config.mts",
+          "hash": "18203871891666334171",
+          "deps": [
+            "npm:vite",
+            "npm:@analogjs/vite-plugin-angular"
+          ]
+        }
+      ],
+      "@org/prisma-client": [
+        {
+          "file": "libs/prisma-client/package.json",
+          "hash": "14009803056178146417"
+        },
+        {
+          "file": "libs/prisma-client/prisma/prisma.config.ts",
+          "hash": "15312319064797471784",
+          "deps": [
+            "npm:prisma"
+          ]
+        },
+        {
+          "file": "libs/prisma-client/prisma/schema.prisma",
+          "hash": "17360969480029739388"
+        },
+        {
+          "file": "libs/prisma-client/prisma/seed.ts",
+          "hash": "6384261414632922630",
+          "deps": [
+            "npm:@prisma/client",
+            "npm:@prisma/adapter-pg",
+            "npm:pg"
+          ]
+        },
+        {
+          "file": "libs/prisma-client/src/index.ts",
+          "hash": "6755571916093186706"
+        },
+        {
+          "file": "libs/prisma-client/src/prisma.module.ts",
+          "hash": "8927102366520466113",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "libs/prisma-client/src/prisma.service.ts",
+          "hash": "4973103158408475349",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@prisma/client",
+            "npm:@prisma/adapter-pg",
+            "npm:pg"
+          ]
+        },
+        {
+          "file": "libs/prisma-client/tsconfig.json",
+          "hash": "4376992605347848662"
+        }
+      ],
+      "api-e2e": [
+        {
+          "file": "apps/api-e2e/.spec.swcrc",
+          "hash": "18201067170784284381"
+        },
+        {
+          "file": "apps/api-e2e/jest.config.cts",
+          "hash": "8449775584097811472"
+        },
+        {
+          "file": "apps/api-e2e/project.json",
+          "hash": "12929316451566293939"
+        },
+        {
+          "file": "apps/api-e2e/src/api/api.spec.ts",
+          "hash": "4747019362565984448",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "apps/api-e2e/src/support/global-setup.ts",
+          "hash": "3444053551545844372",
+          "deps": [
+            "npm:@nx/node"
+          ]
+        },
+        {
+          "file": "apps/api-e2e/src/support/global-teardown.ts",
+          "hash": "18176614999450167852",
+          "deps": [
+            "npm:@nx/node"
+          ]
+        },
+        {
+          "file": "apps/api-e2e/src/support/test-setup.ts",
+          "hash": "11749744855473391997",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "apps/api-e2e/tsconfig.json",
+          "hash": "4752956451993840733"
+        }
+      ],
+      "api": [
+        {
+          "file": "apps/api/dist/main.js",
+          "hash": "17008432645807353150",
+          "deps": [
+            [
+              "npm:tslib",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/common",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/core",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/platform-socket.io",
+              "dynamic"
+            ],
+            [
+              "npm:nestjs-pino",
+              "dynamic"
+            ],
+            [
+              "npm:@socket.io/redis-adapter",
+              "dynamic"
+            ],
+            [
+              "npm:ioredis",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/config",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/bullmq",
+              "dynamic"
+            ],
+            [
+              "npm:joi",
+              "dynamic"
+            ],
+            [
+              "npm:uuid",
+              "dynamic"
+            ],
+            [
+              "npm:@prisma/client",
+              "dynamic"
+            ],
+            [
+              "npm:@prisma/adapter-pg",
+              "dynamic"
+            ],
+            [
+              "npm:pg",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/terminus",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/swagger",
+              "dynamic"
+            ],
+            [
+              "npm:@nestjs/websockets",
+              "dynamic"
+            ]
+          ]
+        },
+        {
+          "file": "apps/api/dist/main.js.map",
+          "hash": "135993642236026831"
+        },
+        {
+          "file": "apps/api/project.json",
+          "hash": "8968037265327538069"
+        },
+        {
+          "file": "apps/api/src/app/app.controller.ts",
+          "hash": "15276891910009544695",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/app/app.module.ts",
+          "hash": "192525708808942114",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/config",
+            "npm:@nestjs/bullmq",
+            "npm:nestjs-pino",
+            "@org/prisma-client"
+          ]
+        },
+        {
+          "file": "apps/api/src/app/app.service.ts",
+          "hash": "1398463054208547248",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/api/src/auth/auth.module.ts",
+          "hash": "9845606258491288268",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/cases/cases.module.ts",
+          "hash": "6705203828690906641",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/chat/chat.module.ts",
+          "hash": "426386661405556569",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/common/config/env.validation.ts",
+          "hash": "16200982055089986136",
+          "deps": [
+            "npm:joi"
+          ]
+        },
+        {
+          "file": "apps/api/src/common/filters/all-exceptions.filter.ts",
+          "hash": "4765902945597462766",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:express"
+          ]
+        },
+        {
+          "file": "apps/api/src/common/logging/logger.config.ts",
+          "hash": "2044066118521237028",
+          "deps": [
+            "npm:nestjs-pino"
+          ]
+        },
+        {
+          "file": "apps/api/src/common/middleware/correlation-id.middleware.ts",
+          "hash": "15740658133774818372",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:express",
+            "npm:uuid"
+          ]
+        },
+        {
+          "file": "apps/api/src/common/middleware/correlation-id.module.ts",
+          "hash": "15263445889222575560",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/common/middleware/correlation-id.service.ts",
+          "hash": "6257843578896573",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/events/events.gateway.ts",
+          "hash": "12535859314880017587",
+          "deps": [
+            "npm:@nestjs/websockets",
+            "npm:@nestjs/common",
+            "npm:socket.io"
+          ]
+        },
+        {
+          "file": "apps/api/src/events/events.module.ts",
+          "hash": "6040062792412241867",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/health/health.controller.ts",
+          "hash": "10428627774954217378",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/terminus"
+          ]
+        },
+        {
+          "file": "apps/api/src/health/health.module.ts",
+          "hash": "11521611630612023592",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/terminus"
+          ]
+        },
+        {
+          "file": "apps/api/src/lms/courses.controller.ts",
+          "hash": "9471238851422740682",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/swagger"
+          ]
+        },
+        {
+          "file": "apps/api/src/lms/courses.service.ts",
+          "hash": "13152093637549583655",
+          "deps": [
+            "npm:@nestjs/common",
+            "@org/prisma-client",
+            "npm:@prisma/client"
+          ]
+        },
+        {
+          "file": "apps/api/src/lms/dto/course.dto.ts",
+          "hash": "12639665339225745774",
+          "deps": [
+            "npm:@nestjs/swagger"
+          ]
+        },
+        {
+          "file": "apps/api/src/lms/lms.module.ts",
+          "hash": "11196023019983303826",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/src/main.ts",
+          "hash": "12829875298382139033",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/core",
+            "npm:@nestjs/platform-socket.io",
+            "npm:nestjs-pino",
+            "npm:@socket.io/redis-adapter",
+            "npm:ioredis"
+          ]
+        },
+        {
+          "file": "apps/api/src/users/users.module.ts",
+          "hash": "13769573389279560684",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/api/tsconfig.app.json",
+          "hash": "5908544117444931956"
+        },
+        {
+          "file": "apps/api/tsconfig.json",
+          "hash": "6240538891403235665"
+        },
+        {
+          "file": "apps/api/webpack.config.js",
+          "hash": "4495904460549121979",
+          "deps": [
+            "npm:@nx/webpack"
+          ]
+        }
+      ],
+      "public-components": [
+        {
+          "file": "libs/public/components/catalog/catalog.component.html",
+          "hash": "13348279962509537926"
+        },
+        {
+          "file": "libs/public/components/catalog/catalog.component.scss",
+          "hash": "692112695606808142"
+        },
+        {
+          "file": "libs/public/components/catalog/catalog.component.ts",
+          "hash": "18203764447712287837",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@jsverse/transloco",
+            "public-data-access",
+            "shared-ui"
+          ]
+        },
+        {
+          "file": "libs/public/components/course-preview/course-preview.component.html",
+          "hash": "2858714154686617436"
+        },
+        {
+          "file": "libs/public/components/course-preview/course-preview.component.scss",
+          "hash": "13589833823260803316"
+        },
+        {
+          "file": "libs/public/components/course-preview/course-preview.component.ts",
+          "hash": "13786357743786488879",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@jsverse/transloco",
+            "public-data-access",
+            "shared-ui"
+          ]
+        },
+        {
+          "file": "libs/public/components/index.ts",
+          "hash": "3153214053111783777"
+        },
+        {
+          "file": "libs/public/components/landing/landing.component.html",
+          "hash": "4041715159807583325"
+        },
+        {
+          "file": "libs/public/components/landing/landing.component.scss",
+          "hash": "865934620104305770"
+        },
+        {
+          "file": "libs/public/components/landing/landing.component.ts",
+          "hash": "15007369625354929128",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@jsverse/transloco",
+            "shared-ui"
+          ]
+        },
+        {
+          "file": "libs/public/components/login/login.component.html",
+          "hash": "3326824755189531981"
+        },
+        {
+          "file": "libs/public/components/login/login.component.scss",
+          "hash": "6359488211456369155"
+        },
+        {
+          "file": "libs/public/components/login/login.component.ts",
+          "hash": "7757981753758508195",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco",
+            "shared-ui"
+          ]
+        },
+        {
+          "file": "libs/public/components/need-help/need-help.component.html",
+          "hash": "2814011924735743515"
+        },
+        {
+          "file": "libs/public/components/need-help/need-help.component.scss",
+          "hash": "13450424615733074049"
+        },
+        {
+          "file": "libs/public/components/need-help/need-help.component.ts",
+          "hash": "10914521371984322543",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/forms",
+            "npm:@angular/router",
+            "npm:@jsverse/transloco",
+            "shared-ui"
+          ]
+        },
+        {
+          "file": "libs/public/components/project.json",
+          "hash": "10438348037154360311"
+        },
+        {
+          "file": "libs/public/components/public.routes.ts",
+          "hash": "7127505987747472249",
+          "deps": [
+            "npm:@angular/router",
+            "shared-ui"
+          ]
+        },
+        {
+          "file": "libs/public/components/tsconfig.json",
+          "hash": "1554888619020392112"
+        },
+        {
+          "file": "libs/public/components/tsconfig.lib.json",
+          "hash": "3093059303455927197"
+        }
+      ],
+      "shared-data-access": [
+        {
+          "file": "libs/shared/data-access/guard/auth.guard.ts",
+          "hash": "6629236744564847072",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/common",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/index.ts",
+          "hash": "1323394229784235959"
+        },
+        {
+          "file": "libs/shared/data-access/project.json",
+          "hash": "1022787264794581879"
+        },
+        {
+          "file": "libs/shared/data-access/tsconfig.json",
+          "hash": "1554888619020392112"
+        },
+        {
+          "file": "libs/shared/data-access/tsconfig.lib.json",
+          "hash": "17755478032244734370"
+        }
+      ],
+      "web-e2e": [
+        {
+          "file": "apps/web-e2e/eslint.config.mjs",
+          "hash": "11747643397756768678",
+          "deps": [
+            "npm:eslint-plugin-playwright"
+          ]
+        },
+        {
+          "file": "apps/web-e2e/playwright.config.ts",
+          "hash": "15487376842636071197",
+          "deps": [
+            "npm:@playwright/test",
+            "npm:@nx/playwright",
+            "npm:@nx/devkit"
+          ]
+        },
+        {
+          "file": "apps/web-e2e/project.json",
+          "hash": "195708423912131173"
+        },
+        {
+          "file": "apps/web-e2e/src/example.spec.ts",
+          "hash": "16019101014373124625",
+          "deps": [
+            "npm:@playwright/test"
+          ]
+        },
+        {
+          "file": "apps/web-e2e/tsconfig.json",
+          "hash": "12181612612697981689"
+        }
+      ],
+      "person-components": [
+        {
+          "file": "libs/person/components/cabinet/cabinet.component.html",
+          "hash": "18118378398400092083"
+        },
+        {
+          "file": "libs/person/components/cabinet/cabinet.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/person/components/cabinet/cabinet.component.ts",
+          "hash": "11998494822222672123",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/person/components/chat/chat.component.html",
+          "hash": "11491979654293200096"
+        },
+        {
+          "file": "libs/person/components/chat/chat.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/person/components/chat/chat.component.ts",
+          "hash": "5567987846439835630",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/person/components/courses/courses.component.html",
+          "hash": "14291958012324690321"
+        },
+        {
+          "file": "libs/person/components/courses/courses.component.scss",
+          "hash": "2002615368213865993"
+        },
+        {
+          "file": "libs/person/components/courses/courses.component.ts",
+          "hash": "9442116175089552945",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@jsverse/transloco"
+          ]
+        },
+        {
+          "file": "libs/person/components/index.ts",
+          "hash": "17311938226870747530"
+        },
+        {
+          "file": "libs/person/components/project.json",
+          "hash": "12796842678766636191"
+        },
+        {
+          "file": "libs/person/components/tsconfig.json",
+          "hash": "1554888619020392112"
+        },
+        {
+          "file": "libs/person/components/tsconfig.lib.json",
+          "hash": "12740408008133965534"
+        }
+      ],
+      "public-data-access": [
+        {
+          "file": "libs/public/data-access/index.ts",
+          "hash": "17778569346256200155"
+        },
+        {
+          "file": "libs/public/data-access/model/course.model.ts",
+          "hash": "14150551392503419554"
+        },
+        {
+          "file": "libs/public/data-access/project.json",
+          "hash": "14055879069222652315"
+        },
+        {
+          "file": "libs/public/data-access/service/courses-facade.service.ts",
+          "hash": "13376654110939101544",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/public/data-access/service/courses.service.ts",
+          "hash": "14765499589323767267",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "libs/public/data-access/store/courses.store.ts",
+          "hash": "3768817468254753658",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@ngrx/signals",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "libs/public/data-access/tsconfig.json",
+          "hash": "1554888619020392112"
+        },
+        {
+          "file": "libs/public/data-access/tsconfig.lib.json",
+          "hash": "17486048789723579520"
+        }
+      ]
+    }
+  },
+  "externalNodesHash": "17859904622988008917"
+}

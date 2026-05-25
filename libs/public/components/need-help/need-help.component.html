@@ -1,0 +1,208 @@
+<ng-container *transloco="let t">
+  <section class="need-help">
+    @if (!submitted()) {
+      <div class="need-help__card">
+        <h1 class="need-help__title">{{ t('needHelp.title') }}</h1>
+        <p class="need-help__subtitle">{{ t('needHelp.subtitle') }}</p>
+
+        <form class="need-help__form" (submit)="onSubmit()">
+          <!-- Name -->
+          <div class="need-help__field">
+            <label class="need-help__label">{{ t('needHelp.nameLabel') }}</label>
+            <input
+              type="text"
+              class="need-help__input"
+              [placeholder]="t('needHelp.namePlaceholder')"
+              [ngModel]="name()"
+              (ngModelChange)="name.set($event)"
+              name="name"
+              required
+            />
+          </div>
+
+          <!-- Country -->
+          <div class="need-help__field">
+            <label class="need-help__label">{{ t('needHelp.countryLabel') }}</label>
+            <div class="need-help__select-wrapper">
+              <select
+                class="need-help__select"
+                [ngModel]="country()"
+                (ngModelChange)="country.set($event)"
+                name="country"
+              >
+                <option value="" disabled>{{ t('needHelp.countryPlaceholder') }}</option>
+                <option value="ua">Україна</option>
+                <option value="pl">Польща</option>
+                <option value="de">Німеччина</option>
+                <option value="other">{{ t('needHelp.countryOther') }}</option>
+              </select>
+              <ui-icon name="ChevronDown" [size]="16" color="var(--ihelp-text-muted)" class="need-help__select-icon" />
+            </div>
+          </div>
+
+          <!-- Language -->
+          <div class="need-help__field">
+            <label class="need-help__label">{{ t('needHelp.languageLabel') }}</label>
+            <div class="need-help__select-wrapper">
+              <select
+                class="need-help__select"
+                [ngModel]="language()"
+                (ngModelChange)="language.set($event)"
+                name="language"
+              >
+                <option value="" disabled>{{ t('needHelp.languagePlaceholder') }}</option>
+                <option value="uk">Українська</option>
+                <option value="ru">Російська</option>
+                <option value="en">English</option>
+              </select>
+              <ui-icon name="ChevronDown" [size]="16" color="var(--ihelp-text-muted)" class="need-help__select-icon" />
+            </div>
+          </div>
+
+          <!-- Contact method -->
+          <div class="need-help__field">
+            <label class="need-help__label">{{ t('needHelp.contactLabel') }}</label>
+            <div class="need-help__tabs">
+              <button
+                type="button"
+                class="need-help__tab"
+                [class.need-help__tab--active]="contactMethod() === 'email'"
+                (click)="selectContactMethod('email')"
+              >
+                <ui-icon name="Mail" [size]="14" />
+                Email
+              </button>
+              <button
+                type="button"
+                class="need-help__tab"
+                [class.need-help__tab--active]="contactMethod() === 'telegram'"
+                (click)="selectContactMethod('telegram')"
+              >
+                <ui-icon name="Send" [size]="14" />
+                Telegram
+              </button>
+              <button
+                type="button"
+                class="need-help__tab"
+                [class.need-help__tab--active]="contactMethod() === 'phone'"
+                (click)="selectContactMethod('phone')"
+              >
+                <ui-icon name="Phone" [size]="14" />
+                {{ t('needHelp.phone') }}
+              </button>
+            </div>
+            <input
+              type="text"
+              class="need-help__input"
+              [placeholder]="t('needHelp.contactPlaceholder_' + contactMethod())"
+              [ngModel]="contactValue()"
+              (ngModelChange)="contactValue.set($event)"
+              name="contact"
+              required
+            />
+          </div>
+
+          <!-- Topic -->
+          <div class="need-help__field">
+            <label class="need-help__label">{{ t('needHelp.topicLabel') }}</label>
+            <div class="need-help__select-wrapper">
+              <select
+                class="need-help__select"
+                [ngModel]="topic()"
+                (ngModelChange)="topic.set($event)"
+                name="topic"
+              >
+                <option value="" disabled>{{ t('needHelp.topicPlaceholder') }}</option>
+                <option value="anxiety">{{ t('needHelp.topicAnxiety') }}</option>
+                <option value="relationships">{{ t('needHelp.topicRelationships') }}</option>
+                <option value="grief">{{ t('needHelp.topicGrief') }}</option>
+                <option value="burnout">{{ t('needHelp.topicBurnout') }}</option>
+                <option value="ptsd">{{ t('needHelp.topicPtsd') }}</option>
+                <option value="other">{{ t('needHelp.topicOther') }}</option>
+              </select>
+              <ui-icon name="ChevronDown" [size]="16" color="var(--ihelp-text-muted)" class="need-help__select-icon" />
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="need-help__field">
+            <label class="need-help__label">{{ t('needHelp.messageLabel') }}</label>
+            <textarea
+              class="need-help__textarea"
+              [placeholder]="t('needHelp.messagePlaceholder')"
+              [ngModel]="message()"
+              (ngModelChange)="message.set($event)"
+              name="message"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <!-- Consents -->
+          <div class="need-help__consents">
+            <label class="need-help__consent">
+              <input
+                type="checkbox"
+                class="need-help__checkbox"
+                [ngModel]="consentData()"
+                (ngModelChange)="consentData.set($event)"
+                name="consentData"
+              />
+              <span>{{ t('needHelp.consentData') }}</span>
+            </label>
+            <label class="need-help__consent">
+              <input
+                type="checkbox"
+                class="need-help__checkbox"
+                [ngModel]="consentProcessing()"
+                (ngModelChange)="consentProcessing.set($event)"
+                name="consentProcessing"
+              />
+              <span>{{ t('needHelp.consentProcessing') }}</span>
+            </label>
+          </div>
+
+          <button type="submit" class="need-help__submit">
+            {{ t('needHelp.submit') }}
+          </button>
+        </form>
+      </div>
+    } @else {
+      <div class="need-help__success">
+        <div class="need-help__success-icon">
+          <ui-icon name="Check" [size]="36" color="var(--ihelp-accent)" />
+        </div>
+        <h2 class="need-help__success-title">{{ t('needHelp.successTitle') }}</h2>
+        <p class="need-help__success-text">{{ t('needHelp.successText') }}</p>
+
+        <div class="need-help__steps">
+          <div class="need-help__step need-help__step--done">
+            <div class="need-help__step-circle need-help__step-circle--done">
+              <ui-icon name="Check" [size]="14" color="var(--ihelp-white)" />
+            </div>
+            <span class="need-help__step-label">{{ t('needHelp.stepRequest') }}</span>
+            <span class="need-help__step-status need-help__step-status--done">{{ t('needHelp.stepDone') }}</span>
+          </div>
+          <div class="need-help__step">
+            <div class="need-help__step-circle">
+              <span>2</span>
+            </div>
+            <span class="need-help__step-label">{{ t('needHelp.stepMatching') }}</span>
+            <span class="need-help__step-status">{{ t('needHelp.stepInProgress') }}</span>
+          </div>
+          <div class="need-help__step">
+            <div class="need-help__step-circle">
+              <span>3</span>
+            </div>
+            <span class="need-help__step-label">{{ t('needHelp.stepConsultant') }}</span>
+            <span class="need-help__step-status">{{ t('needHelp.stepWillContact') }}</span>
+          </div>
+        </div>
+
+        <a routerLink="/catalog" class="need-help__browse-btn">
+          {{ t('needHelp.browseCourses') }}
+        </a>
+        <p class="need-help__telegram-note">{{ t('needHelp.telegramNote') }}</p>
+      </div>
+    }
+  </section>
+</ng-container>

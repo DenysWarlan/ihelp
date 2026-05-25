@@ -1,0 +1,121 @@
+{
+  "common": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "home": "Home",
+    "comingSoon": "Coming soon"
+  },
+  "nav": {
+    "courses": "Courses",
+    "about": "About us"
+  },
+  "landing": {
+    "title": "iHelp",
+    "heroHeading": "You are not alone.\nSomeone cares.",
+    "heroSubtitle": "A platform connecting people who need psychological support with qualified professionals.",
+    "needSupport": "Need support",
+    "browseCourses": "Browse courses",
+    "consultantsCount": "30+ consultants",
+    "consultantsReady": "ready to help right now",
+    "featureConfidential": "Confidential",
+    "featureResponse": "Response within 12 hours",
+    "featureFree": "Free of charge",
+    "featureChannels": "Telegram / Web",
+    "browseCatalog": "Browse catalog",
+    "subtitle": "A platform connecting people who need psychological support with qualified professionals."
+  },
+  "catalog": {
+    "title": "Recovery Courses",
+    "subtitle": "Step-by-step programs for mental health recovery",
+    "courseMeta": "8 lessons · Anxiety, stress, panic",
+    "startCourse": "Start course",
+    "helpTitle": "Need individual support?",
+    "helpSubtitle": "Our consultants are ready to help you personally",
+    "helpButton": "Write to us",
+    "placeholder": "Catalog content coming soon.",
+    "lessons": "lessons"
+  },
+  "coursePreview": {
+    "backToCatalog": "Course Catalog",
+    "lessons": "Course Lessons",
+    "locked": "Sign in to view",
+    "startCourse": "Start Course",
+    "loginToStart": "Sign in to start learning",
+    "needHelpToStart": "Submit a request to get started"
+  },
+  "needHelp": {
+    "title": "Tell us about yourself",
+    "subtitle": "We'll match you with the best consultant for your needs",
+    "nameLabel": "Your name",
+    "namePlaceholder": "How should we address you?",
+    "countryLabel": "Country",
+    "countryPlaceholder": "Select country",
+    "countryOther": "Other",
+    "languageLabel": "Preferred language",
+    "languagePlaceholder": "Select language",
+    "contactLabel": "How to reach you?",
+    "contactPlaceholder_email": "your@email.com",
+    "contactPlaceholder_telegram": "@username",
+    "contactPlaceholder_phone": "+380...",
+    "phone": "Phone",
+    "topicLabel": "Topic",
+    "topicPlaceholder": "Select topic",
+    "topicAnxiety": "Anxiety, fear, panic",
+    "topicRelationships": "Relationships, breakup",
+    "topicGrief": "Loss, grief",
+    "topicBurnout": "Burnout, fatigue",
+    "topicPtsd": "Trauma, PTSD",
+    "topicOther": "Other",
+    "messageLabel": "Briefly describe your situation (optional)",
+    "messagePlaceholder": "What concerns you? This will help the consultant better understand your situation...",
+    "consentData": "I agree to account creation and personal data processing. Privacy Policy",
+    "consentProcessing": "I consent to processing my request information (topic, state) for consultant matching",
+    "submit": "Submit request",
+    "successTitle": "Your request has been received",
+    "successText": "We're matching you with a consultant.\nExpected response time — up to 12 hours.\nYou'll receive a notification when your consultant reaches out.",
+    "stepRequest": "Request",
+    "stepDone": "received",
+    "stepMatching": "Matching",
+    "stepInProgress": "in progress...",
+    "stepConsultant": "Consultant",
+    "stepWillContact": "will reach out",
+    "browseCourses": "Browse courses while you wait",
+    "telegramNote": "Or message us on Telegram: @ye_turbota_bot"
+  },
+  "login": {
+    "title": "Sign In",
+    "subtitle": "Choose a convenient sign-in method",
+    "google": "Sign in with Google",
+    "facebook": "Sign in with Facebook",
+    "telegram": "Sign in with Telegram",
+    "consent": "Signing in means you agree to the processing of personal data",
+    "brandSubtitle": "Care Coordination Platform",
+    "placeholder": "Authentication will be implemented in E01."
+  },
+  "person": {
+    "cabinet": "My Cabinet",
+    "cabinetPlaceholder": "Personal dashboard coming soon.",
+    "courses": "My Courses",
+    "coursesPlaceholder": "Course content coming soon.",
+    "chat": "Chat",
+    "chatPlaceholder": "Chat functionality coming soon."
+  },
+  "staff": {
+    "dashboard": "Dashboard",
+    "dashboardPlaceholder": "Staff overview coming soon.",
+    "consultant": "My Cases",
+    "consultantPlaceholder": "Consultant tools coming soon.",
+    "supervisor": "All Cases",
+    "supervisorPlaceholder": "Supervisor tools coming soon.",
+    "coordinator": "Coordinator Dashboard",
+    "coordinatorPlaceholder": "Coordinator tools coming soon.",
+    "admin": "Admin Panel",
+    "adminPlaceholder": "Admin tools coming soon."
+  },
+  "layout": {
+    "appName": "iHelp",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "userMenu": "User menu"
+  }
+}

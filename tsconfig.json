@@ -1,0 +1,46 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/api-e2e"
+    },
+    {
+      "path": "./apps/api"
+    },
+    {
+      "path": "./apps/web-e2e"
+    },
+    {
+      "path": "./libs/shared/ui"
+    },
+    {
+      "path": "./apps/web"
+    },
+    {
+      "path": "./libs/prisma-client"
+    },
+    {
+      "path": "./libs/shared/data-access"
+    },
+    {
+      "path": "./libs/person/components"
+    },
+    {
+      "path": "./libs/public/components"
+    },
+    {
+      "path": "./libs/staff/components"
+    },
+    {
+      "path": "./libs/person/data-access"
+    },
+    {
+      "path": "./libs/public/data-access"
+    },
+    {
+      "path": "./libs/staff/data-access"
+    }
+  ]
+}

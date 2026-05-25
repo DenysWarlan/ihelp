@@ -1,0 +1,32 @@
+<ng-container *transloco="let t">
+  <div class="login">
+    <div class="login__brand">
+      <div class="login__brand-content">
+        <ui-icon name="HeartHandshake" [size]="64" color="var(--ihelp-text-inverse)" />
+        <h1 class="login__brand-title">{{ t('layout.appName') }}</h1>
+        <p class="login__brand-subtitle">{{ t('login.brandSubtitle') }}</p>
+      </div>
+    </div>
+
+    <div class="login__form-side">
+      <div class="login__form-container">
+        <h2 class="login__title">{{ t('login.title') }}</h2>
+        <p class="login__subtitle">{{ t('login.subtitle') }}</p>
+
+        <div class="login__oauth">
+          <button type="button" class="login__oauth-btn login__oauth-btn--google">
+            {{ t('login.google') }}
+          </button>
+          <button type="button" class="login__oauth-btn login__oauth-btn--facebook">
+            {{ t('login.facebook') }}
+          </button>
+          <button type="button" class="login__oauth-btn login__oauth-btn--telegram">
+            {{ t('login.telegram') }}
+          </button>
+        </div>
+
+        <p class="login__consent">{{ t('login.consent') }}</p>
+      </div>
+    </div>
+  </div>
+</ng-container>

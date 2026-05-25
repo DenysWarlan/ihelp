@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "types": [],
+    "lib": ["es2022", "dom"],
+    "declaration": false,
+    "emitDeclarationOnly": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/staff/data-access/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/person/data-access/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/public/components/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/data-access/tsconfig.lib.json"
+    }
+  ]
+}

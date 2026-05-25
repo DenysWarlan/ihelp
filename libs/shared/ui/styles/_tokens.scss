@@ -1,0 +1,124 @@
+// =============================================================================
+// iHelp Design Tokens
+// Source: ihelp-design.pen (Pencil)
+// =============================================================================
+
+:root {
+  // ---------------------------------------------------------------------------
+  // Colors
+  // ---------------------------------------------------------------------------
+
+  // Brand
+  --ihelp-accent: #2D5E3A;
+  --ihelp-accent-light: #E8F0E4;
+  --ihelp-surface: #C8DBBC;
+  --ihelp-surface-dark: #1B3A28;
+
+  // Background
+  --ihelp-bg: #F5F3EE;
+  --ihelp-white: #FFFFFF;
+
+  // Text
+  --ihelp-text-primary: #1B3A28;
+  --ihelp-text-secondary: #4A6B52;
+  --ihelp-text-muted: #7A9A80;
+  --ihelp-text-inverse: #FFFFFF;
+
+  // Border
+  --ihelp-border: #D4DFD0;
+
+  // Status
+  --ihelp-success: #2D5E3A;
+  --ihelp-warning: #B45309;
+  --ihelp-error: #C82333;
+  --ihelp-crisis: #C82333;
+
+  // ---------------------------------------------------------------------------
+  // Typography
+  // ---------------------------------------------------------------------------
+
+  --ihelp-font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --ihelp-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --ihelp-font-data: 'Geist Mono', ui-monospace, monospace;
+
+  // Font sizes
+  --ihelp-text-xs: 0.75rem;    // 12px
+  --ihelp-text-sm: 0.875rem;   // 14px
+  --ihelp-text-base: 1rem;     // 16px
+  --ihelp-text-lg: 1.125rem;   // 18px
+  --ihelp-text-xl: 1.25rem;    // 20px
+  --ihelp-text-2xl: 1.5rem;    // 24px
+  --ihelp-text-3xl: 1.875rem;  // 30px
+
+  // Font weights
+  --ihelp-font-normal: 400;
+  --ihelp-font-medium: 500;
+  --ihelp-font-semibold: 600;
+  --ihelp-font-bold: 700;
+
+  // Line heights
+  --ihelp-leading-tight: 1.25;
+  --ihelp-leading-normal: 1.5;
+  --ihelp-leading-relaxed: 1.625;
+
+  // ---------------------------------------------------------------------------
+  // Border Radius
+  // ---------------------------------------------------------------------------
+
+  --ihelp-radius-sm: 4px;
+  --ihelp-radius-md: 6px;
+  --ihelp-radius-lg: 8px;
+  --ihelp-radius-xl: 12px;
+  --ihelp-radius-2xl: 16px;
+  --ihelp-radius-full: 9999px;
+
+  // ---------------------------------------------------------------------------
+  // Spacing
+  // ---------------------------------------------------------------------------
+
+  --ihelp-space-1: 0.25rem;   // 4px
+  --ihelp-space-2: 0.5rem;    // 8px
+  --ihelp-space-3: 0.75rem;   // 12px
+  --ihelp-space-4: 1rem;      // 16px
+  --ihelp-space-5: 1.25rem;   // 20px
+  --ihelp-space-6: 1.5rem;    // 24px
+  --ihelp-space-8: 2rem;      // 32px
+  --ihelp-space-10: 2.5rem;   // 40px
+  --ihelp-space-12: 3rem;     // 48px
+  --ihelp-space-16: 4rem;     // 64px
+
+  // ---------------------------------------------------------------------------
+  // Shadows
+  // ---------------------------------------------------------------------------
+
+  --ihelp-shadow-sm: 0 1px 2px rgba(27, 58, 40, 0.05);
+  --ihelp-shadow-md: 0 4px 6px rgba(27, 58, 40, 0.07);
+  --ihelp-shadow-lg: 0 10px 15px rgba(27, 58, 40, 0.1);
+
+  // ---------------------------------------------------------------------------
+  // Transitions
+  // ---------------------------------------------------------------------------
+
+  --ihelp-transition-fast: 150ms ease;
+  --ihelp-transition-normal: 200ms ease;
+  --ihelp-transition-slow: 300ms ease;
+
+  // ---------------------------------------------------------------------------
+  // Z-Index Scale
+  // ---------------------------------------------------------------------------
+
+  --ihelp-z-dropdown: 100;
+  --ihelp-z-sticky: 200;
+  --ihelp-z-overlay: 300;
+  --ihelp-z-modal: 400;
+  --ihelp-z-toast: 500;
+
+  // ---------------------------------------------------------------------------
+  // Layout
+  // ---------------------------------------------------------------------------
+
+  --ihelp-sidebar-width: 260px;
+  --ihelp-sidebar-collapsed: 64px;
+  --ihelp-header-height: 64px;
+  --ihelp-max-content: 1200px;
+}

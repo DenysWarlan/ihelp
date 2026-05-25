@@ -1,0 +1,91 @@
+// =============================================================================
+// SCSS Variable Aliases for CSS Custom Properties
+// Usage: These allow SCSS interpolation where var() isn't supported (e.g. media queries)
+// For component styles, prefer using the CSS custom properties directly.
+// =============================================================================
+
+// Colors — Brand
+$accent: var(--ihelp-accent);
+$accent-light: var(--ihelp-accent-light);
+$surface: var(--ihelp-surface);
+$surface-dark: var(--ihelp-surface-dark);
+
+// Colors — Background
+$bg: var(--ihelp-bg);
+$white: var(--ihelp-white);
+
+// Colors — Text
+$text-primary: var(--ihelp-text-primary);
+$text-secondary: var(--ihelp-text-secondary);
+$text-muted: var(--ihelp-text-muted);
+$text-inverse: var(--ihelp-text-inverse);
+
+// Colors — Border
+$border: var(--ihelp-border);
+
+// Colors — Status
+$success: var(--ihelp-success);
+$warning: var(--ihelp-warning);
+$error: var(--ihelp-error);
+$crisis: var(--ihelp-crisis);
+
+// Typography
+$font-heading: var(--ihelp-font-heading);
+$font-body: var(--ihelp-font-body);
+$font-data: var(--ihelp-font-data);
+
+// Font sizes
+$text-xs: var(--ihelp-text-xs);
+$text-sm: var(--ihelp-text-sm);
+$text-base: var(--ihelp-text-base);
+$text-lg: var(--ihelp-text-lg);
+$text-xl: var(--ihelp-text-xl);
+$text-2xl: var(--ihelp-text-2xl);
+$text-3xl: var(--ihelp-text-3xl);
+
+// Font weights
+$font-normal: var(--ihelp-font-normal);
+$font-medium: var(--ihelp-font-medium);
+$font-semibold: var(--ihelp-font-semibold);
+$font-bold: var(--ihelp-font-bold);
+
+// Line heights
+$leading-tight: var(--ihelp-leading-tight);
+$leading-normal: var(--ihelp-leading-normal);
+$leading-relaxed: var(--ihelp-leading-relaxed);
+
+// Border Radius
+$radius-sm: var(--ihelp-radius-sm);
+$radius-md: var(--ihelp-radius-md);
+$radius-lg: var(--ihelp-radius-lg);
+$radius-xl: var(--ihelp-radius-xl);
+$radius-2xl: var(--ihelp-radius-2xl);
+$radius-full: var(--ihelp-radius-full);
+
+// Spacing
+$space-1: var(--ihelp-space-1);
+$space-2: var(--ihelp-space-2);
+$space-3: var(--ihelp-space-3);
+$space-4: var(--ihelp-space-4);
+$space-5: var(--ihelp-space-5);
+$space-6: var(--ihelp-space-6);
+$space-8: var(--ihelp-space-8);
+$space-10: var(--ihelp-space-10);
+$space-12: var(--ihelp-space-12);
+$space-16: var(--ihelp-space-16);
+
+// Shadows
+$shadow-sm: var(--ihelp-shadow-sm);
+$shadow-md: var(--ihelp-shadow-md);
+$shadow-lg: var(--ihelp-shadow-lg);
+
+// Transitions
+$transition-fast: var(--ihelp-transition-fast);
+$transition-normal: var(--ihelp-transition-normal);
+$transition-slow: var(--ihelp-transition-slow);
+
+// Layout
+$sidebar-width: var(--ihelp-sidebar-width);
+$sidebar-collapsed: var(--ihelp-sidebar-collapsed);
+$header-height: var(--ihelp-header-height);
+$max-content: var(--ihelp-max-content);

@@ -1,0 +1,39 @@
+<ng-container *transloco="let t">
+  <div class="auth-layout">
+    <aside class="sidebar" role="navigation" [attr.aria-label]="t('layout.appName')">
+      <div class="sidebar__header">
+        <a routerLink="/" class="sidebar__logo" [attr.aria-label]="t('layout.appName')">
+          <ui-icon name="HeartHandshake" [size]="28" color="var(--ihelp-accent)" />
+          <span class="sidebar__title">{{ t('layout.appName') }}</span>
+        </a>
+      </div>
+
+      <nav class="sidebar__nav">
+        <!-- Placeholder nav items - will be populated per role -->
+      </nav>
+
+      <div class="sidebar__footer">
+        <button
+          class="sidebar__logout"
+          type="button"
+          [attr.aria-label]="t('common.signOut')"
+        >
+          <ui-icon name="LogOut" [size]="20" color="var(--ihelp-text-secondary)" />
+          <span>{{ t('common.signOut') }}</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="auth-main">
+      <div class="auth-main__topbar">
+        <div class="auth-main__avatar" [attr.aria-label]="t('layout.userMenu')">
+          <span class="auth-main__avatar-initials">КО</span>
+        </div>
+      </div>
+
+      <main class="auth-content" role="main">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+</ng-container>

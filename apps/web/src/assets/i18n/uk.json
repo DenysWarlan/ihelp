@@ -1,0 +1,121 @@
+{
+  "common": {
+    "signIn": "Увійти",
+    "signOut": "Вийти",
+    "home": "Головна",
+    "comingSoon": "Незабаром"
+  },
+  "nav": {
+    "courses": "Курси",
+    "about": "Про нас"
+  },
+  "landing": {
+    "title": "Є турбота",
+    "heroHeading": "Ви не самі.\nЄ хтось, кому не байдуже.",
+    "heroSubtitle": "Платформа, що з'єднує людей, які потребують психологічної підтримки, з кваліфікованими фахівцями.",
+    "needSupport": "Потрібна підтримка",
+    "browseCourses": "Подивитися курси",
+    "consultantsCount": "30+ консультантів",
+    "consultantsReady": "готові допомогти прямо зараз",
+    "featureConfidential": "Конфіденційно",
+    "featureResponse": "Відповідь до 12 годин",
+    "featureFree": "Безкоштовно",
+    "featureChannels": "Telegram / Web",
+    "browseCatalog": "Переглянути каталог",
+    "subtitle": "Платформа, що з'єднує людей, які потребують психологічної підтримки, з кваліфікованими фахівцями."
+  },
+  "catalog": {
+    "title": "Курси відновлення",
+    "subtitle": "Покрокові програми для відновлення ментального здоров'я",
+    "courseMeta": "8 уроків · Тривожність, стрес, паніка",
+    "startCourse": "Почати курс",
+    "helpTitle": "Потрібна індивідуальна підтримка?",
+    "helpSubtitle": "Наші консультанти готові допомогти вам особисто",
+    "helpButton": "Написати",
+    "placeholder": "Вміст каталогу незабаром.",
+    "lessons": "уроків"
+  },
+  "coursePreview": {
+    "backToCatalog": "Каталог курсів",
+    "lessons": "Уроки курсу",
+    "locked": "Увійдіть щоб переглянути",
+    "startCourse": "Почати курс",
+    "loginToStart": "Увійдіть щоб почати навчання",
+    "needHelpToStart": "Залиште заявку щоб почати"
+  },
+  "needHelp": {
+    "title": "Розкажіть про себе",
+    "subtitle": "Ми підберемо консультанта, який найкраще зможе допомогти саме вам",
+    "nameLabel": "Ваше ім'я",
+    "namePlaceholder": "Як до вас звертатись?",
+    "countryLabel": "Країна",
+    "countryPlaceholder": "Оберіть країну",
+    "countryOther": "Інша",
+    "languageLabel": "Зручна мова",
+    "languagePlaceholder": "Оберіть мову",
+    "contactLabel": "Як з вами зв'язатись?",
+    "contactPlaceholder_email": "your@email.com",
+    "contactPlaceholder_telegram": "@username",
+    "contactPlaceholder_phone": "+380...",
+    "phone": "Телефон",
+    "topicLabel": "Тема звернення",
+    "topicPlaceholder": "Оберіть тему",
+    "topicAnxiety": "Тривожність, страх, паніка",
+    "topicRelationships": "Стосунки, розрив",
+    "topicGrief": "Втрата, горе",
+    "topicBurnout": "Вигорання, втома",
+    "topicPtsd": "Травма, ПТСР",
+    "topicOther": "Інше",
+    "messageLabel": "Опишіть коротко вашу ситуацію (необов'язково)",
+    "messagePlaceholder": "Що вас турбує? Це допоможе консультанту краще зрозуміти вашу ситуацію...",
+    "consentData": "Я погоджуюсь на створення акаунту та обробку персональних даних. Політика конфіденційності",
+    "consentProcessing": "Я надаю згоду на обробку інформації про моє звернення (тема, стан) для підбору консультанта",
+    "submit": "Надіслати звернення",
+    "successTitle": "Ваше звернення прийнято",
+    "successText": "Ми підбираємо для вас консультанта.\nОчікуваний час відповіді — до 12 годин.\nВам прийде сповіщення, коли консультант напише.",
+    "stepRequest": "Звернення",
+    "stepDone": "прийнято",
+    "stepMatching": "Підбір",
+    "stepInProgress": "в процесі...",
+    "stepConsultant": "Консультант",
+    "stepWillContact": "напише вам",
+    "browseCourses": "Переглянути курси поки чекаєте",
+    "telegramNote": "Або напишіть нам у Telegram: @ye_turbota_bot"
+  },
+  "login": {
+    "title": "Вхід",
+    "subtitle": "Оберіть зручний спосіб входу",
+    "google": "Увійти через Google",
+    "facebook": "Увійти через Facebook",
+    "telegram": "Увійти через Telegram",
+    "consent": "Вхід означає згоду з обробкою персональних даних",
+    "brandSubtitle": "Care Coordination Platform",
+    "placeholder": "Автентифікація буде реалізована в E01."
+  },
+  "person": {
+    "cabinet": "Кабінет",
+    "cabinetPlaceholder": "Персональний дашборд незабаром.",
+    "courses": "Мої курси",
+    "coursesPlaceholder": "Вміст курсів незабаром.",
+    "chat": "Чат",
+    "chatPlaceholder": "Функціонал чату незабаром."
+  },
+  "staff": {
+    "dashboard": "Дашборд",
+    "dashboardPlaceholder": "Огляд для персоналу незабаром.",
+    "consultant": "Мої кейси",
+    "consultantPlaceholder": "Інструменти консультанта незабаром.",
+    "supervisor": "Всі кейси",
+    "supervisorPlaceholder": "Інструменти супервізора незабаром.",
+    "coordinator": "Дашборд координатора",
+    "coordinatorPlaceholder": "Інструменти координатора незабаром.",
+    "admin": "Адміністрування",
+    "adminPlaceholder": "Інструменти адміністратора незабаром."
+  },
+  "layout": {
+    "appName": "Є турбота",
+    "expandSidebar": "Розгорнути бічну панель",
+    "collapseSidebar": "Згорнути бічну панель",
+    "userMenu": "Меню користувача"
+  }
+}

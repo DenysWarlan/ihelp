@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.nx/cache
+.nx/polygraph
+
+# IDE
+.idea/
+.vscode/
+
+# Angular
+.angular/
+
+# Claude
+.claude/worktrees
+.claude/settings.local.json
+
+# Environment
+.env
+
+# Lock files (npm only)
+pnpm-lock.yaml
+yarn.lock
+
+# Test
+__screenshots__/
+test-output
+vitest.config.*.timestamp*
+
+# OS
+.DS_Store

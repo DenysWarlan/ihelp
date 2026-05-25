@@ -1,0 +1,8 @@
+{
+  "name": "staff-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/staff/data-access",
+  "projectType": "library",
+  "tags": [],
+  "targets": {}
+}

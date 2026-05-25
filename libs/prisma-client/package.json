@@ -1,0 +1,10 @@
+{
+  "name": "@org/prisma-client",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "npx ts-node prisma/seed.ts"
+  }
+}

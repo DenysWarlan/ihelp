@@ -1,0 +1,22 @@
+<ng-container *transloco="let t">
+  <div class="public-layout">
+    <header class="public-header" role="banner">
+      <div class="public-header__inner">
+        <a routerLink="/" class="public-header__logo" [attr.aria-label]="t('layout.appName')">
+          <ui-icon name="HeartHandshake" [size]="28" color="var(--ihelp-accent)" />
+          <span class="public-header__title">{{ t('layout.appName') }}</span>
+        </a>
+
+        <nav class="public-header__nav" aria-label="Main navigation">
+          <a routerLink="/catalog" class="public-header__link">{{ t('nav.courses') }}</a>
+          <a routerLink="/about" class="public-header__link">{{ t('nav.about') }}</a>
+          <a routerLink="/login" class="public-header__signin">{{ t('common.signIn') }}</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="public-content" role="main">
+      <router-outlet />
+    </main>
+  </div>
+</ng-container>

@@ -1,0 +1,76 @@
+<ng-container *transloco="let t">
+  <section class="course-preview">
+    @if (isLoading()) {
+      <div class="course-preview__loading">
+        <p>{{ t('common.comingSoon') }}</p>
+      </div>
+    } @else if (course(); as course) {
+      <a routerLink="/catalog" class="course-preview__back">
+        <ui-icon name="ArrowLeft" [size]="16" color="var(--ihelp-accent)" />
+        {{ t('coursePreview.backToCatalog') }}
+      </a>
+
+      <div class="course-preview__layout">
+        <div class="course-preview__main">
+          <h1 class="course-preview__title">{{ course.title }}</h1>
+          <p class="course-preview__description">{{ course.description }}</p>
+
+          @if (course.tags.length > 0) {
+            <div class="course-preview__tags">
+              @for (tag of course.tags; track tag) {
+                <span class="course-preview__tag">{{ tag }}</span>
+              }
+            </div>
+          }
+
+          <div class="course-preview__lessons">
+            <h2 class="course-preview__lessons-title">{{ t('coursePreview.lessons') }}</h2>
+
+            <div class="course-preview__lesson-list">
+              @for (lesson of course.lessons; track lesson.id) {
+                <div class="course-preview__lesson-row">
+                  <div class="course-preview__lesson-info">
+                    <span class="course-preview__lesson-number">{{ lesson.sortOrder }}</span>
+                    <span class="course-preview__lesson-title">{{ lesson.title }}</span>
+                  </div>
+                  <ui-icon name="Lock" [size]="16" color="var(--ihelp-text-muted)" />
+                </div>
+              }
+            </div>
+
+            <p class="course-preview__locked-note">
+              <ui-icon name="Info" [size]="14" color="var(--ihelp-text-muted)" />
+              {{ t('coursePreview.locked') }}
+            </p>
+          </div>
+        </div>
+
+        <aside class="course-preview__sidebar">
+          <div class="course-preview__cta-card">
+            @if (course.imageUrl) {
+              <img
+                [src]="course.imageUrl"
+                [alt]="course.title"
+                class="course-preview__cta-image"
+              />
+            } @else {
+              <div class="course-preview__cta-placeholder">
+                <ui-icon name="BookOpen" [size]="48" color="var(--ihelp-accent)" />
+              </div>
+            }
+
+            <div class="course-preview__cta-body">
+              <span class="course-preview__cta-meta">
+                {{ course.lessonCount }} {{ t('catalog.lessons') }}
+              </span>
+              <a routerLink="/login" class="course-preview__cta-btn">
+                {{ t('coursePreview.startCourse') }}
+              </a>
+              <p class="course-preview__cta-note">{{ t('coursePreview.loginToStart') }}</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    }
+  </section>
+</ng-container>

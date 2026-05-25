@@ -1,0 +1,75 @@
+// =============================================================================
+// Minimal CSS Reset
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-base);
+  line-height: var(--ihelp-leading-normal);
+  color: var(--ihelp-text-primary);
+  background-color: var(--ihelp-bg);
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
+a {
+  color: var(--ihelp-accent);
+  text-decoration: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ihelp-font-heading);
+  font-weight: var(--ihelp-font-semibold);
+  line-height: var(--ihelp-leading-tight);
+}
+
+ul, ol {
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+}

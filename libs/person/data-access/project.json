@@ -1,0 +1,8 @@
+{
+  "name": "person-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/person/data-access",
+  "projectType": "library",
+  "tags": [],
+  "targets": {}
+}

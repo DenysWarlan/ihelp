@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "lib": [
+      "es2022"
+    ],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "customConditions": [
+      "@org/source"
+    ],
+    "paths": {
+      "@org/shared/ui": [
+        "./libs/shared/ui/index.ts"
+      ],
+      "@org/shared/data-access": [
+        "./libs/shared/data-access/index.ts"
+      ],
+      "@org/public/components": [
+        "./libs/public/components/index.ts"
+      ],
+      "@org/public/data-access": [
+        "./libs/public/data-access/index.ts"
+      ],
+      "@org/person/components": [
+        "./libs/person/components/index.ts"
+      ],
+      "@org/person/data-access": [
+        "./libs/person/data-access/index.ts"
+      ],
+      "@org/staff/components": [
+        "./libs/staff/components/index.ts"
+      ],
+      "@org/staff/data-access": [
+        "./libs/staff/data-access/index.ts"
+      ],
+      "@org/prisma-client": [
+        "./libs/prisma-client/src/index.ts"
+      ]
+    }
+  }
+}

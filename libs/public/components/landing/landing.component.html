@@ -1,0 +1,45 @@
+<ng-container *transloco="let t">
+  <section class="landing">
+    <div class="landing__hero">
+      <div class="landing__hero-text">
+        <h1 class="landing__heading">{{ t('landing.heroHeading') }}</h1>
+        <p class="landing__subtitle">{{ t('landing.heroSubtitle') }}</p>
+        <div class="landing__actions">
+          <a routerLink="/need-help" class="landing__btn landing__btn--primary">
+            {{ t('landing.needSupport') }}
+          </a>
+          <a routerLink="/catalog" class="landing__btn landing__btn--outline">
+            {{ t('landing.browseCourses') }}
+          </a>
+        </div>
+      </div>
+
+      <div class="landing__hero-card">
+        <ui-icon name="HeartHandshake" [size]="96" color="var(--ihelp-accent)" />
+        <span class="landing__card-count">{{ t('landing.consultantsCount') }}</span>
+        <span class="landing__card-ready">{{ t('landing.consultantsReady') }}</span>
+      </div>
+    </div>
+
+    <div class="landing__features-bar">
+      <div class="landing__features">
+        <div class="landing__feature">
+        <ui-icon name="ShieldCheck" [size]="20" color="var(--ihelp-accent)" />
+        <span>{{ t('landing.featureConfidential') }}</span>
+      </div>
+      <div class="landing__feature">
+        <ui-icon name="Timer" [size]="20" color="var(--ihelp-accent)" />
+        <span>{{ t('landing.featureResponse') }}</span>
+      </div>
+      <div class="landing__feature">
+        <ui-icon name="Heart" [size]="20" color="var(--ihelp-accent)" />
+        <span>{{ t('landing.featureFree') }}</span>
+      </div>
+      <div class="landing__feature">
+        <ui-icon name="MessageCircle" [size]="20" color="var(--ihelp-accent)" />
+        <span>{{ t('landing.featureChannels') }}</span>
+      </div>
+      </div>
+    </div>
+  </section>
+</ng-container>

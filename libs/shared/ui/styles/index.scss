@@ -1,0 +1,12 @@
+// =============================================================================
+// iHelp Design System — Global Styles Entry Point
+// Import this in apps/web/src/styles.scss
+// =============================================================================
+
+@use 'tokens';
+@use 'fonts';
+@use 'variables';
+@use 'reset';
+@use 'typography';
+@use 'breakpoints';
+@use 'grid';

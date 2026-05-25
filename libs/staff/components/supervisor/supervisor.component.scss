@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.page-stub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.page-stub__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+}
+
+.page-stub__placeholder {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+}

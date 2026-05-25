@@ -1,0 +1,127 @@
+:host {
+  display: block;
+}
+
+.login {
+  display: flex;
+  min-height: 100vh;
+}
+
+.login__brand {
+  flex: 1;
+  background-color: var(--ihelp-surface-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login__brand-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+}
+
+.login__brand-title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ihelp-text-inverse);
+}
+
+.login__brand-subtitle {
+  font-size: 14px;
+  color: var(--ihelp-text-inverse);
+  opacity: 0.7;
+}
+
+.login__form-side {
+  flex: 1;
+  background-color: var(--ihelp-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login__form-container {
+  width: 360px;
+}
+
+.login__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  margin-bottom: var(--ihelp-space-2);
+}
+
+.login__subtitle {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+  margin-bottom: var(--ihelp-space-8);
+}
+
+.login__oauth {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: var(--ihelp-space-6);
+}
+
+.login__oauth-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: var(--ihelp-radius-full);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--ihelp-transition-fast);
+  text-align: center;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &--google {
+    background-color: var(--ihelp-white);
+    color: var(--ihelp-text-primary);
+    border: 1px solid var(--ihelp-border);
+  }
+
+  &--facebook {
+    background-color: #1877F2;
+    color: var(--ihelp-text-inverse);
+    border: none;
+  }
+
+  &--telegram {
+    background-color: #26A5E4;
+    color: var(--ihelp-text-inverse);
+    border: none;
+  }
+}
+
+.login__consent {
+  font-size: 11px;
+  color: var(--ihelp-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .login {
+    flex-direction: column;
+  }
+
+  .login__brand {
+    padding: 48px 24px;
+  }
+
+  .login__form-side {
+    padding: 48px 24px;
+  }
+
+  .login__form-container {
+    width: 100%;
+    max-width: 360px;
+  }
+}

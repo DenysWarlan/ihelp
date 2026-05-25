@@ -1,0 +1,155 @@
+// =============================================================================
+// Typography Utilities
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// Heading scale
+// ---------------------------------------------------------------------------
+
+.text-heading-1 {
+  font-family: var(--ihelp-font-heading);
+  font-size: var(--ihelp-text-3xl);
+  font-weight: var(--ihelp-font-bold);
+  line-height: var(--ihelp-leading-tight);
+}
+
+.text-heading-2 {
+  font-family: var(--ihelp-font-heading);
+  font-size: var(--ihelp-text-2xl);
+  font-weight: var(--ihelp-font-semibold);
+  line-height: var(--ihelp-leading-tight);
+}
+
+.text-heading-3 {
+  font-family: var(--ihelp-font-heading);
+  font-size: var(--ihelp-text-xl);
+  font-weight: var(--ihelp-font-semibold);
+  line-height: var(--ihelp-leading-tight);
+}
+
+.text-heading-4 {
+  font-family: var(--ihelp-font-heading);
+  font-size: var(--ihelp-text-lg);
+  font-weight: var(--ihelp-font-medium);
+  line-height: var(--ihelp-leading-tight);
+}
+
+// ---------------------------------------------------------------------------
+// Body text
+// ---------------------------------------------------------------------------
+
+.text-body {
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-base);
+  line-height: var(--ihelp-leading-normal);
+}
+
+.text-body-lg {
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-lg);
+  line-height: var(--ihelp-leading-relaxed);
+}
+
+.text-body-sm {
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-sm);
+  line-height: var(--ihelp-leading-normal);
+}
+
+// ---------------------------------------------------------------------------
+// Utility text
+// ---------------------------------------------------------------------------
+
+.text-caption {
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-xs);
+  color: var(--ihelp-text-muted);
+  line-height: var(--ihelp-leading-normal);
+}
+
+.text-label {
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-sm);
+  font-weight: var(--ihelp-font-medium);
+  line-height: var(--ihelp-leading-normal);
+  letter-spacing: 0.01em;
+}
+
+.text-data {
+  font-family: var(--ihelp-font-data);
+  font-size: var(--ihelp-text-sm);
+  line-height: var(--ihelp-leading-normal);
+}
+
+.text-overline {
+  font-family: var(--ihelp-font-body);
+  font-size: var(--ihelp-text-xs);
+  font-weight: var(--ihelp-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: var(--ihelp-leading-normal);
+}
+
+// ---------------------------------------------------------------------------
+// Color modifiers
+// ---------------------------------------------------------------------------
+
+.text-muted {
+  color: var(--ihelp-text-muted);
+}
+
+.text-secondary {
+  color: var(--ihelp-text-secondary);
+}
+
+.text-inverse {
+  color: var(--ihelp-text-inverse);
+}
+
+.text-accent {
+  color: var(--ihelp-accent);
+}
+
+.text-error {
+  color: var(--ihelp-error);
+}
+
+.text-warning {
+  color: var(--ihelp-warning);
+}
+
+.text-success {
+  color: var(--ihelp-success);
+}
+
+// ---------------------------------------------------------------------------
+// Alignment
+// ---------------------------------------------------------------------------
+
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+.text-right  { text-align: right; }
+
+// ---------------------------------------------------------------------------
+// Truncation
+// ---------------------------------------------------------------------------
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.text-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

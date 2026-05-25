@@ -1,0 +1,8 @@
+{
+  "name": "public-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/public/data-access",
+  "projectType": "library",
+  "tags": [],
+  "targets": {}
+}
