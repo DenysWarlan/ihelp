@@ -101,4 +101,58 @@ export const CRISIS_AUDIT_ACTIONS = {
   ESCALATION_TRIGGERED: 'CRISIS_ESCALATION_TRIGGERED',
   AUTO_REPLY_SENT: 'CRISIS_AUTO_REPLY_SENT',
   KEYWORDS_SEEDED: 'CRISIS_KEYWORDS_SEEDED',
+  ALERT_ACKNOWLEDGED: 'CRISIS_ALERT_ACKNOWLEDGED',
+  MFA_BYPASS: 'CRISIS_MFA_BYPASS',
+  KEYWORD_CREATED: 'CRISIS_KEYWORD_CREATED',
+  KEYWORD_UPDATED: 'CRISIS_KEYWORD_UPDATED',
+  KEYWORD_DELETED: 'CRISIS_KEYWORD_DELETED',
+  AUTO_REPLY_CREATED: 'CRISIS_AUTO_REPLY_CREATED',
+  AUTO_REPLY_UPDATED: 'CRISIS_AUTO_REPLY_UPDATED',
+  AUTO_REPLY_DELETED: 'CRISIS_AUTO_REPLY_DELETED',
+  DUTY_SCHEDULE_CREATED: 'DUTY_SCHEDULE_CREATED',
+  DUTY_SCHEDULE_UPDATED: 'DUTY_SCHEDULE_UPDATED',
+  DUTY_SCHEDULE_DELETED: 'DUTY_SCHEDULE_DELETED',
+  DUTY_GAP_DETECTED: 'DUTY_GAP_DETECTED',
 } as const;
+
+// ---------------------------------------------------------------------------
+// S-E08-05: Crisis level sort priority (higher = sort first)
+// ---------------------------------------------------------------------------
+
+export const CRISIS_LEVEL_PRIORITY: Record<string, number> = {
+  CRITICAL: 4,
+  HIGH: 3,
+  MEDIUM: 2,
+  LOW: 1,
+  NONE: 0,
+} as const;
+
+// ---------------------------------------------------------------------------
+// S-E08-06: Minimum keyword count (cannot delete below this)
+// ---------------------------------------------------------------------------
+
+export const MIN_KEYWORD_COUNT = 1;
+
+// ---------------------------------------------------------------------------
+// S-E08-07: Business hours defaults (UTC+2 = EET)
+// ---------------------------------------------------------------------------
+
+export const DEFAULT_BUSINESS_HOURS_START = '09:00';
+export const DEFAULT_BUSINESS_HOURS_END = '18:00';
+export const DEFAULT_TIMEZONE_OFFSET_HOURS = 2;
+export const BUSINESS_HOURS_START_KEY = 'business_hours_start';
+export const BUSINESS_HOURS_END_KEY = 'business_hours_end';
+export const TIMEZONE_OFFSET_KEY = 'timezone_offset_hours';
+
+// ---------------------------------------------------------------------------
+// S-E08-08: Duty schedule validation
+// ---------------------------------------------------------------------------
+
+export const DUTY_CHECK_QUEUE = 'duty-check' as const;
+export const DUTY_CHECK_JOB = 'check-duty-gaps' as const;
+
+/** Cron expression: every day at 06:00 UTC (08:00 UTC+2). */
+export const DUTY_CHECK_CRON = '0 6 * * *' as const;
+
+/** How many hours ahead to check for gaps. */
+export const DUTY_GAP_CHECK_HOURS = 48;

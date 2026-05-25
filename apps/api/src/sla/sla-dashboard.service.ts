@@ -6,6 +6,7 @@ import {
   SLA_COLOR_GREEN_MAX_MS,
   SLA_COLOR_YELLOW_MAX_MS,
 } from './sla.const.js';
+import { CRISIS_LEVEL_PRIORITY } from '../crisis/crisis.const.js';
 import {
   SlaColorIndicator,
   SlaDashboardEntry,
@@ -39,6 +40,7 @@ export class SlaDashboardService {
         careCase: {
           select: {
             id: true,
+            crisisLevel: true,
             consultant: {
               select: {
                 name: true,
@@ -66,6 +68,19 @@ export class SlaDashboardService {
         startedAt: timer.startedAt,
         pausedAt: timer.pausedAt,
       };
+    });
+
+    // S-E08-05: Sort crisis cases to the top
+    entries.sort((a, b) => {
+      const timerA = timers.find((t) => t.careCaseId === a.caseId);
+      const timerB = timers.find((t) => t.careCaseId === b.caseId);
+      const crisisA = CRISIS_LEVEL_PRIORITY[timerA?.careCase.crisisLevel ?? 'NONE'] ?? 0;
+      const crisisB = CRISIS_LEVEL_PRIORITY[timerB?.careCase.crisisLevel ?? 'NONE'] ?? 0;
+
+      if (crisisA !== crisisB) {
+        return crisisB - crisisA; // Higher crisis level first
+      }
+      return a.startedAt.getTime() - b.startedAt.getTime(); // Then by time
     });
 
     this.logger.debug(`Dashboard queried: ${entries.length} active SLA timers`);

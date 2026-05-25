@@ -23,6 +23,7 @@ import {
   EscalationContext,
   KeywordMatch,
 } from './crisis.model.js';
+import { DutyService } from './duty.service.js';
 
 // ---------------------------------------------------------------------------
 // Risk level priority for comparison (higher number = higher severity)
@@ -46,7 +47,10 @@ export class CrisisService implements OnModuleInit {
     language: string;
   }> = [];
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly dutyService: DutyService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Lifecycle — seed defaults & load cache
@@ -167,13 +171,22 @@ export class CrisisService implements OnModuleInit {
         `(risk: ${context.riskLevel}, keywords: ${context.matchedKeywords.join(', ')})`,
     );
 
+    // S-E08-07: Route to duty person outside business hours
+    const targets = await this.dutyService.getEscalationTargets();
+
+    this.logger.warn(
+      `Crisis alert ${alert.id} routed to ${targets.length} target(s): ${targets.join(', ')}`,
+    );
+
     // MVP: Log-based notification fallback chain (SMS -> push -> email -> phone)
-    for (const channel of NOTIFICATION_CHAIN) {
-      this.logger.warn(
-        `${MVP_NOTIFICATION_PREFIX} ${channel} notification for crisis alert ${alert.id} ` +
-          `— case: ${context.caseId}, risk: ${context.riskLevel}, ` +
-          `keywords: [${context.matchedKeywords.join(', ')}]`,
-      );
+    for (const targetUserId of targets) {
+      for (const channel of NOTIFICATION_CHAIN) {
+        this.logger.warn(
+          `${MVP_NOTIFICATION_PREFIX} ${channel} notification for crisis alert ${alert.id} ` +
+            `— target: ${targetUserId}, case: ${context.caseId}, risk: ${context.riskLevel}, ` +
+            `keywords: [${context.matchedKeywords.join(', ')}]`,
+        );
+      }
     }
 
     // MVP: Log reminder about re-escalation

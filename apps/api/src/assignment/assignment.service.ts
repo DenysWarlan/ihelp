@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
 import { CaseStatus, ConsultantStatus, CrisisLevel } from '@prisma/client';
@@ -28,6 +30,7 @@ import {
   ReassignResult,
   ScoredConsultant,
 } from './assignment.model.js';
+import { WorkloadService } from '../workload/workload.service.js';
 
 /**
  * Implements the auto-assignment algorithm for care cases (S-E06-01..04).
@@ -45,7 +48,11 @@ import {
 export class AssignmentService {
   private readonly logger = new Logger(AssignmentService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => WorkloadService))
+    private readonly workloadService: WorkloadService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Public API
@@ -386,6 +393,22 @@ export class AssignmentService {
         },
       },
     });
+
+    // S-E09-03 / S-E09-04: Trigger crisis overflow escalation when no one
+    // has crisis capacity (or no eligible consultants at all for a crisis case)
+    if (
+      reason === FallbackReason.NO_ELIGIBLE_CONSULTANTS ||
+      reason === FallbackReason.ASSIGNMENT_RACE_FAILED
+    ) {
+      const careCase = await this.prisma.careCase.findUnique({
+        where: { id: caseId },
+        select: { crisisLevel: true },
+      });
+
+      if (careCase && this.isCrisisCase(careCase.crisisLevel)) {
+        await this.workloadService.triggerCrisisOverflowEscalation(caseId);
+      }
+    }
 
     return {
       assigned: false,

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -100,12 +101,22 @@ export class ConsultantProfileService {
     // Ensure profile exists
     const existing = await this.prisma.consultantProfile.findUnique({
       where: { userId },
-      select: { id: true },
     });
 
     if (!existing) {
       throw new NotFoundException(
         `Consultant profile not found for userId=${userId}`,
+      );
+    }
+
+    // S-E09-06: Validate maxCrisisCases <= maxCases
+    const effectiveMaxCases = dto.maxCases ?? existing.maxCases;
+    const effectiveMaxCrisisCases =
+      dto.maxCrisisCases ?? existing.maxCrisisCases;
+
+    if (effectiveMaxCrisisCases > effectiveMaxCases) {
+      throw new BadRequestException(
+        `maxCrisisCases (${effectiveMaxCrisisCases}) cannot exceed maxCases (${effectiveMaxCases})`,
       );
     }
 

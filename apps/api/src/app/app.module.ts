@@ -37,7 +37,10 @@ import { AssignmentModule } from '../assignment/assignment.module.js';
 import { SlaModule } from '../sla/sla.module.js';
 import { MeetingsModule } from '../meetings/meetings.module.js';
 import { CrisisModule } from '../crisis/crisis.module.js';
+import { PersonCabinetModule } from '../person-cabinet/person-cabinet.module.js';
 import { StorageModule } from '../storage/storage.module.js';
+import { WorkloadModule } from '../workload/workload.module.js';
+import { TransferModule } from '../transfer/transfer.module.js';
 
 @Module({
   imports: [
@@ -106,7 +109,10 @@ import { StorageModule } from '../storage/storage.module.js';
     EventsModule,
     MeetingsModule,
     StorageModule,
+    PersonCabinetModule,
     AssignmentModule,
+    WorkloadModule,
+    TransferModule,
     SlaModule,
   ],
   controllers: [AppController],

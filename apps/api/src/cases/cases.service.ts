@@ -128,10 +128,11 @@ export class CasesService {
       };
     }
 
+    // S-E08-05: Crisis cases on top — sort by crisisLevel desc first, then by time
     const cases = await this.prisma.careCase.findMany({
       where,
       include: CASE_INCLUDE,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ crisisLevel: 'desc' }, { createdAt: 'desc' }],
     });
 
     return Promise.all(cases.map((c) => this.enrichWithLesson(c)));

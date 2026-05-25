@@ -64,6 +64,13 @@ model User {
   meetingsAsConsultant Meeting[] @relation("MeetingConsultant")
   meetingsAsPerson     Meeting[] @relation("MeetingPerson")
 
+  // Duty schedule
+  dutySchedules DutySchedule[]
+
+  // Transfer relations
+  transfersFrom CaseTransfer[] @relation("TransferFrom")
+  transfersTo   CaseTransfer[] @relation("TransferTo")
+
   @@index([role])
   @@map("users")
 }
@@ -292,6 +299,7 @@ model CareCase {
   tags         CaseTag[]
   meetings     Meeting[]
   slaTimer     SlaTimer?
+  transfers    CaseTransfer[]
 
   @@index([status])
   @@index([consultantId])
@@ -672,4 +680,82 @@ model CrisisAlert {
   @@index([riskLevel])
   @@index([acknowledgedAt])
   @@map("crisis_alerts")
+}
+
+// ============================================================
+// DUTY SCHEDULE (S-E08-07/08 — night duty routing)
+// ============================================================
+
+model DutySchedule {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([startTime, endTime])
+  @@index([userId])
+  @@index([isActive])
+  @@map("duty_schedules")
+}
+
+// ============================================================
+// CASE TRANSFER (S-E10-01/02 — transfer tracking)
+// ============================================================
+
+enum TransferType {
+  VACATION
+  PERMANENT
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  RETURNED
+}
+
+model CaseTransfer {
+  id                    String         @id @default(uuid()) @db.Uuid
+  careCaseId            String         @map("care_case_id") @db.Uuid
+  fromConsultantId      String         @map("from_consultant_id") @db.Uuid
+  toConsultantId        String?        @map("to_consultant_id") @db.Uuid
+  transferType          TransferType   @map("transfer_type")
+  status                TransferStatus @default(PENDING)
+  vacationStart         DateTime?      @map("vacation_start")
+  vacationEnd           DateTime?      @map("vacation_end")
+  reason                String?
+  completedAt           DateTime?      @map("completed_at")
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @updatedAt @map("updated_at")
+
+  careCase        CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+  fromConsultant  User     @relation("TransferFrom", fields: [fromConsultantId], references: [id])
+  toConsultant    User?    @relation("TransferTo", fields: [toConsultantId], references: [id])
+
+  @@index([careCaseId])
+  @@index([fromConsultantId])
+  @@index([toConsultantId])
+  @@index([status])
+  @@index([transferType, status])
+  @@map("case_transfers")
+}
+
+// ============================================================
+// ORGANIZATION SETTINGS (business hours for duty routing)
+// ============================================================
+
+model OrganizationSettings {
+  id                String   @id @default(uuid()) @db.Uuid
+  key               String   @unique
+  value             String
+  description       String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("organization_settings")
 }
