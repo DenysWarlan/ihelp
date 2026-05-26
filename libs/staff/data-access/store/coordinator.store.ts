@@ -121,6 +121,48 @@ export const CoordinatorStore = signalStore(
         )
       ),
 
+      confirmAssignment: rxMethod<{ caseId: string; consultantId: string }>(
+        pipe(
+          switchMap(({ caseId, consultantId }) =>
+            service.confirmAssignment(caseId, consultantId).pipe(
+              tap(() => {
+                const assignments: AssignmentSuggestion[] = store
+                  .assignments()
+                  .filter((a: AssignmentSuggestion) => a.caseId !== caseId);
+                patchState(store, { assignments });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  error: 'Failed to confirm assignment',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
+      rejectAssignment: rxMethod<string>(
+        pipe(
+          switchMap((caseId: string) =>
+            service.rejectAssignment(caseId).pipe(
+              tap(() => {
+                const assignments: AssignmentSuggestion[] = store
+                  .assignments()
+                  .filter((a: AssignmentSuggestion) => a.caseId !== caseId);
+                patchState(store, { assignments });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  error: 'Failed to reject assignment',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
       acknowledgeCrisis: rxMethod<string>(
         pipe(
           switchMap((id: string) =>

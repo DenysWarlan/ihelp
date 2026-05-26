@@ -21,50 +21,44 @@
 
       <!-- Consultant + Next Meeting Row -->
       <div class="cabinet__cards-row">
-        <!-- Consultant Card -->
-        <ui-card [padding]="'md'">
-          <div class="consultant-card">
-            <h3 class="consultant-card__title">{{ t('cabinet.yourConsultant') }}</h3>
-            @if (nextMeeting(); as meeting) {
-              <div class="consultant-card__info">
-                <div class="consultant-card__avatar">
-                  <ui-icon name="User" [size]="32" />
-                </div>
-                <div class="consultant-card__details">
-                  <span class="consultant-card__name">{{ meeting.consultantName }}</span>
-                  <span class="consultant-card__spec">{{ t('cabinet.yourConsultant') }}</span>
-                </div>
+        <div class="cabinet__green-card">
+          <span class="cabinet__green-card-label">{{ t('cabinet.yourConsultant') }}</span>
+          @if (facade.dashboard()?.consultantName) {
+            <div class="consultant-card__info">
+              <div class="consultant-card__avatar">
+                <ui-icon name="User" [size]="24" />
               </div>
-              <ui-button variant="primary" (click)="onWriteConsultant()">{{ t('cabinet.write') }}</ui-button>
-            } @else {
-              <p class="consultant-card__empty">—</p>
-            }
-          </div>
-        </ui-card>
+              <div class="consultant-card__details">
+                <span class="consultant-card__name">{{ facade.dashboard()!.consultantName }}</span>
+                <span class="consultant-card__spec">{{ facade.dashboard()?.consultantSpecialty ?? t('cabinet.consultant') }}</span>
+              </div>
+            </div>
+            <button class="cabinet__green-btn" (click)="onWriteConsultant()">{{ t('cabinet.write') }}</button>
+          } @else {
+            <p class="consultant-card__empty">{{ t('cabinet.noConsultant') }}</p>
+          }
+        </div>
 
-        <!-- Next Meeting Card -->
-        <ui-card [padding]="'md'">
-          <div class="meeting-card">
-            <h3 class="meeting-card__title">{{ t('cabinet.nextMeeting') }}</h3>
-            @if (nextMeeting(); as meeting) {
-              <div class="meeting-card__info">
-                <ui-icon name="Calendar" [size]="20" />
-                <span class="meeting-card__date">{{ meeting.scheduledAt | date:'EEE, d MMMM · HH:mm' }}</span>
-              </div>
-              <div class="meeting-card__meta">
-                <ui-icon name="Video" [size]="16" />
-                <span>Google Meet · {{ meeting.durationMinutes }} {{ t('cabinet.minutes') }}</span>
-              </div>
-              @if (meeting.meetingUrl) {
-                <a [href]="meeting.meetingUrl" target="_blank" rel="noopener">
-                  <ui-button variant="primary">{{ t('cabinet.join') }}</ui-button>
-                </a>
-              }
-            } @else {
-              <p class="meeting-card__empty">—</p>
+        <div class="cabinet__green-card">
+          <span class="cabinet__green-card-label">{{ t('cabinet.nextMeeting') }}</span>
+          @if (nextMeeting(); as meeting) {
+            <div class="meeting-card__info">
+              <ui-icon name="Calendar" [size]="20" color="#2D5E3A" />
+              <span class="meeting-card__date">{{ meeting.scheduledAt | date:'EEE, d MMMM · HH:mm' }}</span>
+            </div>
+            <div class="meeting-card__meta">
+              <ui-icon name="Video" [size]="16" color="#4A6B52" />
+              <span>Google Meet · {{ meeting.durationMinutes }} {{ t('cabinet.minutes') }}</span>
+            </div>
+            @if (meeting.meetingUrl) {
+              <a [href]="meeting.meetingUrl" target="_blank" rel="noopener" class="cabinet__green-btn-link">
+                <button class="cabinet__green-btn">{{ t('cabinet.joinMeeting') }}</button>
+              </a>
             }
-          </div>
-        </ui-card>
+          } @else {
+            <p class="meeting-card__empty">{{ t('cabinet.noMeetings') }}</p>
+          }
+        </div>
       </div>
 
       <!-- Recommended Courses -->
@@ -73,84 +67,15 @@
           <h2 class="cabinet__section-title">{{ t('cabinet.recommendedCourses') }}</h2>
           <div class="cabinet__courses">
             @for (course of facade.courses(); track course.id) {
-              <ui-card [padding]="'md'">
-                <div class="course-card">
-                  <div class="course-card__info">
-                    <span class="course-card__title">{{ course.title }}</span>
-                    <span class="course-card__progress-text">{{ course.completedLessons }}/{{ course.totalLessons }} {{ t('courses.lessons') }}</span>
-                    <ui-progress-bar [value]="course.progress" variant="success" />
-                  </div>
-                  <ui-button variant="secondary" (click)="facade.navigateToCourse(course.id)">{{ t('cabinet.continue') }}</ui-button>
-                </div>
-              </ui-card>
+              <div class="course-card" (click)="facade.navigateToCourse(course.id)">
+                <span class="course-card__title">{{ course.title }}</span>
+                <span class="course-card__meta">{{ course.totalLessons }} {{ t('courses.lessons') }}</span>
+                <ui-progress-bar [value]="course.progress" variant="success" />
+              </div>
             }
           </div>
         </section>
       }
-
-      <!-- Privacy & Account -->
-      <section class="cabinet__section">
-        <h2 class="cabinet__section-title">{{ t('cabinet.privacy') }}</h2>
-        <ui-card [padding]="'md'">
-          <div class="privacy-card">
-            <!-- Timezone -->
-            <div class="privacy-card__row">
-              <div class="privacy-card__label">
-                <ui-icon name="Clock" [size]="18" />
-                <span>{{ t('cabinet.timezone') }}</span>
-              </div>
-              <span class="privacy-card__value">{{ facade.profile()?.timezone ?? 'UTC' }}</span>
-            </div>
-
-            <!-- Linked Accounts -->
-            <div class="privacy-card__accounts">
-              <span class="privacy-card__accounts-label">{{ t('cabinet.linkedAccounts') }}</span>
-              <div class="privacy-card__account-row">
-                <div class="privacy-card__account-info">
-                  <ui-icon name="Globe" [size]="18" />
-                  <span>Google</span>
-                </div>
-                <ui-button variant="secondary">{{ t('cabinet.link') }}</ui-button>
-              </div>
-              <div class="privacy-card__account-row">
-                <div class="privacy-card__account-info">
-                  <ui-icon name="Globe" [size]="18" />
-                  <span>Facebook</span>
-                </div>
-                <ui-button variant="secondary">{{ t('cabinet.link') }}</ui-button>
-              </div>
-              <div class="privacy-card__account-row">
-                <div class="privacy-card__account-info">
-                  <ui-icon name="Send" [size]="18" />
-                  <span>Telegram</span>
-                </div>
-                <ui-button variant="secondary">{{ t('cabinet.link') }}</ui-button>
-              </div>
-            </div>
-          </div>
-        </ui-card>
-      </section>
-
-      <!-- GDPR -->
-      <section class="cabinet__section">
-        <h2 class="cabinet__section-title">{{ t('cabinet.gdprTitle') }}</h2>
-        <ui-card [padding]="'md'">
-          <div class="gdpr-card">
-            <div class="gdpr-card__item">
-              <a class="gdpr-card__link" href="javascript:void(0)">{{ t('cabinet.exportData') }}</a>
-              <span class="gdpr-card__desc">{{ t('cabinet.exportDataDesc') }}</span>
-            </div>
-            <div class="gdpr-card__item">
-              <a class="gdpr-card__link" href="javascript:void(0)">{{ t('cabinet.revokeConsent') }}</a>
-              <span class="gdpr-card__desc">{{ t('cabinet.revokeConsentDesc') }}</span>
-            </div>
-            <div class="gdpr-card__item">
-              <a class="gdpr-card__link gdpr-card__link--danger" href="javascript:void(0)">{{ t('cabinet.deleteAccount') }}</a>
-              <span class="gdpr-card__desc">{{ t('cabinet.deleteAccountDesc') }}</span>
-            </div>
-          </div>
-        </ui-card>
-      </section>
     }
   </div>
 </ng-container>

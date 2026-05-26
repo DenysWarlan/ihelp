@@ -5,19 +5,66 @@
 .assignment {
   display: flex;
   flex-direction: column;
-  gap: var(--ihelp-space-4);
+  gap: var(--ihelp-space-5);
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+
+.assignment__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-1);
 }
 
 .assignment__title {
   font-family: var(--ihelp-font-heading);
-  font-size: 28px;
-  font-weight: 700;
+  font-size: var(--ihelp-text-2xl);
+  font-weight: var(--ihelp-font-bold);
   color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.assignment__subtitle {
+  font-size: var(--ihelp-text-sm);
+  color: var(--ihelp-text-muted);
+  margin: 0;
 }
 
 .assignment__loading {
-  font-size: 14px;
+  font-size: var(--ihelp-text-sm);
   color: var(--ihelp-text-muted);
+}
+
+// ── Two-column layout ───────────────────────────────────────────────────────
+
+.assignment__layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--ihelp-space-6);
+  align-items: start;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Section title ───────────────────────────────────────────────────────────
+
+.assignment__section-title {
+  font-family: var(--ihelp-font-heading);
+  font-size: var(--ihelp-text-base);
+  font-weight: var(--ihelp-font-semibold);
+  color: var(--ihelp-text-primary);
+  margin: 0 0 var(--ihelp-space-3) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+}
+
+// ── Cases column ────────────────────────────────────────────────────────────
+
+.assignment__cases {
+  min-width: 0;
 }
 
 .assignment__list {
@@ -26,50 +73,150 @@
   gap: var(--ihelp-space-3);
 }
 
-.assignment-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ihelp-space-2);
-}
-
-.assignment-card__header {
-  display: flex;
-  align-items: center;
-  gap: var(--ihelp-space-2);
-}
-
-.assignment-card__person {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ihelp-text-primary);
-}
-
-.assignment-card__topic {
-  font-size: 14px;
-  color: var(--ihelp-text-secondary);
-}
-
-.assignment-card__suggestion {
-  display: flex;
-  align-items: center;
-  gap: var(--ihelp-space-2);
-}
-
-.assignment-card__consultant {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ihelp-accent);
-}
-
-.assignment-card__reason {
-  font-size: 12px;
-  color: var(--ihelp-text-muted);
-  font-style: italic;
-}
-
 .assignment__empty {
-  font-size: 14px;
+  font-size: var(--ihelp-text-sm);
   color: var(--ihelp-text-muted);
   text-align: center;
   padding: var(--ihelp-space-6);
+}
+
+// ── Case card ───────────────────────────────────────────────────────────────
+
+.case-card {
+  background: var(--ihelp-white);
+  border: 1px solid var(--ihelp-border);
+  border-radius: var(--ihelp-radius-lg);
+  padding: var(--ihelp-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+  transition: box-shadow var(--ihelp-transition-fast);
+
+  &:hover {
+    box-shadow: var(--ihelp-shadow-sm);
+  }
+}
+
+.case-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ihelp-space-2);
+}
+
+.case-card__person {
+  font-size: var(--ihelp-text-base);
+  font-weight: var(--ihelp-font-semibold);
+  color: var(--ihelp-text-primary);
+}
+
+// ── Tags row ────────────────────────────────────────────────────────────────
+
+.case-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ihelp-space-2);
+}
+
+.case-card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ihelp-space-1) var(--ihelp-space-2);
+  border-radius: var(--ihelp-radius-sm);
+  font-size: var(--ihelp-text-xs);
+  color: var(--ihelp-text-secondary);
+  background: var(--ihelp-surface);
+  border: 1px solid var(--ihelp-border);
+}
+
+.case-card__tag--time {
+  color: var(--ihelp-text-muted);
+  background: transparent;
+  border-color: transparent;
+}
+
+// ── Recommendation bar ──────────────────────────────────────────────────────
+
+.case-card__recommendation {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+  background: var(--ihelp-success);
+  color: var(--ihelp-text-inverse);
+  border-radius: var(--ihelp-radius-md);
+  padding: var(--ihelp-space-2) var(--ihelp-space-3);
+}
+
+.case-card__recommendation-text {
+  font-size: var(--ihelp-text-xs);
+  font-weight: var(--ihelp-font-medium);
+  line-height: var(--ihelp-leading-normal);
+}
+
+// ── Action buttons ──────────────────────────────────────────────────────────
+
+.case-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+}
+
+.case-card__reject {
+  all: unset;
+  cursor: pointer;
+  font-size: var(--ihelp-text-sm);
+  color: var(--ihelp-text-muted);
+  text-decoration: underline;
+  margin-left: auto;
+  transition: color var(--ihelp-transition-fast);
+
+  &:hover {
+    color: var(--ihelp-error);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ihelp-accent);
+    outline-offset: 2px;
+    border-radius: var(--ihelp-radius-sm);
+  }
+}
+
+// ── Workload sidebar ────────────────────────────────────────────────────────
+
+.assignment__workload {
+  background: var(--ihelp-white);
+  border: 1px solid var(--ihelp-border);
+  border-radius: var(--ihelp-radius-lg);
+  padding: var(--ihelp-space-4);
+}
+
+.workload-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.workload-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-1);
+}
+
+.workload-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.workload-item__name {
+  font-size: var(--ihelp-text-sm);
+  font-weight: var(--ihelp-font-medium);
+  color: var(--ihelp-text-primary);
+}
+
+.workload-item__count {
+  font-size: var(--ihelp-text-xs);
+  font-weight: var(--ihelp-font-semibold);
+  color: var(--ihelp-text-muted);
+  font-family: var(--ihelp-font-data);
 }

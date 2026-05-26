@@ -31,6 +31,29 @@ import { WorkloadService } from './workload.service.js';
 export class WorkloadController {
   constructor(private readonly workloadService: WorkloadService) {}
 
+  @Get()
+  @Roles(...WORKLOAD_DASHBOARD_ROLES)
+  @ApiOperation({
+    summary: 'Get workload entries for all consultants',
+    description: 'Returns a flat list of consultant workload entries.',
+  })
+  @ApiResponse({ status: 200, description: 'Workload entries' })
+  async getWorkload() {
+    const dashboard = await this.workloadService.getDashboard();
+    return dashboard.consultants.map((c) => ({
+      consultantId: c.userId,
+      consultantName: c.name ?? '',
+      activeCases: c.currentCases,
+      maxCases: c.maxCases,
+      utilizationPercent: c.utilizationPercent,
+      status: c.utilizationColor === 'green'
+        ? 'AVAILABLE'
+        : c.utilizationColor === 'yellow'
+          ? 'AT_CAPACITY'
+          : 'OVERLOADED',
+    }));
+  }
+
   @Get('dashboard')
   @Roles(...WORKLOAD_DASHBOARD_ROLES)
   @ApiOperation({

@@ -10,16 +10,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import {
-  ButtonComponent,
-  CardComponent,
-  IconComponent,
-  InputComponent,
-  SelectComponent,
-} from '@org/shared/ui';
+import { IconComponent } from '@org/shared/ui';
 import { PersonFacade } from '@org/person/data-access';
-
-import type { SelectOption } from '@org/shared/ui';
 
 interface ProfileFormModel {
   readonly name: string;
@@ -27,7 +19,12 @@ interface ProfileFormModel {
   readonly timezone: string;
 }
 
-const TIMEZONE_OPTIONS: SelectOption[] = [
+interface TimezoneOption {
+  readonly value: string;
+  readonly label: string;
+}
+
+const TIMEZONE_OPTIONS: TimezoneOption[] = [
   { value: 'Europe/Kyiv', label: 'Europe/Kyiv (UTC+2)' },
   { value: 'Europe/Warsaw', label: 'Europe/Warsaw (UTC+1)' },
   { value: 'Europe/Berlin', label: 'Europe/Berlin (UTC+1)' },
@@ -43,11 +40,7 @@ const TIMEZONE_OPTIONS: SelectOption[] = [
   imports: [
     TranslocoDirective,
     FormsModule,
-    CardComponent,
     IconComponent,
-    InputComponent,
-    SelectComponent,
-    ButtonComponent,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -62,7 +55,7 @@ export class ProfileComponent implements OnInit {
     timezone: '',
   });
 
-  readonly timezoneOptions: SelectOption[] = TIMEZONE_OPTIONS;
+  readonly timezoneOptions: TimezoneOption[] = TIMEZONE_OPTIONS;
 
   constructor() {
     effect(() => {
@@ -94,5 +87,9 @@ export class ProfileComponent implements OnInit {
       name: form.name,
       timezone: form.timezone,
     });
+  }
+
+  onSetPassword(): void {
+    this.facade.setPassword();
   }
 }

@@ -39,6 +39,18 @@
     }
 
     <div class="supervisor-dashboard__nav">
+      <a routerLink="../supervisor/cases" class="supervisor-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="FolderOpen" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('supervisor.allCasesTitle') }}</span>
+              <span class="nav-card__desc">{{ t('supervisor.allCasesDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
       <a routerLink="../team" class="supervisor-dashboard__link">
         <ui-card padding="md" [hoverable]="true">
           <div class="nav-card">
@@ -58,6 +70,18 @@
             <div class="nav-card__content">
               <span class="nav-card__label">{{ t('supervisor.analyticsTitle') }}</span>
               <span class="nav-card__desc">{{ t('supervisor.analyticsDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../supervisor/crisis" class="supervisor-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="AlertTriangle" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('supervisor.crisisHistoryTitle') }}</span>
+              <span class="nav-card__desc">{{ t('supervisor.crisisHistoryDesc') }}</span>
             </div>
           </div>
         </ui-card>

@@ -9,7 +9,6 @@ import {
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
-  CardComponent,
   BadgeComponent,
   IconComponent,
   AlertBannerComponent,
@@ -24,7 +23,6 @@ import type { CrisisAlert } from '@org/staff/data-access';
   standalone: true,
   imports: [
     TranslocoDirective,
-    CardComponent,
     BadgeComponent,
     IconComponent,
     AlertBannerComponent,
@@ -41,6 +39,9 @@ export class CrisisComponent implements OnInit {
   readonly isLoading: Signal<boolean> = this.facade.isLoading;
   readonly hasUnacknowledged: Signal<boolean> = computed(() =>
     this.crisisAlerts().some((alert: CrisisAlert) => !alert.isAcknowledged)
+  );
+  readonly unacknowledgedCount: Signal<number> = computed(() =>
+    this.crisisAlerts().filter((alert: CrisisAlert) => !alert.isAcknowledged).length
   );
 
   ngOnInit(): void {

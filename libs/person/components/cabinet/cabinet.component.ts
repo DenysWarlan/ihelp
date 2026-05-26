@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
-  ButtonComponent,
-  CardComponent,
   IconComponent,
   ProgressBarComponent,
 } from '@org/shared/ui';
@@ -16,8 +15,6 @@ import { PersonFacade, PersonMeeting } from '@org/person/data-access';
   imports: [
     DatePipe,
     TranslocoDirective,
-    ButtonComponent,
-    CardComponent,
     IconComponent,
     ProgressBarComponent,
   ],
@@ -27,6 +24,7 @@ import { PersonFacade, PersonMeeting } from '@org/person/data-access';
 })
 export class CabinetComponent implements OnInit {
   readonly facade: PersonFacade = inject(PersonFacade);
+  private readonly router: Router = inject(Router);
 
   readonly nextMeeting: Signal<PersonMeeting | null> = computed(() => {
     const meetings = this.facade.meetings();
@@ -45,6 +43,6 @@ export class CabinetComponent implements OnInit {
   }
 
   onWriteConsultant(): void {
-    // Navigate to chat - placeholder for now
+    this.router.navigate(['/person/chat']);
   }
 }

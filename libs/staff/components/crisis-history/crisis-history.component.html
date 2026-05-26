@@ -1,0 +1,77 @@
+<ng-container *transloco="let t">
+  <section class="crisis-history">
+    <div class="crisis-history__header">
+      <h1 class="crisis-history__title">{{ t('supervisor.crisisHistoryTitle') }}</h1>
+      <div class="crisis-history__filters">
+        @for (filter of filters; track filter) {
+          <button
+            class="crisis-history__filter-btn"
+            [class.crisis-history__filter-btn--active]="activeFilter() === filter"
+            (click)="setFilter(filter)">
+            {{ t('supervisor.crisisFilter_' + filter) }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <p class="crisis-history__loading">{{ t('common.loading') }}</p>
+    } @else if (filteredHistory().length === 0) {
+      <p class="crisis-history__empty">{{ t('supervisor.crisisEmpty') }}</p>
+    } @else {
+      <table class="crisis-history__table">
+        <thead>
+          <tr>
+            <th>{{ t('supervisor.crisisColDate') }}</th>
+            <th>{{ t('supervisor.crisisColAuthor') }}</th>
+            <th>{{ t('supervisor.crisisColConsultant') }}</th>
+            <th>{{ t('supervisor.crisisColClient') }}</th>
+            <th>{{ t('supervisor.crisisColSeverity') }}</th>
+            <th>{{ t('supervisor.crisisColStatus') }}</th>
+            <th>{{ t('supervisor.crisisColAction') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredHistory(); track item.id) {
+            <tr class="crisis-history__row">
+              <td class="crisis-history__cell-date">{{ item.detectedAt | date:'short' }}</td>
+              <td>{{ item.authorName }}</td>
+              <td>{{ item.consultantName }}</td>
+              <td>{{ item.clientName }}</td>
+              <td>
+                <ui-badge [variant]="getSeverityVariant(item.severity)" size="sm">
+                  {{ t('supervisor.severity_' + item.severity) }}
+                </ui-badge>
+              </td>
+              <td>
+                <ui-badge [variant]="getStatusVariant(item.status)" size="sm">
+                  {{ t('supervisor.crisisStatus_' + item.status) }}
+                </ui-badge>
+              </td>
+              <td>{{ item.action }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    <div class="crisis-history__stats">
+      <div class="crisis-history__stat-card crisis-history__stat-card--green">
+        <span class="crisis-history__stat-number">{{ totalAlerts() }}</span>
+        <span class="crisis-history__stat-label">{{ t('supervisor.totalAlerts') }}</span>
+      </div>
+      <div class="crisis-history__stat-card crisis-history__stat-card--green">
+        <span class="crisis-history__stat-number">{{ criticalCount() }}</span>
+        <span class="crisis-history__stat-label">{{ t('supervisor.criticalAlerts') }}</span>
+      </div>
+      <div class="crisis-history__stat-card crisis-history__stat-card--pink">
+        <span class="crisis-history__stat-number">{{ escalationRate() }}</span>
+        <span class="crisis-history__stat-label">{{ t('supervisor.escalationRate') }}</span>
+      </div>
+      <div class="crisis-history__stat-card crisis-history__stat-card--pink">
+        <span class="crisis-history__stat-number">5 {{ t('supervisor.minutes') }}</span>
+        <span class="crisis-history__stat-label">{{ t('supervisor.avgResponseTimeCrisis') }}</span>
+      </div>
+    </div>
+  </section>
+</ng-container>

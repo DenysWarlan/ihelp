@@ -6,12 +6,20 @@ import {
   signal,
 } from '@angular/core';
 import { AuthStore } from '../store/auth.store';
-import { StaffLoginRequest } from '../model/auth.model';
+import {
+  PersonLoginRequest,
+  StaffLoginRequest,
+} from '../model/auth.model';
 
 export interface StaffLoginFormModel {
   email: string;
   password: string;
   mfaCode: string;
+}
+
+export interface PersonLoginFormModel {
+  email: string;
+  password: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,12 +32,21 @@ export class AuthFacade {
     mfaCode: '',
   });
 
+  readonly personLoginForm: WritableSignal<PersonLoginFormModel> = signal({
+    email: '',
+    password: '',
+  });
+
   readonly isLoading: Signal<boolean> = this.store.isLoading;
   readonly error: Signal<string | null> = this.store.error;
   readonly mfaRequired: Signal<boolean> = this.store.mfaRequired;
 
   updateField(field: keyof StaffLoginFormModel, value: string): void {
     this.loginForm.update((form) => ({ ...form, [field]: value }));
+  }
+
+  updatePersonField(field: keyof PersonLoginFormModel, value: string): void {
+    this.personLoginForm.update((form) => ({ ...form, [field]: value }));
   }
 
   submitLogin(): void {
@@ -40,6 +57,15 @@ export class AuthFacade {
       ...(form.mfaCode ? { mfaCode: form.mfaCode } : {}),
     };
     this.store.staffLogin(request);
+  }
+
+  submitPersonLogin(): void {
+    const form = this.personLoginForm();
+    const request: PersonLoginRequest = {
+      email: form.email,
+      password: form.password,
+    };
+    this.store.personLogin(request);
   }
 
   logout(): void {

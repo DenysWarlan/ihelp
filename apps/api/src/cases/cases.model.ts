@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -50,10 +51,25 @@ export class CreateCaseDto {
   @IsString()
   topic!: string;
 
+  @ApiPropertyOptional({ description: 'Initial message from intake form (maps to description)' })
+  @IsOptional()
+  @IsString()
+  message?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiPropertyOptional({ description: 'GDPR data processing consent' })
+  @IsOptional()
+  @IsBoolean()
+  consentData?: boolean;
+
+  @ApiPropertyOptional({ description: 'Sensitive data processing consent' })
+  @IsOptional()
+  @IsBoolean()
+  consentSensitive?: boolean;
 
   @ApiPropertyOptional({ enum: CaseSource })
   @IsOptional()
@@ -128,6 +144,8 @@ export interface CaseResponse {
   readonly version: number;
   readonly createdAt: Date;
   readonly updatedAt: Date;
+  readonly personName?: string | null;
+  readonly consultantName?: string | null;
   readonly sourceCourse?: { id: string; title: string } | null;
   readonly sourceLesson?: { id: string; title: string } | null;
 }

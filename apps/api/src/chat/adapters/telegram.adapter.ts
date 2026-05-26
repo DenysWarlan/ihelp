@@ -24,7 +24,10 @@ export class TelegramAdapter implements ChannelAdapter {
     recipientChatId: string,
     attachments?: Record<string, unknown>,
   ): Promise<DeliveryResult> {
+    this.logger.log(`Sending to Telegram: chatId=${recipientChatId}, content="${content.slice(0, 50)}"`);
+
     if (!this.botToken) {
+      this.logger.error('TELEGRAM_BOT_TOKEN is not set — cannot send');
       return {
         success: false,
         channel: MessageChannel.TELEGRAM,
@@ -59,6 +62,7 @@ export class TelegramAdapter implements ChannelAdapter {
         result?: { message_id: number };
       };
 
+      this.logger.log(`Telegram message sent OK: chatId=${recipientChatId}, tg_msg_id=${result.result?.message_id}`);
       return {
         success: true,
         channel: MessageChannel.TELEGRAM,

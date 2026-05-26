@@ -1,0 +1,116 @@
+<ng-container *transloco="let t">
+  <section class="sv-case-detail">
+    @if (isLoading()) {
+      <p class="sv-case-detail__loading">{{ t('common.loading') }}</p>
+    } @else if (caseDetail(); as c) {
+      <div class="sv-case-detail__layout">
+        <!-- Left: Chat -->
+        <div class="sv-case-detail__chat">
+          <div class="sv-case-detail__chat-header">
+            <span class="sv-case-detail__person-name">{{ c.personName }}</span>
+            <ui-badge [variant]="getStatusVariant(c.status)" size="sm">
+              {{ t('staffCases.status.' + c.status) }}
+            </ui-badge>
+          </div>
+
+          <div class="sv-case-detail__messages">
+            @for (msg of c.messages; track msg.id) {
+              <div
+                class="sv-case-detail__message"
+                [class.sv-case-detail__message--consultant]="msg.authorRole === 'CONSULTANT'"
+                [class.sv-case-detail__message--person]="msg.authorRole === 'PERSON'"
+                [class.sv-case-detail__message--supervisor]="msg.authorRole === 'SUPERVISOR'"
+              >
+                <div class="sv-case-detail__msg-bubble">
+                  <p class="sv-case-detail__msg-text">{{ msg.content }}</p>
+                </div>
+                <span class="sv-case-detail__msg-meta">
+                  {{ msg.authorName }} &middot; {{ msg.createdAt | date:'short' }}
+                </span>
+              </div>
+            } @empty {
+              <p class="sv-case-detail__no-messages">{{ t('supervisor.noMessages') }}</p>
+            }
+          </div>
+
+          <div class="sv-case-detail__chat-footer">
+            <span class="sv-case-detail__readonly-note">{{ t('supervisor.readOnlyChat') }}</span>
+          </div>
+        </div>
+
+        <!-- Right: Details sidebar -->
+        <div class="sv-case-detail__sidebar">
+          <div class="sv-case-detail__details-section">
+            <h3 class="sv-case-detail__section-title">{{ t('supervisor.caseDetails') }}</h3>
+
+            <div class="sv-case-detail__detail-row">
+              <span class="sv-case-detail__detail-label">{{ t('supervisor.consultant') }}</span>
+              <span class="sv-case-detail__detail-value">{{ c.consultantName }}</span>
+            </div>
+
+            <div class="sv-case-detail__detail-row">
+              <span class="sv-case-detail__detail-label">{{ t('staffCaseDetail.topic') }}</span>
+              <span class="sv-case-detail__detail-value">{{ c.topic }}</span>
+            </div>
+
+            <div class="sv-case-detail__detail-row">
+              <span class="sv-case-detail__detail-label">{{ t('staffCaseDetail.status') }}</span>
+              <ui-badge [variant]="getStatusVariant(c.status)" size="sm">
+                {{ t('staffCases.status.' + c.status) }}
+              </ui-badge>
+            </div>
+
+            <div class="sv-case-detail__detail-row">
+              <span class="sv-case-detail__detail-label">{{ t('staffCaseDetail.priority') }}</span>
+              <ui-badge [variant]="getPriorityVariant(c.priority)" size="sm">
+                {{ t('staffCases.priority.' + c.priority) }}
+              </ui-badge>
+            </div>
+
+            <div class="sv-case-detail__detail-row">
+              <span class="sv-case-detail__detail-label">{{ t('staffCaseDetail.created') }}</span>
+              <span class="sv-case-detail__detail-value">{{ c.createdAt | date:'mediumDate' }}</span>
+            </div>
+
+            @if (c.slaDeadline) {
+              <div class="sv-case-detail__detail-row">
+                <span class="sv-case-detail__detail-label">SLA</span>
+                <ui-badge variant="warning" size="sm">
+                  {{ t('supervisor.slaRemaining') }} {{ c.slaDeadline | date:'short' }}
+                </ui-badge>
+              </div>
+            }
+          </div>
+
+          <div class="sv-case-detail__notes-section">
+            <h3 class="sv-case-detail__section-title">{{ t('supervisor.consultantNotes') }}</h3>
+            @for (note of c.consultantNotes; track note.id) {
+              <div class="sv-case-detail__note">
+                <p class="sv-case-detail__note-text">{{ note.content }}</p>
+                <span class="sv-case-detail__note-meta">
+                  {{ note.authorName }} &middot; {{ note.createdAt | date:'short' }}
+                </span>
+              </div>
+            } @empty {
+              <p class="sv-case-detail__no-notes">{{ t('staffCaseDetail.noNotes') }}</p>
+            }
+          </div>
+
+          <div class="sv-case-detail__comment-section">
+            <h3 class="sv-case-detail__section-title">{{ t('supervisor.supervisorComment') }}</h3>
+            <textarea
+              class="sv-case-detail__comment-input"
+              [placeholder]="t('supervisor.commentPlaceholder')"
+              [ngModel]="supervisorComment()"
+              (ngModelChange)="supervisorComment.set($event)"
+              rows="3"
+            ></textarea>
+            <ui-button variant="primary" size="sm" (click)="onSendComment()">
+              {{ t('supervisor.sendComment') }}
+            </ui-button>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+</ng-container>

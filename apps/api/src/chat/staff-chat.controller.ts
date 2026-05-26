@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, ParseUUIDPipe, Post, Put, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -11,7 +11,9 @@ import { Request } from 'express';
 import { JwtPayload } from '../auth/auth.model.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { ChatGateway } from './chat.gateway.js';
+import { MessageService } from './message.service.js';
 import { CASE_ROOM_PREFIX, CHAT_EVENTS } from './chat.const.js';
+import { TelegramAdapter } from './adapters/telegram.adapter.js';
 
 const STAFF_ROLES = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as const;
 
@@ -19,9 +21,13 @@ const STAFF_ROLES = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as cons
 @ApiBearerAuth()
 @Controller('chat/staff')
 export class StaffChatController {
+  private readonly logger = new Logger(StaffChatController.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly chatGateway: ChatGateway,
+    private readonly telegramAdapter: TelegramAdapter,
+    private readonly messageService: MessageService,
   ) {}
 
   @Get('conversations')
@@ -171,8 +177,61 @@ export class StaffChatController {
         senderName: message.sender?.name ?? '',
         preview: (body.content ?? '').slice(0, 100),
       });
+
+      // Deliver to Telegram if person has a linked Telegram account
+      void this.deliverToTelegram(message.careCase.personId, body.content);
     }
 
     return response;
+  }
+
+  @Put('conversations/:id/read')
+  @Roles(...STAFF_ROLES)
+  @ApiOperation({ summary: 'Mark messages as read via REST (fallback for WebSocket)' })
+  @ApiResponse({ status: 200, description: 'Messages marked as read' })
+  async markAsRead(
+    @Param('id', ParseUUIDPipe) caseId: string,
+    @Body() body: { messageIds: string[] },
+    @Req() req: Request,
+  ) {
+    const actor = req.user as JwtPayload;
+    const count = await this.messageService.markManyAsRead(body.messageIds, actor);
+    return { count };
+  }
+
+  /**
+   * Look up the person's Telegram provider link and deliver the message
+   * via Telegram Bot API if they have one.
+   */
+  private async deliverToTelegram(
+    personId: string,
+    content: string,
+  ): Promise<void> {
+    try {
+      const telegramLink = await this.prisma.providerLink.findFirst({
+        where: { userId: personId, provider: 'telegram' },
+      });
+
+      if (!telegramLink) {
+        this.logger.debug(`No Telegram link for user ${personId} — skipping TG delivery`);
+        return;
+      }
+
+      // For Telegram private chats, the chat ID equals the user ID
+      const chatId = telegramLink.providerAccountId;
+      this.logger.log(`Delivering to Telegram: userId=${personId}, tg_chatId=${chatId}`);
+      const result = await this.telegramAdapter.send(content, chatId);
+
+      if (!result.success) {
+        this.logger.warn(
+          `Failed to deliver message to Telegram for user ${personId}: ${result.error}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        `Telegram delivery error for user ${personId}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 }

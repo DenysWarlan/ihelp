@@ -1,29 +1,89 @@
 <ng-container *transloco="let t">
   <section class="assignment">
-    <h1 class="assignment__title">{{ t('coordinator.assignmentTitle') }}</h1>
+    <header class="assignment__header">
+      <h1 class="assignment__title">{{ t('coordinator.assignmentTitle') }}</h1>
+      <p class="assignment__subtitle">{{ t('coordinator.assignmentSubtitle') }}</p>
+    </header>
 
     @if (isLoading()) {
       <p class="assignment__loading">{{ t('common.loading') }}</p>
     } @else {
-    <div class="assignment__list">
-      @for (item of assignments(); track item.caseId) {
-        <ui-card padding="md" [hoverable]="true">
-          <div class="assignment-card">
-            <div class="assignment-card__header">
-              <ui-icon name="UserPlus" [size]="20" color="var(--ihelp-accent)" />
-              <span class="assignment-card__person">{{ item.personName }}</span>
+    <div class="assignment__layout">
+      <!-- Left column: unassigned cases -->
+      <div class="assignment__cases">
+        <h2 class="assignment__section-title">
+          {{ t('coordinator.unassignedCases') }}
+          <ui-badge variant="neutral" size="sm">{{ assignments().length }}</ui-badge>
+        </h2>
+
+        <div class="assignment__list">
+          @for (item of assignments(); track item.caseId) {
+            <article class="case-card">
+              <div class="case-card__top">
+                <span class="case-card__person">{{ item.personName }}</span>
+                <ui-badge [variant]="getPriorityVariant(item.priority)" size="sm">
+                  {{ t('coordinator.priority_' + item.priority) }}
+                </ui-badge>
+              </div>
+
+              <div class="case-card__tags">
+                <span class="case-card__tag">{{ item.topic }}</span>
+                @for (tag of item.tags; track tag) {
+                  <span class="case-card__tag">{{ tag }}</span>
+                }
+                <span class="case-card__tag case-card__tag--time">{{ item.waitTime }}</span>
+              </div>
+
+              <div class="case-card__recommendation">
+                <ui-icon name="CheckCircle" [size]="16" color="var(--ihelp-white)" />
+                <span class="case-card__recommendation-text">
+                  {{ t('coordinator.recommendedConsultant') }}:
+                  {{ item.suggestedConsultantName }}
+                  &mdash;
+                  {{ t('coordinator.specialization') }} {{ item.suggestedConsultantSpecialization }},
+                  {{ item.suggestedConsultantCaseCount }} {{ t('coordinator.casesCount') }}
+                </span>
+              </div>
+
+              <div class="case-card__actions">
+                <ui-button variant="primary" size="sm" (click)="onConfirm(item)">
+                  {{ t('coordinator.confirm') }}
+                </ui-button>
+                <ui-button variant="secondary" size="sm">
+                  {{ t('coordinator.other') }}
+                </ui-button>
+                <button class="case-card__reject" (click)="onReject(item.caseId)">
+                  {{ t('coordinator.reject') }}
+                </button>
+              </div>
+            </article>
+          } @empty {
+            <p class="assignment__empty">{{ t('coordinator.assignmentEmpty') }}</p>
+          }
+        </div>
+      </div>
+
+      <!-- Right column: consultant workload -->
+      <aside class="assignment__workload">
+        <h2 class="assignment__section-title">{{ t('coordinator.consultantWorkload') }}</h2>
+
+        <div class="workload-list">
+          @for (entry of workload(); track entry.consultantId) {
+            <div class="workload-item">
+              <div class="workload-item__header">
+                <span class="workload-item__name">{{ entry.consultantName }}</span>
+                <span class="workload-item__count">{{ entry.activeCases }}/{{ entry.maxCases }}</span>
+              </div>
+              <ui-progress-bar
+                [value]="entry.utilizationPercent"
+                [variant]="getWorkloadVariant(entry.status)"
+              />
             </div>
-            <div class="assignment-card__topic">{{ item.topic }}</div>
-            <div class="assignment-card__suggestion">
-              <ui-icon name="ArrowRight" [size]="16" color="var(--ihelp-text-muted)" />
-              <span class="assignment-card__consultant">{{ item.suggestedConsultantName }}</span>
-            </div>
-            <div class="assignment-card__reason">{{ item.reason }}</div>
-          </div>
-        </ui-card>
-      } @empty {
-        <p class="assignment__empty">{{ t('coordinator.assignmentEmpty') }}</p>
-      }
+          } @empty {
+            <p class="assignment__empty">{{ t('coordinator.workloadEmpty') }}</p>
+          }
+        </div>
+      </aside>
     </div>
     }
   </section>

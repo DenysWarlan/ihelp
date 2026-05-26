@@ -1,0 +1,87 @@
+<ng-container *transloco="let t">
+  <section class="supervisor-cases">
+    <div class="supervisor-cases__header">
+      <h1 class="supervisor-cases__title">{{ t('supervisor.allCasesTitle') }}</h1>
+      <p class="supervisor-cases__subtitle">{{ t('supervisor.allCasesSubtitle') }}</p>
+    </div>
+
+    <div class="supervisor-cases__toolbar">
+      <div class="supervisor-cases__search">
+        <ui-icon name="Search" [size]="16" color="var(--ihelp-text-muted)" />
+        <input
+          type="text"
+          class="supervisor-cases__search-input"
+          [placeholder]="t('supervisor.searchPlaceholder')"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+      <div class="supervisor-cases__filters">
+        <button class="supervisor-cases__filter-btn">{{ t('supervisor.filterConsultant') }}</button>
+        <button class="supervisor-cases__filter-btn">{{ t('supervisor.filterTopic') }}</button>
+        <button class="supervisor-cases__filter-btn">{{ t('supervisor.filterStatus') }}</button>
+        <button class="supervisor-cases__filter-btn">{{ t('supervisor.filterPriority') }}</button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <p class="supervisor-cases__loading">{{ t('common.loading') }}</p>
+    } @else if (filteredCases().length === 0) {
+      <p class="supervisor-cases__empty">{{ t('staffCases.empty') }}</p>
+    } @else {
+      <table class="supervisor-cases__table">
+        <thead>
+          <tr>
+            <th>{{ t('staffCases.colName') }}</th>
+            <th>{{ t('supervisor.colConsultant') }}</th>
+            <th>{{ t('staffCases.colTopic') }}</th>
+            <th>{{ t('staffCases.colStatus') }}</th>
+            <th>{{ t('staffCases.colPriority') }}</th>
+            <th>{{ t('staffCases.colLastActivity') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (caseItem of filteredCases(); track caseItem.id) {
+            <tr class="supervisor-cases__row" (click)="onCaseClick(caseItem.id)">
+              <td class="supervisor-cases__cell-name">{{ caseItem.personName }}</td>
+              <td>{{ caseItem.consultantName }}</td>
+              <td>{{ caseItem.topic }}</td>
+              <td>
+                <ui-badge [variant]="getStatusVariant(caseItem.status)" size="sm">
+                  {{ t('staffCases.status.' + caseItem.status) }}
+                </ui-badge>
+              </td>
+              <td>
+                <ui-badge [variant]="getPriorityVariant(caseItem.priority)" size="sm">
+                  {{ t('staffCases.priority.' + caseItem.priority) }}
+                </ui-badge>
+              </td>
+              <td class="supervisor-cases__cell-date">
+                {{ caseItem.lastMessageAt ? (caseItem.lastMessageAt | date:'mediumDate') : (caseItem.assignedAt | date:'mediumDate') }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    <div class="supervisor-cases__stats">
+      <div class="supervisor-cases__stat-card supervisor-cases__stat-card--green">
+        <span class="supervisor-cases__stat-number">{{ totalCases() }}</span>
+        <span class="supervisor-cases__stat-label">{{ t('supervisor.totalCases') }}</span>
+      </div>
+      <div class="supervisor-cases__stat-card supervisor-cases__stat-card--green">
+        <span class="supervisor-cases__stat-number">{{ crisisCases() }}</span>
+        <span class="supervisor-cases__stat-label">{{ t('supervisor.crisisCases') }}</span>
+      </div>
+      <div class="supervisor-cases__stat-card supervisor-cases__stat-card--pink">
+        <span class="supervisor-cases__stat-number">{{ waitingCases() }}</span>
+        <span class="supervisor-cases__stat-label">{{ t('supervisor.waitingCases') }}</span>
+      </div>
+      <div class="supervisor-cases__stat-card supervisor-cases__stat-card--pink">
+        <span class="supervisor-cases__stat-number">{{ resolvedCases() }}</span>
+        <span class="supervisor-cases__stat-label">{{ t('supervisor.resolvedLabel') }}</span>
+      </div>
+    </div>
+  </section>
+</ng-container>

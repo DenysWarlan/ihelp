@@ -1,0 +1,95 @@
+<ng-container *transloco="let t">
+  <section class="schedule-meeting">
+    <a class="schedule-meeting__back" (click)="goBack()">
+      <ui-icon name="ArrowLeft" [size]="16" />
+      {{ t('staffMeetings.backToCase') }}
+    </a>
+
+    <h1 class="schedule-meeting__title">{{ t('staffMeetings.scheduleTitle') }}</h1>
+
+    <div class="schedule-meeting__person">
+      <div class="schedule-meeting__avatar">
+        <ui-icon name="User" [size]="24" color="var(--ihelp-accent)" />
+      </div>
+      <div class="schedule-meeting__person-info">
+        <span class="schedule-meeting__person-name">{{ personInfo.name }}</span>
+        <span class="schedule-meeting__person-topic">{{ personInfo.topic }}</span>
+      </div>
+    </div>
+
+    <form class="schedule-meeting__form" (submit)="onSubmit()">
+      <div class="schedule-meeting__field">
+        <label class="schedule-meeting__label">{{ t('staffMeetings.dateLabel') }}</label>
+        <input
+          type="date"
+          class="schedule-meeting__input"
+          [ngModel]="formModel().date"
+          (ngModelChange)="updateField('date', $event)"
+          name="date"
+        />
+      </div>
+
+      <div class="schedule-meeting__field">
+        <label class="schedule-meeting__label">{{ t('staffMeetings.timeLabel') }}</label>
+        <input
+          type="time"
+          class="schedule-meeting__input"
+          [ngModel]="formModel().time"
+          (ngModelChange)="updateField('time', $event)"
+          name="time"
+        />
+      </div>
+
+      <div class="schedule-meeting__field">
+        <label class="schedule-meeting__label">{{ t('staffMeetings.durationLabel') }}</label>
+        <select
+          class="schedule-meeting__select"
+          [ngModel]="formModel().duration"
+          (ngModelChange)="updateField('duration', $event)"
+          name="duration"
+        >
+          @for (opt of durationOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="schedule-meeting__field">
+        <label class="schedule-meeting__label">{{ t('staffMeetings.platformLabel') }}</label>
+        <select
+          class="schedule-meeting__select"
+          [ngModel]="formModel().platform"
+          (ngModelChange)="updateField('platform', $event)"
+          name="platform"
+        >
+          @for (opt of platformOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="schedule-meeting__field">
+        <label class="schedule-meeting__label">{{ t('staffMeetings.notesLabel') }}</label>
+        <textarea
+          class="schedule-meeting__textarea"
+          rows="3"
+          [placeholder]="t('staffMeetings.notesPlaceholder')"
+          [ngModel]="formModel().notes"
+          (ngModelChange)="updateField('notes', $event)"
+          name="notes"
+        ></textarea>
+      </div>
+
+      <div class="schedule-meeting__actions">
+        <ui-button variant="primary" type="submit" [loading]="isLoading()">
+          {{ t('staffMeetings.createMeeting') }}
+        </ui-button>
+        <ui-button variant="secondary" (click)="onCancel()">
+          {{ t('staffMeetings.cancel') }}
+        </ui-button>
+      </div>
+    </form>
+
+    <p class="schedule-meeting__note">{{ t('staffMeetings.availabilityNote') }}</p>
+  </section>
+</ng-container>

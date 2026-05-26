@@ -1,18 +1,138 @@
 <ng-container *transloco="let t">
   <section class="settings-page">
-    <h1 class="settings-page__title">{{ t('admin.settings') }}</h1>
-    <div class="settings-page__grid">
-      @for (cat of categories; track cat.key) {
-        <ui-card padding="md" [hoverable]="true">
-          <div class="settings-card">
-            <div class="settings-card__icon">
-              <ui-icon [name]="cat.icon" [size]="24" />
-            </div>
-            <h3 class="settings-card__title">{{ t('admin.settingsCategory_' + cat.key) }}</h3>
-            <p class="settings-card__desc">{{ t('admin.settingsDesc_' + cat.key) }}</p>
+    <h1 class="settings-page__title">{{ t('admin.settingsSystemTitle') }}</h1>
+
+    <div class="settings-section">
+      <h2 class="settings-section__title">{{ t('admin.slaLimits') }}</h2>
+      <div class="settings-section__row">
+        <div class="settings-field">
+          <label class="settings-field__label">{{ t('admin.slaCrisis') }}</label>
+          <div class="settings-field__input-group">
+            <input
+              type="number"
+              class="settings-field__input"
+              [ngModel]="slaLimits().crisis"
+              (ngModelChange)="updateSlaField('crisis', $event)"
+            />
+            <span class="settings-field__unit">{{ t('admin.hoursUnit') }}</span>
           </div>
-        </ui-card>
-      }
+        </div>
+        <div class="settings-field">
+          <label class="settings-field__label">{{ t('admin.slaHigh') }}</label>
+          <div class="settings-field__input-group">
+            <input
+              type="number"
+              class="settings-field__input"
+              [ngModel]="slaLimits().high"
+              (ngModelChange)="updateSlaField('high', $event)"
+            />
+            <span class="settings-field__unit">{{ t('admin.hoursUnit') }}</span>
+          </div>
+        </div>
+        <div class="settings-field">
+          <label class="settings-field__label">{{ t('admin.slaMedium') }}</label>
+          <div class="settings-field__input-group">
+            <input
+              type="number"
+              class="settings-field__input"
+              [ngModel]="slaLimits().medium"
+              (ngModelChange)="updateSlaField('medium', $event)"
+            />
+            <span class="settings-field__unit">{{ t('admin.hoursUnit') }}</span>
+          </div>
+        </div>
+        <div class="settings-field">
+          <label class="settings-field__label">{{ t('admin.slaLow') }}</label>
+          <div class="settings-field__input-group">
+            <input
+              type="number"
+              class="settings-field__input"
+              [ngModel]="slaLimits().low"
+              (ngModelChange)="updateSlaField('low', $event)"
+            />
+            <span class="settings-field__unit">{{ t('admin.hoursUnit') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2 class="settings-section__title">{{ t('admin.pointsSystem') }}</h2>
+      <div class="settings-section__row">
+        <div class="settings-field">
+          <label class="settings-field__label">{{ t('admin.pointsResolved') }}</label>
+          <div class="settings-field__input-group">
+            <input
+              type="number"
+              class="settings-field__input"
+              [ngModel]="points().resolvedCase"
+              (ngModelChange)="updatePointsField('resolvedCase', $event)"
+            />
+          </div>
+        </div>
+        <div class="settings-field">
+          <label class="settings-field__label">{{ t('admin.pointsMeeting') }}</label>
+          <div class="settings-field__input-group">
+            <input
+              type="number"
+              class="settings-field__input"
+              [ngModel]="points().meetingCompleted"
+              (ngModelChange)="updatePointsField('meetingCompleted', $event)"
+            />
+          </div>
+        </div>
+        <div class="settings-field">
+          <label class="settings-field__label">{{ t('admin.pointsReview') }}</label>
+          <div class="settings-field__input-group">
+            <input
+              type="number"
+              class="settings-field__input"
+              [ngModel]="points().positiveReview"
+              (ngModelChange)="updatePointsField('positiveReview', $event)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2 class="settings-section__title">{{ t('admin.crisisKeywords') }}</h2>
+      <div class="settings-section__keywords">
+        <textarea
+          class="settings-keywords__input"
+          rows="3"
+          [ngModel]="crisisKeywords()"
+          (ngModelChange)="crisisKeywords.set($event)"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="settings-page__actions">
+      <ui-button variant="primary" (click)="onSave()">
+        {{ t('admin.save') }}
+      </ui-button>
+    </div>
+
+    <div class="settings-section">
+      <h2 class="settings-section__title">{{ t('admin.dutySchedule') }}</h2>
+      <table class="settings-duty__table">
+        <thead>
+          <tr>
+            <th>{{ t('admin.dutyCoordinator') }}</th>
+            <th>{{ t('admin.dutyTime') }}</th>
+            <th>{{ t('admin.dutyConsultant') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of dutySchedule(); track item.coordinatorName) {
+            <tr>
+              <td>{{ item.coordinatorName }}</td>
+              <td>{{ item.time }}</td>
+              <td>{{ item.consultantName }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   </section>
 </ng-container>

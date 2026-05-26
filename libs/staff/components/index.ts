@@ -15,6 +15,7 @@ export { SlaMonitorComponent } from './sla-monitor/sla-monitor.component';
 export { AssignmentComponent } from './assignment/assignment.component';
 export { WorkloadComponent } from './workload/workload.component';
 export { CrisisComponent } from './crisis/crisis.component';
+export { CrisisHistoryComponent } from './crisis-history/crisis-history.component';
 export { UsersManageComponent } from './users-manage/users-manage.component';
 export { SettingsComponent } from './settings/settings.component';
 export { AuditLogComponent } from './audit-log/audit-log.component';

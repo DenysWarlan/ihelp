@@ -3,8 +3,11 @@ export type {
   CaseListItem,
   CaseDetail,
   CaseNote,
+  StaffCaseMessage,
   StaffMeeting,
   StaffDashboard,
+  ScheduleMeetingRequest,
+  ScheduleMeetingFormModel,
 } from './model/staff.model';
 
 // Services
@@ -39,6 +42,7 @@ export type {
   SlaTimer,
   WorkloadEntry,
   AssignmentSuggestion,
+  AssignmentPriority,
   CrisisAlert,
 } from './model/coordinator.model';
 
@@ -51,8 +55,11 @@ export { CoordinatorStore } from './store/coordinator.store';
 
 // Supervisor Models
 export type {
+  CrisisHistoryItem,
   TeamMember,
   TeamAnalytics,
+  CaseMessage,
+  SupervisorCaseDetail,
 } from './model/supervisor.model';
 
 // Supervisor Services

@@ -26,6 +26,8 @@ interface PersonState {
   profile: PersonProfile | null;
   isLoading: boolean;
   isSaving: boolean;
+  isSettingPassword: boolean;
+  passwordSuccess: boolean;
   error: string | null;
 }
 
@@ -37,6 +39,8 @@ const initialState: PersonState = {
   profile: null,
   isLoading: false,
   isSaving: false,
+  isSettingPassword: false,
+  passwordSuccess: false,
   error: null,
 };
 
@@ -168,6 +172,57 @@ export const PersonStore = signalStore(
                 patchState(store, {
                   isSaving: false,
                   error: 'Failed to update profile',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      enrollInCourse: rxMethod<string>(
+        pipe(
+          tap(() => patchState(store, { isSaving: true, error: null })),
+          switchMap((courseId: string) =>
+            personService.enrollInCourse(courseId).pipe(
+              tap(() => patchState(store, { isSaving: false })),
+              switchMap(() =>
+                personService.getCourses().pipe(
+                  tap((courses: PersonCourse[]) =>
+                    patchState(store, { courses }),
+                  ),
+                  catchError(() => EMPTY),
+                ),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isSaving: false,
+                  error: 'Failed to enroll in course',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      setPassword: rxMethod<{ password: string; currentPassword?: string }>(
+        pipe(
+          tap(() => patchState(store, { isSettingPassword: true, passwordSuccess: false, error: null })),
+          switchMap(({ password, currentPassword }) =>
+            personService.setPassword(password, currentPassword).pipe(
+              tap(() => {
+                const currentProfile = store.profile();
+                patchState(store, {
+                  isSettingPassword: false,
+                  passwordSuccess: true,
+                  profile: currentProfile ? { ...currentProfile, hasPassword: true } : currentProfile,
+                });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  isSettingPassword: false,
+                  error: 'Failed to set password',
                 });
                 return EMPTY;
               }),

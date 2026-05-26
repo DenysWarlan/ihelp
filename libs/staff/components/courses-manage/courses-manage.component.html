@@ -27,23 +27,21 @@
                 {{ t('admin.courseStatus_' + course.status) }}
               </ui-badge>
             </div>
-            <p class="course-card__description">{{ course.description }}</p>
             <div class="course-card__meta">
               <span class="course-card__stat">
-                {{ t('admin.lessonsCount') }}: {{ course.lessonsCount }}
+                {{ course.lessonsCount }} {{ t('admin.lessonsUnit') }} · {{ course.enrollmentsCount }} {{ t('admin.studentsUnit') }}
               </span>
-              <span class="course-card__stat">
-                {{ t('admin.enrollmentsCount') }}: {{ course.enrollmentsCount }}
-              </span>
-              <span class="course-card__date">{{ course.createdAt | date:'shortDate' }}</span>
             </div>
-            @if (course.status !== 'ARCHIVED') {
-              <div class="course-card__actions">
-                <ui-button variant="secondary" size="sm" (click)="onArchiveCourse(course.id)">
-                  {{ t('admin.archiveCourse') }}
-                </ui-button>
-              </div>
-            }
+            <div class="course-card__actions">
+              <ui-button variant="secondary" size="sm">
+                <ui-icon name="Edit" [size]="14" />
+                {{ t('admin.editCourse') }}
+              </ui-button>
+              <ui-button variant="secondary" size="sm">
+                <ui-icon name="Eye" [size]="14" />
+                {{ t('admin.previewCourse') }}
+              </ui-button>
+            </div>
           </div>
         </ui-card>
       } @empty {

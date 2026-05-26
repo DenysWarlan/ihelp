@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { CardComponent, BadgeComponent, IconComponent } from '@org/shared/ui';
+import { BadgeComponent, IconComponent } from '@org/shared/ui';
 import type { BadgeVariant } from '@org/shared/ui';
 import { CoordinatorFacadeService } from '@org/staff/data-access';
 import type { SlaOverview } from '@org/staff/data-access';
@@ -9,7 +9,7 @@ import type { SlaOverview } from '@org/staff/data-access';
 @Component({
   selector: 'app-sla-monitor',
   standalone: true,
-  imports: [TranslocoDirective, CardComponent, BadgeComponent, IconComponent],
+  imports: [TranslocoDirective, BadgeComponent, IconComponent],
   templateUrl: './sla-monitor.component.html',
   styleUrl: './sla-monitor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +48,14 @@ export class SlaMonitorComponent implements OnInit {
       default:
         return 'Info';
     }
+  }
+
+  getProgressPercent(remainingMinutes: number): number {
+    const maxMinutes: number = 480;
+    if (remainingMinutes <= 0) {
+      return 0;
+    }
+    return Math.min(100, Math.round((remainingMinutes / maxMinutes) * 100));
   }
 
   formatRemaining(minutes: number): string {

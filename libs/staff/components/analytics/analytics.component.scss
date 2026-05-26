@@ -27,7 +27,7 @@
   gap: var(--ihelp-space-3);
 }
 
-.stat-card {
+.analytics__stat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -37,148 +37,76 @@
   text-align: center;
 
   &--green {
-    background-color: var(--ihelp-surface, #c8dbbc);
+    background-color: var(--ihelp-stat-green, #c8dbbc);
+  }
+
+  &--pink {
+    background-color: var(--ihelp-stat-pink, #fde8e8);
   }
 }
 
-.stat-card__value {
+.analytics__stat-value {
   font-size: 32px;
   font-weight: 700;
   color: var(--ihelp-text-primary);
   line-height: 1.2;
 }
 
-.stat-card__label {
+.analytics__stat-label {
   font-size: 13px;
   color: var(--ihelp-text-secondary);
   margin-top: var(--ihelp-space-1);
 }
 
-// Charts row
-.analytics__charts {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--ihelp-space-3);
+// Table section
+.analytics__table-section {
+  width: 100%;
 }
 
-.chart-card {
-  padding: var(--ihelp-space-2);
-}
-
-.chart-card__title {
+.analytics__table-title {
   font-family: var(--ihelp-font-heading);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--ihelp-text-primary);
   margin-bottom: var(--ihelp-space-3);
 }
 
-.chart-card__empty {
-  font-size: 13px;
-  color: var(--ihelp-text-muted);
-}
+.analytics__table {
+  width: 100%;
+  border-collapse: collapse;
 
-// Bar chart
-.bar-chart {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ihelp-space-2);
-}
-
-.bar-chart__row {
-  display: flex;
-  align-items: center;
-  gap: var(--ihelp-space-2);
-}
-
-.bar-chart__label {
-  flex: 0 0 160px;
-  font-size: 13px;
-  color: var(--ihelp-text-secondary);
-  text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bar-chart__track {
-  flex: 1;
-  height: 20px;
-  background-color: var(--ihelp-bg-secondary, #f3f4f6);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.bar-chart__fill {
-  height: 100%;
-  border-radius: 6px;
-  transition: width 0.3s ease;
-
-  &--orange {
-    background-color: #f59e0b;
+  th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ihelp-text-secondary);
+    padding: var(--ihelp-space-2) var(--ihelp-space-3);
+    border-bottom: 2px solid var(--ihelp-border, #e5e7eb);
   }
 
-  &--green {
-    background-color: #22c55e;
+  td {
+    font-size: 14px;
+    color: var(--ihelp-text-primary);
+    padding: var(--ihelp-space-2) var(--ihelp-space-3);
+    border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
   }
 
-  &--teal {
-    background-color: #14b8a6;
-  }
-
-  &--purple {
-    background-color: #8b5cf6;
-  }
-
-  &--pink {
-    background-color: #ec4899;
+  tbody tr:hover {
+    background-color: var(--ihelp-bg-secondary, #f9fafb);
   }
 }
 
-.bar-chart__count {
-  flex: 0 0 32px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ihelp-text-primary);
-  text-align: right;
+.analytics__cell-name {
+  font-weight: 500;
 }
 
 // Bottom metrics row
-.analytics__metrics {
+.analytics__bottom-metrics {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--ihelp-space-3);
-}
-
-.metric-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--ihelp-space-4);
-  border-radius: 12px;
-  text-align: center;
-
-  &--green {
-    background-color: #d1fae5;
-  }
-
-  &--red {
-    background-color: #fee2e2;
-  }
-}
-
-.metric-card__value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--ihelp-text-primary);
-  line-height: 1.2;
-}
-
-.metric-card__label {
-  font-size: 13px;
-  color: var(--ihelp-text-secondary);
-  margin-top: var(--ihelp-space-1);
 }
 
 // Responsive
@@ -187,16 +115,15 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .analytics__charts {
+  .analytics__bottom-metrics {
     grid-template-columns: 1fr;
   }
 
-  .analytics__metrics {
-    grid-template-columns: 1fr;
-  }
-
-  .bar-chart__label {
-    flex: 0 0 100px;
-    font-size: 12px;
+  .analytics__table {
+    th,
+    td {
+      padding: var(--ihelp-space-1) var(--ihelp-space-2);
+      font-size: 12px;
+    }
   }
 }

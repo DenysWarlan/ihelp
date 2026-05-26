@@ -34,8 +34,32 @@ export interface JwtPayload {
   readonly sub: string;
   readonly email: string;
   readonly role: string;
+  readonly name?: string;
   readonly iat?: number;
   readonly exp?: number;
+}
+
+export class PersonLoginDto {
+  @ApiProperty({ description: 'Person email address' })
+  @IsEmail()
+  readonly email!: string;
+
+  @ApiProperty({ description: 'Password', minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  readonly password!: string;
+}
+
+export class SetPasswordDto {
+  @ApiProperty({ description: 'New password', minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  readonly password!: string;
+
+  @ApiProperty({ description: 'Current password (required if password already set)', required: false })
+  @IsOptional()
+  @IsString()
+  readonly currentPassword?: string;
 }
 
 export interface RefreshTokenDto {

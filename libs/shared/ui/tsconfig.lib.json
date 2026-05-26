@@ -25,5 +25,10 @@
     "**/*.test.jsx",
     "**/*.spec.jsx",
     "test-setup.ts"
+  ],
+  "references": [
+    {
+      "path": "../data-access/tsconfig.lib.json"
+    }
   ]
 }

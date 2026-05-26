@@ -27,9 +27,15 @@ export class AuthCallbackComponent {
 
       // Decode JWT to get user info
       try {
-        const payload = JSON.parse(win.atob(accessToken.split('.')[1]));
+        const base64Url = accessToken.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const raw = (globalThis as unknown as { atob(s: string): string }).atob(base64);
+        const bytes = Uint8Array.from({ length: raw.length }, (_, i) => raw.charCodeAt(i));
+        const TD = (globalThis as unknown as { TextDecoder: new () => { decode(b: Uint8Array): string } }).TextDecoder;
+        const payload = JSON.parse(new TD().decode(bytes));
         if (payload.email) {
-          win.localStorage.setItem('ihelp_user_name', payload.email.split('@')[0]);
+          win.localStorage.setItem('ihelp_user_email', payload.email);
+          win.localStorage.setItem('ihelp_user_name', payload.name ?? payload.email.split('@')[0]);
         }
         if (payload.role) {
           win.localStorage.setItem('ihelp_user_role', payload.role.toLowerCase());

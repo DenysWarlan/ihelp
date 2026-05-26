@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  PersonLoginRequest,
+  PersonLoginResponse,
   StaffLoginRequest,
   StaffLoginResponse,
   TokenPair,
@@ -15,6 +17,13 @@ export class AuthService {
   staffLogin(request: StaffLoginRequest): Observable<StaffLoginResponse> {
     return this.http.post<StaffLoginResponse>(
       '/api/auth/staff/login',
+      request,
+    );
+  }
+
+  personLogin(request: PersonLoginRequest): Observable<PersonLoginResponse> {
+    return this.http.post<PersonLoginResponse>(
+      '/api/auth/person/login',
       request,
     );
   }

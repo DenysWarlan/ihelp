@@ -6,6 +6,7 @@ import {
   CaseDetail,
   CaseListItem,
   CaseNote,
+  ScheduleMeetingRequest,
   StaffDashboard,
   StaffMeeting,
 } from '../model/staff.model';
@@ -37,11 +38,22 @@ export class StaffService {
     });
   }
 
+  sendMessage(caseId: string, content: string): Observable<void> {
+    return this.http.post<void>(`/api/cases/${caseId}/messages`, { content });
+  }
+
   updateCaseStatus(id: string, status: string): Observable<void> {
     return this.http.patch<void>(`/api/cases/${id}/status`, { status });
   }
 
   getMeetings(): Observable<StaffMeeting[]> {
-    return this.http.get<StaffMeeting[]>('/api/meetings');
+    return this.http.get<StaffMeeting[]>('/api/meetings/my');
+  }
+
+  scheduleMeeting(data: ScheduleMeetingRequest): Observable<StaffMeeting> {
+    return this.http.post<StaffMeeting>(
+      `/api/cases/${data.caseId}/meetings`,
+      data
+    );
   }
 }

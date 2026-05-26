@@ -48,12 +48,17 @@ export class TelegramWebhookController {
     @Headers(TELEGRAM_WEBHOOK_HEADER) headerToken: string | undefined,
     @Body() update: TelegramUpdate,
   ): Promise<{ ok: boolean }> {
+    this.logger.log(`Webhook received — update_id: ${update.update_id}, has_message: ${!!update.message}, has_edited: ${!!update.edited_message}`);
+
     this.validateSecretToken(headerToken);
 
-    this.logger.debug(`Received Telegram update: ${update.update_id}`);
+    if (update.message) {
+      this.logger.log(
+        `Incoming TG message: chat_id=${update.message.chat.id}, from=${update.message.from?.first_name ?? 'unknown'} (${update.message.from?.id}), text="${(update.message.text ?? '').slice(0, 50)}"`,
+      );
+    }
 
     // Process asynchronously — Telegram requires 200 OK within seconds
-    // Use void to fire-and-forget while still catching errors internally
     void this.telegramService.processUpdate(update).catch((error) => {
       this.logger.error(
         `Failed to process Telegram update ${update.update_id}`,

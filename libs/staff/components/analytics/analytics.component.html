@@ -1,85 +1,65 @@
 <ng-container *transloco="let t">
   <section class="analytics">
-    <h1 class="analytics__title">{{ t('supervisor.analyticsTitle') }}</h1>
+    <h1 class="analytics__title">{{ t('supervisor.qualityReportTitle') }}</h1>
 
     @if (isLoading()) {
       <p class="analytics__loading">{{ t('common.loading') }}</p>
     } @else {
       <div class="analytics__stats">
-        <div class="stat-card stat-card--green">
-          <span class="stat-card__value">{{ teamAnalytics()?.totalCasesThisMonth ?? 0 }}</span>
-          <span class="stat-card__label">{{ t('supervisor.totalRequests') }}</span>
+        <div class="analytics__stat-card analytics__stat-card--green">
+          <span class="analytics__stat-value">{{ teamAnalytics()?.avgResolutionDays ?? 0 }} {{ t('supervisor.hours') }}</span>
+          <span class="analytics__stat-label">{{ t('supervisor.avgResponseTime') }}</span>
         </div>
-
-        <div class="stat-card stat-card--green">
-          <span class="stat-card__value">{{ teamAnalytics()?.resolvedCases ?? 0 }}</span>
-          <span class="stat-card__label">{{ t('supervisor.completed') }}</span>
+        <div class="analytics__stat-card analytics__stat-card--green">
+          <span class="analytics__stat-value">{{ teamAnalytics()?.satisfactionScore ?? 0 }}%</span>
+          <span class="analytics__stat-label">{{ t('supervisor.clientSatisfaction') }}</span>
         </div>
-
-        <div class="stat-card stat-card--green">
-          <span class="stat-card__value">{{ activeCasesCount() }}</span>
-          <span class="stat-card__label">{{ t('supervisor.activeCasesLabel') }}</span>
+        <div class="analytics__stat-card analytics__stat-card--pink">
+          <span class="analytics__stat-value">{{ escalationCount() }}</span>
+          <span class="analytics__stat-label">{{ t('supervisor.escalations') }}</span>
         </div>
-
-        <div class="stat-card stat-card--green">
-          <span class="stat-card__value">{{ teamAnalytics()?.avgResolutionDays ?? 0 }} {{ t('supervisor.hours') }}</span>
-          <span class="stat-card__label">{{ t('supervisor.avgResponseTime') }}</span>
+        <div class="analytics__stat-card analytics__stat-card--green">
+          <span class="analytics__stat-value">{{ teamAnalytics()?.resolvedCases ?? 0 }}</span>
+          <span class="analytics__stat-label">{{ t('supervisor.completed') }}</span>
         </div>
       </div>
 
-      <div class="analytics__charts">
-        <ui-card>
-          <div class="chart-card">
-            <h3 class="chart-card__title">{{ t('supervisor.topicBreakdown') }}</h3>
-            <div class="bar-chart">
-              @for (topic of topicData; track topic.label) {
-                <div class="bar-chart__row">
-                  <span class="bar-chart__label">{{ topic.label }}</span>
-                  <div class="bar-chart__track">
-                    <div
-                      class="bar-chart__fill bar-chart__fill--{{ topic.color }}"
-                      [style.width.%]="topic.percent"
-                    ></div>
-                  </div>
-                  <span class="bar-chart__count">{{ topic.count }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        </ui-card>
-
-        <ui-card>
-          <div class="chart-card">
-            <h3 class="chart-card__title">{{ t('supervisor.consultantLoad') }}</h3>
-            <div class="bar-chart">
-              @for (member of (teamAnalytics()?.teamMembers ?? []); track member.id) {
-                <div class="bar-chart__row">
-                  <span class="bar-chart__label">{{ member.name }}</span>
-                  <div class="bar-chart__track">
-                    <div
-                      class="bar-chart__fill bar-chart__fill--orange"
-                      [style.width.%]="getBarWidth(member.activeCases)"
-                    ></div>
-                  </div>
-                  <span class="bar-chart__count">{{ member.activeCases }}</span>
-                </div>
-              } @empty {
-                <p class="chart-card__empty">{{ t('supervisor.teamEmpty') }}</p>
-              }
-            </div>
-          </div>
-        </ui-card>
+      <div class="analytics__table-section">
+        <h2 class="analytics__table-title">{{ t('supervisor.consultantMetrics') }}</h2>
+        <table class="analytics__table">
+          <thead>
+            <tr>
+              <th>{{ t('supervisor.colConsultant') }}</th>
+              <th>{{ t('supervisor.colCaseCount') }}</th>
+              <th>{{ t('supervisor.colAvgResponse') }}</th>
+              <th>{{ t('supervisor.colSatisfaction') }}</th>
+              <th>{{ t('supervisor.colRating') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (member of (teamAnalytics()?.teamMembers ?? []); track member.id) {
+              <tr>
+                <td class="analytics__cell-name">{{ member.name }}</td>
+                <td>{{ member.activeCases }}</td>
+                <td>{{ member.avgResponseHours }} {{ t('supervisor.hours') }}</td>
+                <td>{{ member.resolvedThisMonth }}</td>
+                <td>+{{ getRating(member) }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5">{{ t('supervisor.teamEmpty') }}</td></tr>
+            }
+          </tbody>
+        </table>
       </div>
 
-      <div class="analytics__metrics">
-        <div class="metric-card metric-card--green">
-          <span class="metric-card__value">8%</span>
-          <span class="metric-card__label">{{ t('supervisor.monthGrowth') }}</span>
+      <div class="analytics__bottom-metrics">
+        <div class="analytics__stat-card analytics__stat-card--green">
+          <span class="analytics__stat-value">87%</span>
+          <span class="analytics__stat-label">{{ t('supervisor.recommendationRate') }}</span>
         </div>
-
-        <div class="metric-card metric-card--red">
-          <span class="metric-card__value">5%</span>
-          <span class="metric-card__label">{{ t('supervisor.consultTimeIncrease') }}</span>
+        <div class="analytics__stat-card analytics__stat-card--pink">
+          <span class="analytics__stat-value">8 {{ t('supervisor.minutes') }}</span>
+          <span class="analytics__stat-label">{{ t('supervisor.firstResponseTime') }}</span>
         </div>
       </div>
     }

@@ -31,6 +31,14 @@ export class CoordinatorFacadeService {
     this.store.loadAssignmentSuggestions();
   }
 
+  confirmAssignment(caseId: string, consultantId: string): void {
+    this.store.confirmAssignment({ caseId, consultantId });
+  }
+
+  rejectAssignment(caseId: string): void {
+    this.store.rejectAssignment(caseId);
+  }
+
   loadCrisisAlerts(): void {
     this.store.loadCrisisAlerts();
   }

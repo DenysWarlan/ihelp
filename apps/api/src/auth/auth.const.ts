@@ -6,3 +6,4 @@ export const GOOGLE_STRATEGY = 'google';
 export const JWT_STRATEGY = 'jwt';
 export const COOKIE_REFRESH_TOKEN = 'ihelp_refresh';
 export const TELEGRAM_EMAIL_DOMAIN = 'telegram.user';
+export const BCRYPT_SALT_ROUNDS = 12;

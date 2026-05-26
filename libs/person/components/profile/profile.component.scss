@@ -3,12 +3,25 @@
 }
 
 .profile-page {
+  max-width: 600px;
+  margin: 0 auto;
+
+  &__header {
+    margin-bottom: var(--ihelp-space-6);
+  }
+
   &__title {
     font-family: var(--ihelp-font-heading);
-    font-size: var(--ihelp-text-2xl);
-    font-weight: var(--ihelp-font-bold);
+    font-size: 22px;
+    font-weight: 700;
     color: var(--ihelp-text-primary);
-    margin-bottom: var(--ihelp-space-6);
+    margin: 0 0 4px;
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    color: var(--ihelp-text-muted);
+    margin: 0;
   }
 
   &__loading {
@@ -19,8 +32,7 @@
   &__content {
     display: flex;
     flex-direction: column;
-    gap: var(--ihelp-space-6);
-    max-width: 600px;
+    gap: var(--ihelp-space-5);
   }
 }
 
@@ -44,38 +56,227 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background-color: var(--ihelp-bg-secondary);
+    background-color: #2D5E3A;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
+  &__initials {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
   &__info {
     display: flex;
     flex-direction: column;
-    gap: var(--ihelp-space-1);
+    gap: 2px;
   }
 
   &__name {
-    font-size: var(--ihelp-text-lg);
-    font-weight: var(--ihelp-font-semibold);
+    font-size: 18px;
+    font-weight: 600;
     color: var(--ihelp-text-primary);
+    margin: 0;
   }
 
   &__email {
-    font-size: var(--ihelp-text-sm);
+    font-size: 13px;
     color: var(--ihelp-text-muted);
+    margin: 0;
+  }
+}
+
+.profile-card {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  &__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ihelp-text-primary);
+  }
+
+  &__account {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  &__account-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ihelp-text-primary);
+  }
+
+  &__account-status {
+    flex: 1;
+    font-size: 12px;
+    color: #4A6B52;
+
+    &--unlinked {
+      color: #7A9A80;
+    }
+  }
+
+  &__action-btn {
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+
+    &--muted {
+      background-color: #F5F3EE;
+      color: #4A6B52;
+    }
+
+    &--primary {
+      background-color: #E8F0E4;
+      color: #2D5E3A;
+    }
   }
 }
 
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: var(--ihelp-space-4);
+  gap: 16px;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ihelp-text-muted);
+  }
+
+  &__input {
+    padding: 10px 14px;
+    border: 1px solid #D4DFD0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ihelp-text-primary);
+    background-color: #fff;
+    outline: none;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: #2D5E3A;
+    }
+
+    &--disabled {
+      background-color: #F5F3EE;
+      color: var(--ihelp-text-muted);
+      cursor: not-allowed;
+    }
+  }
+
+  &__select {
+    padding: 10px 14px;
+    border: 1px solid #D4DFD0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ihelp-text-primary);
+    background-color: #fff;
+    outline: none;
+    cursor: pointer;
+
+    &:focus {
+      border-color: #2D5E3A;
+    }
+  }
 
   &__actions {
     display: flex;
     justify-content: flex-end;
     padding-top: var(--ihelp-space-2);
+  }
+
+  &__save-btn {
+    padding: 10px 24px;
+    background-color: #2D5E3A;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__success {
+    font-size: 13px;
+    color: var(--ihelp-success);
+    margin: 0;
+  }
+}
+
+// GDPR action rows
+.gdpr-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: #F5F3EE;
+  border: 1px solid #D4DFD0;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #EDE9E0;
+  }
+
+  &--green {
+    background-color: #E8F0E4;
+    border-color: transparent;
+
+    &:hover {
+      background-color: #DBE8D4;
+    }
+  }
+
+  &__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ihelp-text-primary);
+
+    &--danger {
+      color: #DC3545;
+    }
+  }
+
+  &__desc {
+    font-size: 11px;
+    color: #7A9A80;
   }
 }

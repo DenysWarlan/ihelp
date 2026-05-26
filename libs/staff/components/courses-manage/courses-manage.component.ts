@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -7,6 +6,7 @@ import {
   BadgeComponent,
   ButtonComponent,
   CardComponent,
+  IconComponent,
   InputComponent,
   ModalComponent,
   TextareaComponent,
@@ -19,10 +19,10 @@ import { CourseManageFacade } from '@org/staff/data-access';
   imports: [
     TranslocoDirective,
     FormsModule,
-    DatePipe,
     BadgeComponent,
     ButtonComponent,
     CardComponent,
+    IconComponent,
     InputComponent,
     ModalComponent,
     TextareaComponent,

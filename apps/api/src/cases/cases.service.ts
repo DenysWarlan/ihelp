@@ -26,6 +26,8 @@ import {
 
 /** Prisma select for sourced lesson (manual join since sourceLessonId is not a relation). */
 const CASE_INCLUDE = {
+  person: { select: { name: true } },
+  consultant: { select: { name: true } },
   sourceCourse: { select: { id: true, title: true } },
 } as const;
 
@@ -39,8 +41,48 @@ export class CasesService {
   // Create
   // ---------------------------------------------------------------------------
 
-  async create(dto: CreateCaseDto, actor: JwtPayload): Promise<CaseResponse> {
-    const personId = dto.personId ?? actor.sub;
+  async create(dto: CreateCaseDto, actor?: JwtPayload): Promise<CaseResponse> {
+    let personId = dto.personId ?? actor?.sub;
+
+    // Public intake: find or create the person by contact email
+    if (!personId) {
+      if (!dto.contactValue) {
+        throw new BadRequestException(
+          'contactValue (email) is required for public intake',
+        );
+      }
+
+      const existing = await this.prisma.user.findUnique({
+        where: { email: dto.contactValue },
+        select: { id: true },
+      });
+
+      if (existing) {
+        personId = existing.id;
+      } else {
+        const newUser = await this.prisma.user.create({
+          data: {
+            email: dto.contactValue,
+            name: dto.name ?? dto.contactValue,
+            role: 'PERSON',
+            dataConsentAt: dto.consentData ? new Date() : undefined,
+            sensitiveDataConsentAt: dto.consentSensitive ? new Date() : undefined,
+          },
+        });
+        personId = newUser.id;
+      }
+    }
+
+    // GDPR consent update for existing users
+    if (dto.consentData || dto.consentSensitive) {
+      await this.prisma.user.update({
+        where: { id: personId },
+        data: {
+          ...(dto.consentData ? { dataConsentAt: new Date() } : {}),
+          ...(dto.consentSensitive ? { sensitiveDataConsentAt: new Date() } : {}),
+        },
+      });
+    }
 
     // GDPR check
     const person = await this.prisma.user.findUnique({
@@ -89,8 +131,8 @@ export class CasesService {
         contactMethod: dto.contactMethod,
         contactValue: dto.contactValue,
         topic: dto.topic,
-        description: dto.description,
-        source: dto.source,
+        description: dto.message ?? dto.description,
+        source: dto.source ?? CaseSource.WEBSITE_FORM,
         sourceCourseId: dto.sourceCourseId,
         sourceLessonId: dto.sourceLessonId,
         status: CaseStatus.NEW,
@@ -99,7 +141,7 @@ export class CasesService {
     });
 
     // Audit: case created
-    await this.createAuditEntry(careCase.id, actor.sub, AUDIT_ACTION_CASE_CREATED, {
+    await this.createAuditEntry(careCase.id, personId, AUDIT_ACTION_CASE_CREATED, {
       status: CaseStatus.NEW,
     });
 
@@ -392,8 +434,13 @@ export class CasesService {
       sourceLesson = lesson;
     }
 
+    const person = (careCase as Record<string, unknown>)['person'] as { name: string } | null;
+    const consultant = (careCase as Record<string, unknown>)['consultant'] as { name: string } | null;
+
     return {
       ...(careCase as unknown as CaseResponse),
+      personName: person?.name ?? (careCase['name'] as string | null) ?? null,
+      consultantName: consultant?.name ?? null,
       sourceLesson,
     };
   }

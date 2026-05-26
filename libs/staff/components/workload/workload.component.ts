@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@ang
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
-  CardComponent,
   BadgeComponent,
   IconComponent,
   ProgressBarComponent,
@@ -16,7 +15,6 @@ import type { WorkloadEntry } from '@org/staff/data-access';
   standalone: true,
   imports: [
     TranslocoDirective,
-    CardComponent,
     BadgeComponent,
     IconComponent,
     ProgressBarComponent,

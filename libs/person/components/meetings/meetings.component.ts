@@ -3,7 +3,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
   BadgeComponent,
-  CardComponent,
+  ButtonComponent,
   IconComponent,
 } from '@org/shared/ui';
 import { PersonFacade } from '@org/person/data-access';
@@ -15,7 +15,7 @@ import type { BadgeVariant } from '@org/shared/ui';
   standalone: true,
   imports: [
     TranslocoDirective,
-    CardComponent,
+    ButtonComponent,
     IconComponent,
     BadgeComponent,
   ],

@@ -18,7 +18,20 @@ async function bootstrap() {
   app.useLogger(logger);
 
   // Security headers
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          'script-src': ["'self'", "'unsafe-inline'", 'https://telegram.org'],
+          'frame-src': ["'self'", 'https://oauth.telegram.org'],
+          'connect-src': ["'self'", 'https://telegram.org', 'https://oauth.telegram.org'],
+          'img-src': ["'self'", 'data:', 'https://telegram.org'],
+          'style-src': ["'self'", "'unsafe-inline'", 'https://telegram.org'],
+        },
+      },
+    }),
+  );
 
   // CORS
   app.enableCors({
@@ -28,7 +41,7 @@ async function bootstrap() {
 
   // Global prefix (exclude health for load balancer probes)
   const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix, { exclude: ['health'] });
+  app.setGlobalPrefix(globalPrefix, { exclude: ['health', '/'] });
 
   // Global validation pipe (class-validator)
   app.useGlobalPipes(

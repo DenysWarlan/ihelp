@@ -26,14 +26,14 @@
 
   &__title {
     font-family: var(--ihelp-font-heading);
-    font-size: var(--ihelp-text-2xl);
-    font-weight: var(--ihelp-font-bold);
+    font-size: 22px;
+    font-weight: 700;
     color: var(--ihelp-text-primary);
     margin: 0;
   }
 
   &__subtitle {
-    font-size: var(--ihelp-text-sm);
+    font-size: 14px;
     color: var(--ihelp-text-muted);
     margin: 0;
   }
@@ -41,12 +41,12 @@
   &__avatar {
     display: flex;
     align-items: center;
-    gap: var(--ihelp-space-2);
+    gap: var(--ihelp-space-3);
   }
 
   &__avatar-img {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
   }
@@ -55,18 +55,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background-color: var(--ihelp-accent);
+    background-color: #2D5E3A;
     color: #fff;
-    font-weight: var(--ihelp-font-semibold);
-    font-size: var(--ihelp-text-sm);
+    font-weight: 700;
+    font-size: 14px;
   }
 
   &__avatar-name {
-    font-size: var(--ihelp-text-sm);
-    font-weight: var(--ihelp-font-medium);
+    font-size: 14px;
+    font-weight: 500;
     color: var(--ihelp-text-primary);
   }
 
@@ -74,43 +74,66 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--ihelp-space-4);
-    margin-bottom: var(--ihelp-space-8);
+    margin-bottom: var(--ihelp-space-6);
+  }
+
+  &__green-card {
+    background-color: #C8DBBC;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-3);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  &__green-card-label {
+    font-size: 13px;
+    color: #7A9A80;
+  }
+
+  &__green-btn {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #2D5E3A;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__green-btn-link {
+    text-decoration: none;
   }
 
   &__section {
-    margin-bottom: var(--ihelp-space-8);
+    margin-bottom: var(--ihelp-space-6);
   }
 
   &__section-title {
     font-family: var(--ihelp-font-heading);
-    font-size: var(--ihelp-text-lg);
-    font-weight: var(--ihelp-font-semibold);
+    font-size: 16px;
+    font-weight: 600;
     color: var(--ihelp-text-primary);
-    margin-bottom: var(--ihelp-space-4);
+    margin: 0 0 var(--ihelp-space-4);
   }
 
   &__courses {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ihelp-space-3);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--ihelp-space-4);
   }
 }
 
-// Consultant card
+// Consultant card content
 .consultant-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ihelp-space-4);
-
-  &__title {
-    font-size: var(--ihelp-text-sm);
-    font-weight: var(--ihelp-font-semibold);
-    color: var(--ihelp-text-muted);
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
   &__info {
     display: flex;
     align-items: center;
@@ -124,194 +147,88 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background-color: var(--ihelp-bg-secondary);
+    background-color: #E8F0E4;
     flex-shrink: 0;
   }
 
   &__details {
     display: flex;
     flex-direction: column;
+    gap: 2px;
   }
 
   &__name {
-    font-size: var(--ihelp-text-base);
-    font-weight: var(--ihelp-font-semibold);
+    font-size: 14px;
+    font-weight: 600;
     color: var(--ihelp-text-primary);
   }
 
   &__spec {
-    font-size: var(--ihelp-text-xs);
-    color: var(--ihelp-text-muted);
+    font-size: 12px;
+    color: #7A9A80;
   }
 
   &__empty {
     color: var(--ihelp-text-muted);
+    font-size: 13px;
+    margin: 0;
   }
 }
 
-// Meeting card
+// Meeting card content
 .meeting-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ihelp-space-3);
-
-  &__title {
-    font-size: var(--ihelp-text-sm);
-    font-weight: var(--ihelp-font-semibold);
-    color: var(--ihelp-text-muted);
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
   &__info {
     display: flex;
     align-items: center;
-    gap: var(--ihelp-space-2);
-    font-size: var(--ihelp-text-base);
-    font-weight: var(--ihelp-font-medium);
-    color: var(--ihelp-text-primary);
+    gap: 8px;
   }
 
   &__date {
-    font-size: var(--ihelp-text-base);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ihelp-text-primary);
   }
 
   &__meta {
     display: flex;
     align-items: center;
-    gap: var(--ihelp-space-2);
-    font-size: var(--ihelp-text-sm);
-    color: var(--ihelp-text-muted);
+    gap: 8px;
+    font-size: 13px;
+    color: #4A6B52;
   }
 
   &__empty {
     color: var(--ihelp-text-muted);
-  }
-
-  a {
-    text-decoration: none;
+    font-size: 13px;
+    margin: 0;
   }
 }
 
 // Course card
 .course-card {
+  background-color: #fff;
+  border: 1px solid #D4DFD0;
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
-  align-items: center;
-  gap: var(--ihelp-space-4);
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
 
-  &__info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--ihelp-space-2);
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 
   &__title {
-    font-size: var(--ihelp-text-base);
-    font-weight: var(--ihelp-font-medium);
+    font-size: 14px;
+    font-weight: 600;
     color: var(--ihelp-text-primary);
   }
 
-  &__progress-text {
-    font-size: var(--ihelp-text-xs);
-    color: var(--ihelp-text-muted);
-  }
-
-  ui-progress-bar {
-    width: 100%;
-  }
-}
-
-// Privacy card
-.privacy-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ihelp-space-5);
-
-  &__row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  &__label {
-    display: flex;
-    align-items: center;
-    gap: var(--ihelp-space-2);
-    font-size: var(--ihelp-text-sm);
-    color: var(--ihelp-text-primary);
-  }
-
-  &__value {
-    font-size: var(--ihelp-text-sm);
-    color: var(--ihelp-text-muted);
-  }
-
-  &__accounts {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ihelp-space-3);
-  }
-
-  &__accounts-label {
-    font-size: var(--ihelp-text-sm);
-    font-weight: var(--ihelp-font-medium);
-    color: var(--ihelp-text-primary);
-  }
-
-  &__account-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--ihelp-space-2) 0;
-    border-bottom: 1px solid var(--ihelp-border, rgba(0, 0, 0, 0.08));
-
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-
-  &__account-info {
-    display: flex;
-    align-items: center;
-    gap: var(--ihelp-space-2);
-    font-size: var(--ihelp-text-sm);
-    color: var(--ihelp-text-primary);
-  }
-}
-
-// GDPR card
-.gdpr-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ihelp-space-5);
-
-  &__item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ihelp-space-1);
-  }
-
-  &__link {
-    font-size: var(--ihelp-text-sm);
-    font-weight: var(--ihelp-font-medium);
-    color: var(--ihelp-accent);
-    text-decoration: none;
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: underline;
-    }
-
-    &--danger {
-      color: var(--ihelp-error);
-    }
-  }
-
-  &__desc {
-    font-size: var(--ihelp-text-xs);
-    color: var(--ihelp-text-muted);
+  &__meta {
+    font-size: 12px;
+    color: #7A9A80;
   }
 }
 
@@ -323,6 +240,10 @@
     }
 
     &__cards-row {
+      grid-template-columns: 1fr;
+    }
+
+    &__courses {
       grid-template-columns: 1fr;
     }
   }

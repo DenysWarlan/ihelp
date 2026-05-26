@@ -1,77 +1,170 @@
 <ng-container *transloco="let t">
   <div class="profile-page">
-    <h1 class="profile-page__title">{{ t('personProfile.title') }}</h1>
+    <div class="profile-page__header">
+      <div>
+        <h1 class="profile-page__title">{{ t('personProfile.title') }}</h1>
+        <p class="profile-page__subtitle">{{ t('personProfile.subtitle') }}</p>
+      </div>
+    </div>
 
     @if (facade.isLoading()) {
       <p class="profile-page__loading">{{ t('common.loading') }}</p>
     } @else if (facade.profile(); as profile) {
       <div class="profile-page__content">
-        <ui-card>
-          <div class="profile-header">
-            <div class="profile-header__avatar">
-              @if (profile.avatarUrl) {
-                <img [src]="profile.avatarUrl" [alt]="profile.name" class="profile-header__img" />
-              } @else {
-                <div class="profile-header__placeholder">
-                  <ui-icon name="User" [size]="32" color="var(--ihelp-text-muted)" />
-                </div>
-              }
-            </div>
-            <div class="profile-header__info">
-              <h2 class="profile-header__name">{{ profile.name }}</h2>
-              <p class="profile-header__email">{{ profile.email }}</p>
-            </div>
+        <!-- Avatar + Info -->
+        <div class="profile-header">
+          <div class="profile-header__avatar">
+            @if (profile.avatarUrl) {
+              <img [src]="profile.avatarUrl" [alt]="profile.name" class="profile-header__img" />
+            } @else {
+              <div class="profile-header__placeholder">
+                <span class="profile-header__initials">{{ profile.name?.charAt(0) ?? '' }}</span>
+              </div>
+            }
           </div>
-        </ui-card>
+          <div class="profile-header__info">
+            <h2 class="profile-header__name">{{ profile.name }}</h2>
+            <p class="profile-header__email">{{ profile.email }}</p>
+          </div>
+        </div>
 
-        <ui-card>
+        <!-- Edit Form -->
+        <div class="profile-card">
           <form class="profile-form" (submit)="onSave()">
-            <ui-input
-              [label]="t('personProfile.nameLabel')"
-              [ngModel]="formModel().name"
-              (ngModelChange)="updateField('name', $event)"
-              name="name"
-            />
+            <div class="profile-form__field">
+              <label class="profile-form__label">{{ t('personProfile.nameLabel') }}</label>
+              <input
+                type="text"
+                class="profile-form__input"
+                [ngModel]="formModel().name"
+                (ngModelChange)="updateField('name', $event)"
+                name="name"
+              />
+            </div>
 
-            <ui-input
-              [label]="t('personProfile.emailLabel')"
-              [ngModel]="formModel().email"
-              name="email"
-              type="email"
-              [attr.disabled]="true"
-            />
+            <div class="profile-form__field">
+              <label class="profile-form__label">{{ t('personProfile.emailLabel') }}</label>
+              <input
+                type="email"
+                class="profile-form__input profile-form__input--disabled"
+                [ngModel]="formModel().email"
+                name="email"
+                disabled
+              />
+            </div>
 
-            <ui-select
-              [label]="t('personProfile.timezoneLabel')"
-              [options]="timezoneOptions"
-              [ngModel]="formModel().timezone"
-              (ngModelChange)="updateField('timezone', $event)"
-              name="timezone"
-            />
+            <div class="profile-form__field">
+              <label class="profile-form__label">{{ t('personProfile.timezoneLabel') }}</label>
+              <select
+                class="profile-form__select"
+                [ngModel]="formModel().timezone"
+                (ngModelChange)="updateField('timezone', $event)"
+                name="timezone"
+              >
+                @for (tz of timezoneOptions; track tz.value) {
+                  <option [value]="tz.value">{{ tz.label }}</option>
+                }
+              </select>
+            </div>
 
             <div class="profile-form__actions">
-              <ui-button type="submit" [loading]="facade.isSaving()">
+              <button type="submit" class="profile-form__save-btn" [disabled]="facade.isSaving()">
                 {{ t('personProfile.save') }}
-              </ui-button>
+              </button>
             </div>
           </form>
-        </ui-card>
-      </div>
-    } @else {
-      <div class="profile-page__content">
-        <ui-card>
-          <div class="profile-header">
-            <div class="profile-header__avatar">
-              <div class="profile-header__placeholder">
-                <ui-icon name="User" [size]="32" color="var(--ihelp-text-muted)" />
-              </div>
-            </div>
-            <div class="profile-header__info">
-              <h2 class="profile-header__name">--</h2>
-              <p class="profile-header__email">--</p>
-            </div>
+        </div>
+
+        <!-- Linked Accounts -->
+        <div class="profile-card">
+          <span class="profile-card__title">{{ t('cabinet.linkedAccounts') }}</span>
+          <div class="profile-card__account">
+            <ui-icon name="Globe" [size]="18" color="#2D5E3A" />
+            <span class="profile-card__account-name">Google</span>
+            <span class="profile-card__account-status">{{ profile.email }}</span>
+            <button class="profile-card__action-btn profile-card__action-btn--muted">{{ t('cabinet.settings') }}</button>
           </div>
-        </ui-card>
+          <div class="profile-card__account">
+            <ui-icon name="Globe" [size]="18" color="#2D5E3A" />
+            <span class="profile-card__account-name">Facebook</span>
+            <span class="profile-card__account-status">{{ t('cabinet.linked') }}</span>
+            <button class="profile-card__action-btn profile-card__action-btn--muted">{{ t('cabinet.settings') }}</button>
+          </div>
+          <div class="profile-card__account">
+            <ui-icon name="Send" [size]="18" color="#7A9A80" />
+            <span class="profile-card__account-name">Telegram</span>
+            <span class="profile-card__account-status profile-card__account-status--unlinked">{{ t('cabinet.notLinked') }}</span>
+            <button class="profile-card__action-btn profile-card__action-btn--primary">{{ t('cabinet.link') }}</button>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="profile-card">
+          <span class="profile-card__title">{{ t('personProfile.passwordSection') }}</span>
+          <form class="profile-form" (submit)="onSetPassword()">
+            @if (facade.hasPassword()) {
+              <div class="profile-form__field">
+                <label class="profile-form__label">{{ t('personProfile.currentPassword') }}</label>
+                <input
+                  type="password"
+                  class="profile-form__input"
+                  [ngModel]="facade.passwordModel().currentPassword"
+                  (ngModelChange)="facade.updatePasswordField('currentPassword', $event)"
+                  name="currentPassword"
+                />
+              </div>
+            }
+            <div class="profile-form__field">
+              <label class="profile-form__label">{{ t('personProfile.newPassword') }}</label>
+              <input
+                type="password"
+                class="profile-form__input"
+                [ngModel]="facade.passwordModel().newPassword"
+                (ngModelChange)="facade.updatePasswordField('newPassword', $event)"
+                name="newPassword"
+              />
+            </div>
+            @if (facade.passwordSuccess()) {
+              <p class="profile-form__success">
+                {{ facade.hasPassword() ? t('personProfile.passwordChanged') : t('personProfile.passwordSet') }}
+              </p>
+            }
+            <div class="profile-form__actions">
+              <button type="submit" class="profile-form__save-btn" [disabled]="facade.isSettingPassword()">
+                {{ facade.hasPassword() ? t('personProfile.changePassword') : t('personProfile.setPassword') }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- GDPR Actions -->
+        <div class="profile-card">
+          <span class="profile-card__title">{{ t('cabinet.gdprTitle') }}</span>
+          <a class="gdpr-row gdpr-row--green" href="javascript:void(0)">
+            <ui-icon name="Download" [size]="18" color="#2D5E3A" />
+            <div class="gdpr-row__text">
+              <span class="gdpr-row__label">{{ t('cabinet.exportData') }}</span>
+              <span class="gdpr-row__desc">{{ t('cabinet.exportDataDesc') }}</span>
+            </div>
+            <ui-icon name="ChevronRight" [size]="16" color="#7A9A80" />
+          </a>
+          <a class="gdpr-row" href="javascript:void(0)">
+            <ui-icon name="ShieldOff" [size]="18" color="#F59E0B" />
+            <div class="gdpr-row__text">
+              <span class="gdpr-row__label">{{ t('cabinet.revokeConsent') }}</span>
+              <span class="gdpr-row__desc">{{ t('cabinet.revokeConsentDesc') }}</span>
+            </div>
+            <ui-icon name="ChevronRight" [size]="16" color="#7A9A80" />
+          </a>
+          <a class="gdpr-row" href="javascript:void(0)">
+            <ui-icon name="Trash2" [size]="18" color="#DC3545" />
+            <div class="gdpr-row__text">
+              <span class="gdpr-row__label gdpr-row__label--danger">{{ t('cabinet.deleteAccount') }}</span>
+              <span class="gdpr-row__desc">{{ t('cabinet.deleteAccountDesc') }}</span>
+            </div>
+            <ui-icon name="ChevronRight" [size]="16" color="#7A9A80" />
+          </a>
+        </div>
       </div>
     }
   </div>

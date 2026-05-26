@@ -25,12 +25,19 @@ export interface WorkloadEntry {
   readonly status: 'AVAILABLE' | 'AT_CAPACITY' | 'OVERLOADED';
 }
 
+export type AssignmentPriority = 'HIGH' | 'MEDIUM' | 'LOW';
+
 export interface AssignmentSuggestion {
   readonly caseId: string;
   readonly personName: string;
   readonly topic: string;
+  readonly tags: readonly string[];
+  readonly priority: AssignmentPriority;
+  readonly waitTime: string;
   readonly suggestedConsultantId: string;
   readonly suggestedConsultantName: string;
+  readonly suggestedConsultantSpecialization: string;
+  readonly suggestedConsultantCaseCount: number;
   readonly reason: string;
 }
 

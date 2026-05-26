@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 
+import { ConfigService } from '@nestjs/config';
 import { GOOGLE_STRATEGY } from './auth.const.js';
 import { AuthService } from './auth.service.js';
 import {
@@ -28,15 +29,21 @@ import {
   JwtPayload,
   RefreshTokenDto,
   StaffLoginDto,
+  PersonLoginDto,
+  SetPasswordDto,
 } from './auth.model.js';
 import { Public } from './decorators/public.decorator.js';
+
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Google OAuth
@@ -89,19 +96,90 @@ export class AuthController {
   }
 
   // ---------------------------------------------------------------------------
-  // Telegram Login Widget
+  // Telegram OpenID Connect (standard OAuth2 flow)
   // ---------------------------------------------------------------------------
 
   @Public()
+  @Get('telegram')
+  @ApiOperation({ summary: 'Initiate Telegram OIDC login' })
+  @ApiResponse({ status: 302, description: 'Redirects to Telegram OAuth' })
+  telegramLogin(@Res() res: Response): void {
+    const botId = this.configService.get<string>('TELEGRAM_BOT_TOKEN', '').split(':')[0];
+    const telegramDomain = this.configService.get<string>('TELEGRAM_DOMAIN', '');
+    const redirectUri = `https://${telegramDomain}/api/auth/telegram/callback`;
+
+    const origin = `https://${telegramDomain}`;
+    const url = `https://oauth.telegram.org/auth?bot_id=${botId}&origin=${encodeURIComponent(origin)}&scope=openid+profile&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+    this.logger.log(`Telegram OIDC redirect: botId=${botId}, redirectUri=${redirectUri}`);
+    res.redirect(url);
+  }
+
+  @Public()
   @Get('telegram/callback')
-  @UseGuards(AuthGuard('telegram'))
-  @ApiOperation({ summary: 'Telegram Login Widget callback' })
+  @ApiOperation({ summary: 'Telegram auth callback — validates hash and creates session' })
   @ApiResponse({ status: 302, description: 'Redirects to frontend with tokens' })
   async telegramCallback(
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<void> {
-    await this.handleOAuthCallback(req, res, 'telegram');
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:4333');
+    const botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN', '');
+    const query = req.query as Record<string, string>;
+
+    this.logger.log(`Telegram callback received, query keys: ${Object.keys(query).join(', ')}`);
+
+    const hash = query['hash'];
+    const id = query['id'];
+    if (!hash || !id) {
+      this.logger.warn(`Telegram callback: missing hash or id. Query: ${JSON.stringify(query)}`);
+      res.redirect(`${frontendUrl}/login?error=telegram_no_data`);
+      return;
+    }
+
+    try {
+      // Validate hash: HMAC-SHA-256(SHA256(bot_token), data_check_string)
+      const { createHash, createHmac } = require('crypto');
+      const dataCheckString = Object.keys(query)
+        .filter((key) => key !== 'hash')
+        .sort()
+        .map((key) => `${key}=${query[key]}`)
+        .join('\n');
+
+      const secretKey = createHash('sha256').update(botToken).digest();
+      const computedHash = createHmac('sha256', secretKey)
+        .update(dataCheckString)
+        .digest('hex');
+
+      if (computedHash !== hash) {
+        this.logger.warn('Telegram callback: hash mismatch');
+        res.redirect(`${frontendUrl}/login?error=telegram_invalid_hash`);
+        return;
+      }
+
+      this.logger.log(`Telegram hash valid for id=${id}`);
+
+      const name = [query['first_name'], query['last_name']]
+        .filter(Boolean).join(' ') || query['username'] || '';
+
+      const profile: OAuthProfile = {
+        provider: 'telegram',
+        providerId: id,
+        email: `${query['username'] || id}@telegram.user`,
+        name,
+        avatarUrl: query['photo_url'],
+      };
+
+      const tokens = await this.authService.handleOAuthLogin(profile);
+
+      this.logger.log(`Telegram auth success: ${name} (${id}), redirecting to frontend`);
+      res.redirect(
+        `${frontendUrl}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`,
+      );
+    } catch (err) {
+      this.logger.error(`Telegram auth error: ${(err as Error).message}`, (err as Error).stack);
+      res.redirect(`${frontendUrl}/login?error=telegram_failed`);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -116,6 +194,36 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async staffLogin(@Body() dto: StaffLoginDto) {
     return this.authService.staffLogin(dto.email, dto.password, dto.mfaCode);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Person Email/Password Login
+  // ---------------------------------------------------------------------------
+
+  @Public()
+  @Post('person/login')
+  @ApiOperation({ summary: 'Person email/password login' })
+  @ApiBody({ type: PersonLoginDto })
+  @ApiResponse({ status: 200, description: 'Returns token pair' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  async personLogin(@Body() dto: PersonLoginDto) {
+    return this.authService.personLogin(dto.email, dto.password);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Set Password
+  // ---------------------------------------------------------------------------
+
+  @Post('set-password')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Set or change account password' })
+  @ApiBody({ type: SetPasswordDto })
+  @ApiResponse({ status: 200, description: 'Password updated successfully' })
+  @ApiResponse({ status: 400, description: 'Current password required or invalid' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async setPassword(@Req() req: Request, @Body() dto: SetPasswordDto) {
+    const user = req.user as JwtPayload;
+    return this.authService.setPassword(user.sub, dto.password, dto.currentPassword);
   }
 
   // ---------------------------------------------------------------------------

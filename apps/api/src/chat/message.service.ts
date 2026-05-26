@@ -121,18 +121,19 @@ export class MessageService {
     }
 
     // Find or create the case mapping by channelChatId
-    // For MVP, we look up an existing case by channelChatId in recent messages
-    const caseId = await this.findCaseByChannelChat(
+    const caseMatch = await this.findCaseByChannelChat(
       input.channel,
       input.channelChatId,
     );
 
-    if (!caseId) {
+    if (!caseMatch) {
       this.logger.warn(
-        `No case found for ${input.channel} chat ${input.channelChatId} — message stored without case`,
+        `No case found for ${input.channel} chat ${input.channelChatId} — message dropped`,
       );
       return null;
     }
+
+    const { caseId, userId } = caseMatch;
 
     // Validate attachment sizes
     const validAttachments = input.attachments?.filter((att) => {
@@ -148,7 +149,7 @@ export class MessageService {
     const message = await this.prisma.message.create({
       data: {
         careCaseId: caseId,
-        senderId: '00000000-0000-0000-0000-000000000000', // system/external sender placeholder
+        senderId: userId,
         senderRole: Role.PERSON,
         channel: input.channel,
         channelMsgId: input.channelMsgId,
@@ -594,19 +595,63 @@ export class MessageService {
 
   /**
    * Find a case ID by looking at existing messages from a channel+chat combination.
-   * In MVP, this is a simple lookup — a full mapping table is deferred.
+   * For Telegram: also resolves via ProviderLink (telegram user ID → user → active case).
    */
   private async findCaseByChannelChat(
     channel: MessageChannel,
     channelChatId: string,
-  ): Promise<string | null> {
+  ): Promise<{ caseId: string; userId: string } | null> {
+    // 1. Check existing messages with this channelChatId
     const existingMessage = await this.prisma.message.findFirst({
       where: { channel, channelChatId },
       orderBy: { createdAt: 'desc' },
-      select: { careCaseId: true },
+      select: { careCaseId: true, senderId: true },
     });
 
-    return existingMessage?.careCaseId ?? null;
+    if (existingMessage?.careCaseId) {
+      // Try to get real user ID from the case
+      const careCase = await this.prisma.careCase.findUnique({
+        where: { id: existingMessage.careCaseId },
+        select: { personId: true },
+      });
+      return {
+        caseId: existingMessage.careCaseId,
+        userId: careCase?.personId ?? existingMessage.senderId,
+      };
+    }
+
+    // 2. For Telegram — resolve via ProviderLink
+    if (channel === MessageChannel.TELEGRAM) {
+      const providerLink = await this.prisma.providerLink.findFirst({
+        where: { provider: 'telegram', providerAccountId: channelChatId },
+        select: { userId: true },
+      });
+
+      if (providerLink) {
+        // Find the most recent active case for this person
+        const activeCase = await this.prisma.careCase.findFirst({
+          where: {
+            personId: providerLink.userId,
+            status: { in: ['NEW', 'ASSIGNED', 'IN_PROGRESS', 'MEETING_SCHEDULED', 'ON_HOLD'] },
+          },
+          orderBy: { updatedAt: 'desc' },
+          select: { id: true },
+        });
+
+        if (activeCase) {
+          this.logger.log(
+            `Resolved Telegram chat ${channelChatId} → user ${providerLink.userId} → case ${activeCase.id}`,
+          );
+          return { caseId: activeCase.id, userId: providerLink.userId };
+        }
+
+        this.logger.warn(
+          `Telegram user ${channelChatId} (userId=${providerLink.userId}) has no active case`,
+        );
+      }
+    }
+
+    return null;
   }
 
   // ---------------------------------------------------------------------------

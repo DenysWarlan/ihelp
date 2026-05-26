@@ -44,6 +44,13 @@ export class StaffChatService {
     );
   }
 
+  markAsRead(conversationId: string, messageIds: string[]): Observable<{ count: number }> {
+    return this.http.put<{ count: number }>(
+      `/api/chat/staff/conversations/${conversationId}/read`,
+      { messageIds },
+    );
+  }
+
   sendMessage(
     conversationId: string,
     content: string,

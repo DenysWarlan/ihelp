@@ -3,73 +3,97 @@
     @if (isLoading()) {
       <p class="case-detail__loading">{{ t('common.loading') }}</p>
     } @else if (selectedCase(); as c) {
-      <h1 class="case-detail__title">{{ c.personName }}</h1>
-
-      <ui-card class="case-detail__info" padding="md">
-        <div class="info-grid">
-          <div class="info-row">
-            <span class="info-label">{{ t('staffCaseDetail.topic') }}</span>
-            <span class="info-value">{{ c.topic }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">{{ t('staffCaseDetail.status') }}</span>
+      <div class="case-detail__layout">
+        <!-- Left: Chat -->
+        <div class="case-detail__chat">
+          <div class="case-detail__chat-header">
+            <span class="case-detail__person-name">{{ c.personName }} — {{ c.topic }}</span>
             <ui-badge [variant]="getStatusVariant(c.status)" size="sm">
               {{ t('staffCases.status.' + c.status) }}
             </ui-badge>
           </div>
-          <div class="info-row">
-            <span class="info-label">{{ t('staffCaseDetail.priority') }}</span>
-            <ui-badge [variant]="getPriorityVariant(c.priority)" size="sm">
-              {{ t('staffCases.priority.' + c.priority) }}
-            </ui-badge>
-          </div>
-          <div class="info-row">
-            <span class="info-label">{{ t('staffCaseDetail.email') }}</span>
-            <span class="info-value">{{ c.personEmail }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">{{ t('staffCaseDetail.created') }}</span>
-            <span class="info-value">{{ c.createdAt | date:'mediumDate' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">{{ t('staffCaseDetail.assigned') }}</span>
-            <span class="info-value">{{ c.assignedAt | date:'mediumDate' }}</span>
-          </div>
-        </div>
-      </ui-card>
 
-      @if (c.description) {
-        <ui-card class="case-detail__description" padding="md">
-          <h2 class="section-title">{{ t('staffCaseDetail.description') }}</h2>
-          <p class="description-text">{{ c.description }}</p>
-        </ui-card>
-      }
-
-      <ui-card class="case-detail__notes" padding="md">
-        <h2 class="section-title">{{ t('staffCaseDetail.notes') }}</h2>
-        @if (c.notes.length === 0) {
-          <p class="notes-empty">{{ t('staffCaseDetail.noNotes') }}</p>
-        } @else {
-          <div class="notes-list">
-            @for (note of c.notes; track note.id) {
-              <div class="note" [class.note--internal]="note.isInternal">
-                <div class="note__header">
-                  <span class="note__author">{{ note.authorName }}</span>
-                  @if (note.isInternal) {
-                    <ui-badge variant="neutral" size="sm">
-                      {{ t('staffCaseDetail.internal') }}
-                    </ui-badge>
-                  }
-                  <span class="note__date">{{ note.createdAt | date:'medium' }}</span>
+          <div class="case-detail__messages">
+            @for (msg of c.messages; track msg.id) {
+              <div class="case-detail__message" [class.case-detail__message--staff]="msg.isFromStaff">
+                <div class="case-detail__msg-bubble">
+                  <p class="case-detail__msg-text">{{ msg.content }}</p>
                 </div>
-                <p class="note__content">{{ note.content }}</p>
+                <span class="case-detail__msg-meta">{{ msg.authorName }} · {{ msg.createdAt | date:'short' }}</span>
+              </div>
+            } @empty {
+              <p class="case-detail__no-messages">{{ t('staffCaseDetail.noMessages') }}</p>
+            }
+          </div>
+
+          <form class="case-detail__chat-input" (submit)="onSendMessage()">
+            <input
+              type="text"
+              class="case-detail__input"
+              [placeholder]="t('staffCaseDetail.messagePlaceholder')"
+              [ngModel]="messageInput()"
+              (ngModelChange)="messageInput.set($event)"
+              name="message"
+            />
+            <ui-button type="submit" variant="primary" size="sm" [disabled]="!messageInput().trim()">
+              <ui-icon name="Send" [size]="16" />
+            </ui-button>
+          </form>
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="case-detail__sidebar">
+          <div class="case-detail__details-section">
+            <h3 class="case-detail__section-title">{{ t('staffCaseDetail.detailsTitle') }}</h3>
+            @if (c.consultantName) {
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.consultant') }}</span>
+                <span class="case-detail__detail-value">{{ c.consultantName }}</span>
+              </div>
+            }
+            <div class="case-detail__detail-row">
+              <span class="case-detail__detail-label">{{ t('staffCaseDetail.topic') }}</span>
+              <span class="case-detail__detail-value">{{ c.topic }}</span>
+            </div>
+            <div class="case-detail__detail-row">
+              <span class="case-detail__detail-label">{{ t('staffCaseDetail.status') }}</span>
+              <ui-badge [variant]="getStatusVariant(c.status)" size="sm">{{ t('staffCases.status.' + c.status) }}</ui-badge>
+            </div>
+            <div class="case-detail__detail-row">
+              <span class="case-detail__detail-label">{{ t('staffCaseDetail.priority') }}</span>
+              <ui-badge [variant]="getPriorityVariant(c.priority)" size="sm">{{ t('staffCases.priority.' + c.priority) }}</ui-badge>
+            </div>
+            <div class="case-detail__detail-row">
+              <span class="case-detail__detail-label">{{ t('staffCaseDetail.created') }}</span>
+              <span class="case-detail__detail-value">{{ c.createdAt | date:'mediumDate' }}</span>
+            </div>
+            @if (c.slaDeadline) {
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">SLA</span>
+                <ui-badge variant="warning" size="sm">{{ c.slaDeadline | date:'short' }}</ui-badge>
               </div>
             }
           </div>
-        }
-      </ui-card>
+
+          <div class="case-detail__notes-section">
+            <h3 class="case-detail__section-title">{{ t('staffCaseDetail.privateNotes') }}</h3>
+            @for (note of c.notes; track note.id) {
+              <div class="case-detail__note">
+                <p class="case-detail__note-text">{{ note.content }}</p>
+                <span class="case-detail__note-meta">{{ note.authorName }} · {{ note.createdAt | date:'short' }}</span>
+              </div>
+            } @empty {
+              <p class="case-detail__no-notes">{{ t('staffCaseDetail.noNotes') }}</p>
+            }
+          </div>
+
+          <ui-button variant="primary" (click)="onScheduleMeeting()">
+            <ui-icon name="Calendar" [size]="16" />
+            {{ t('staffCaseDetail.scheduleMeeting') }}
+          </ui-button>
+        </div>
+      </div>
     } @else {
-      <h1 class="case-detail__title">{{ t('staffCaseDetail.topic') }}</h1>
       <p class="case-detail__empty">{{ t('staffCases.empty') }}</p>
     }
   </section>

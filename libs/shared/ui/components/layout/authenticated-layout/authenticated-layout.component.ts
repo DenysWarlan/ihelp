@@ -67,6 +67,9 @@ export class AuthenticatedLayoutComponent implements OnInit {
     this.socketService.connect();
 
     this.socketService.notify$.subscribe((notification) => {
+      // Skip notification if staff chat page is open with this case
+      if (this.router.url.includes('/staff/chat') && this.router.url.includes(notification.caseId)) return;
+
       // Increment unread badge
       this.navBadgeService.setChatUnreadCount(
         this.navBadgeService.chatUnreadCount() + 1,

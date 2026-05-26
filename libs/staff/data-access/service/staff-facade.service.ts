@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import {
   CaseDetail,
   CaseListItem,
+  ScheduleMeetingRequest,
   StaffDashboard,
   StaffMeeting,
 } from '../model/staff.model';
@@ -35,6 +36,18 @@ export class StaffFacade {
 
   loadMeetings(): void {
     this.store.loadMeetings();
+  }
+
+  sendCaseMessage(caseId: string, content: string): void {
+    this.store.sendCaseMessage({ caseId, content });
+  }
+
+  addCaseNote(caseId: string, content: string, isInternal: boolean): void {
+    this.store.addCaseNote({ caseId, content, isInternal });
+  }
+
+  scheduleMeeting(data: ScheduleMeetingRequest): void {
+    this.store.scheduleMeeting(data);
   }
 
   navigateToCase(id: string): void {

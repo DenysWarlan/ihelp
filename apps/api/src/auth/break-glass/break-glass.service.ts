@@ -132,6 +132,7 @@ export class BreakGlassService implements OnModuleInit {
       sub: user.id,
       email: user.email,
       role: user.role,
+      name: user.name ?? undefined,
     };
 
     const accessToken = this.jwt.sign(payload, {

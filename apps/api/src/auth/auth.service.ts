@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +18,7 @@ import {
   REFRESH_TOKEN_DAYS,
   CRISIS_SESSION_HOURS,
   TELEGRAM_EMAIL_DOMAIN,
+  BCRYPT_SALT_ROUNDS,
 } from './auth.const.js';
 import {
   OAuthProfile,
@@ -43,38 +46,114 @@ export class AuthService {
     // For Telegram users without email, generate a synthetic one
     const email = profile.email || `${profile.providerId}@${TELEGRAM_EMAIL_DOMAIN}`;
 
-    // Atomic upsert: handles race conditions when two requests arrive simultaneously
-    const user = await this.prisma.user.upsert({
-      where: { email },
-      update: {
-        avatarUrl: profile.avatarUrl ?? undefined,
-      },
-      create: {
-        email,
-        name: profile.name,
-        avatarUrl: profile.avatarUrl,
-      },
-    });
-
-    this.logger.log(`User ${user.id} authenticated via ${profile.provider}`);
-
-    // Upsert ProviderLink: auto-link provider on login
-    await this.prisma.providerLink.upsert({
+    // Check if this provider is already linked to a user
+    const existingLink = await this.prisma.providerLink.findUnique({
       where: {
         provider_providerAccountId: {
           provider: profile.provider,
           providerAccountId: profile.providerId,
         },
       },
-      update: {},
-      create: {
-        userId: user.id,
-        provider: profile.provider,
-        providerAccountId: profile.providerId,
+      include: { user: true },
+    });
+
+    let user: { id: string; email: string; role: string; name: string | null };
+
+    if (existingLink) {
+      // Already linked — use the existing user
+      user = existingLink.user;
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { avatarUrl: profile.avatarUrl ?? undefined },
+      });
+    } else if (profile.provider === 'telegram') {
+      // Telegram first login — try to match by contactValue in CareCase
+      const username = email.replace(/@telegram\.user$/, '');
+      const matchedCase = await this.findCaseByTelegramUsername(username);
+
+      if (matchedCase) {
+        // Found existing user who left their Telegram username in a care case
+        user = matchedCase.person;
+        this.logger.log(
+          `Telegram user @${username} matched to existing user ${user.id} via CareCase ${matchedCase.id}`,
+        );
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { avatarUrl: profile.avatarUrl ?? undefined },
+        });
+      } else {
+        // No match — create new user
+        user = await this.prisma.user.upsert({
+          where: { email },
+          update: { avatarUrl: profile.avatarUrl ?? undefined },
+          create: { email, name: profile.name, avatarUrl: profile.avatarUrl },
+        });
+      }
+
+      // Create provider link
+      await this.prisma.providerLink.create({
+        data: {
+          userId: user.id,
+          provider: profile.provider,
+          providerAccountId: profile.providerId,
+        },
+      });
+    } else {
+      // Non-Telegram OAuth (Google, Facebook)
+      user = await this.prisma.user.upsert({
+        where: { email },
+        update: { avatarUrl: profile.avatarUrl ?? undefined },
+        create: { email, name: profile.name, avatarUrl: profile.avatarUrl },
+      });
+
+      await this.prisma.providerLink.upsert({
+        where: {
+          provider_providerAccountId: {
+            provider: profile.provider,
+            providerAccountId: profile.providerId,
+          },
+        },
+        update: {},
+        create: {
+          userId: user.id,
+          provider: profile.provider,
+          providerAccountId: profile.providerId,
+        },
+      });
+    }
+
+    this.logger.log(`User ${user.id} authenticated via ${profile.provider}`);
+    return this.createTokenPair(user.id, user.email, user.role, undefined, user.name ?? undefined);
+  }
+
+  /**
+   * Find a CareCase where the person left their Telegram username as contact.
+   * Matches contactMethod='telegram' and contactValue containing the username.
+   */
+  private async findCaseByTelegramUsername(username: string) {
+    if (!username || username === 'undefined') return null;
+
+    // Normalize: strip leading @ if present
+    const normalized = username.replace(/^@/, '').toLowerCase();
+    if (!normalized) return null;
+
+    // Search for cases where contactValue matches the Telegram username
+    const careCase = await this.prisma.careCase.findFirst({
+      where: {
+        contactMethod: { equals: 'telegram', mode: 'insensitive' },
+        contactValue: {
+          contains: normalized,
+          mode: 'insensitive',
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        person: { select: { id: true, email: true, role: true, name: true } },
       },
     });
 
-    return this.createTokenPair(user.id, user.email, user.role);
+    return careCase;
   }
 
   // ---------------------------------------------------------------------------
@@ -182,6 +261,7 @@ export class AuthService {
           sub: session.user.id,
           email: session.user.email,
           role: session.user.role,
+          name: session.user.name ?? undefined,
         };
         return {
           accessToken: this.jwt.sign(payload, { expiresIn: JWT_ACCESS_EXPIRY }),
@@ -202,6 +282,7 @@ export class AuthService {
       session.user.email,
       session.user.role,
       session.tokenFamily ?? undefined,
+      session.user.name ?? undefined,
     );
   }
 
@@ -273,7 +354,70 @@ export class AuthService {
     }
 
     this.logger.log(`Staff user ${user.id} authenticated via password`);
-    return this.createTokenPair(user.id, user.email, user.role);
+    return this.createTokenPair(user.id, user.email, user.role, undefined, user.name ?? undefined);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Person Email/Password Login
+  // ---------------------------------------------------------------------------
+
+  async personLogin(email: string, password: string): Promise<TokenPair> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user || !user.passwordHash || !user.isActive) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (user.role !== 'PERSON') {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    this.logger.log(`Person user ${user.id} authenticated via password`);
+    return this.createTokenPair(user.id, user.email, user.role, undefined, user.name ?? undefined);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Set Password
+  // ---------------------------------------------------------------------------
+
+  async setPassword(
+    userId: string,
+    newPassword: string,
+    currentPassword?: string,
+  ): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.passwordHash) {
+      if (!currentPassword) {
+        throw new BadRequestException(
+          'Current password is required to change an existing password',
+        );
+      }
+
+      const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!isValid) {
+        throw new BadRequestException('Current password is incorrect');
+      }
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    this.logger.log(`User ${userId} password updated`);
+    return { message: 'Password updated successfully' };
   }
 
   // ---------------------------------------------------------------------------
@@ -291,10 +435,11 @@ export class AuthService {
     email: string,
     role: string,
     tokenFamily?: string,
+    name?: string,
   ): Promise<TokenPair> {
     const family = tokenFamily ?? uuidv4();
 
-    const payload: JwtPayload = { sub: userId, email, role };
+    const payload: JwtPayload = { sub: userId, email, role, name };
 
     const accessToken = this.jwt.sign(payload, { expiresIn: JWT_ACCESS_EXPIRY });
     const refreshToken = this.jwt.sign(payload, { expiresIn: JWT_REFRESH_EXPIRY });

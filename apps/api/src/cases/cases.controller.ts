@@ -21,6 +21,7 @@ import {
 import { Request } from 'express';
 
 import { JwtPayload } from '../auth/auth.model.js';
+import { Public } from '../auth/decorators/public.decorator.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { ASSIGN_ROLES } from './cases.const.js';
 import {
@@ -38,6 +39,7 @@ export class CasesController {
   constructor(private readonly casesService: CasesService) {}
 
   @Post()
+  @Public()
   @ApiOperation({ summary: 'Create a care case from intake form' })
   @ApiResponse({ status: 201, description: 'Case created' })
   @ApiResponse({ status: 400, description: 'Validation or GDPR consent error' })
@@ -46,7 +48,7 @@ export class CasesController {
     @Body() dto: CreateCaseDto,
     @Req() req: Request,
   ): Promise<CaseResponse> {
-    const actor = req.user as JwtPayload;
+    const actor = (req.user as JwtPayload) ?? undefined;
     return this.casesService.create(dto, actor);
   }
 

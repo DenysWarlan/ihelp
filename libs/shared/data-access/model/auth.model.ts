@@ -28,3 +28,10 @@ export interface JwtPayload {
   readonly email: string;
   readonly role: string;
 }
+
+export interface PersonLoginRequest {
+  readonly email: string;
+  readonly password: string;
+}
+
+export type PersonLoginResponse = TokenPair;

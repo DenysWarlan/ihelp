@@ -58,7 +58,7 @@
           </div>
           <div class="courses-section__grid courses-section__grid--recommended">
             @for (course of recommendedCourses(); track course.id) {
-              <div class="recommended-card" (click)="facade.navigateToCourse(course.id)">
+              <div class="recommended-card">
                 <div class="recommended-card__icon">
                   <ui-icon name="BookOpen" [size]="24" color="var(--ihelp-accent)" />
                 </div>
@@ -69,7 +69,7 @@
                   </p>
                 </div>
                 <div class="recommended-card__action">
-                  <ui-button variant="secondary" size="sm">{{ t('courses.start') }}</ui-button>
+                  <ui-button variant="secondary" size="sm" (click)="facade.enrollInCourse(course.id)">{{ t('courses.start') }}</ui-button>
                 </div>
               </div>
             }

@@ -1,31 +1,41 @@
 <ng-container *transloco="let t">
   <section class="workload">
-    <h1 class="workload__title">{{ t('coordinator.workloadTitle') }}</h1>
+    <div class="workload__header">
+      <h1 class="workload__title">{{ t('coordinator.workloadPageTitle') }}</h1>
+      <p class="workload__subtitle">{{ t('coordinator.workloadSubtitle') }}</p>
+    </div>
 
     @if (isLoading()) {
       <p class="workload__loading">{{ t('common.loading') }}</p>
     } @else {
-    <div class="workload__grid">
+    <div class="workload__list">
       @for (entry of workload(); track entry.consultantId) {
-        <ui-card padding="md" [hoverable]="true">
-          <div class="workload-card">
-            <div class="workload-card__header">
-              <ui-icon name="User" [size]="20" color="var(--ihelp-accent)" />
-              <span class="workload-card__name">{{ entry.consultantName }}</span>
-              <ui-badge [variant]="getStatusVariant(entry.status)" size="sm">
-                {{ t('coordinator.workloadStatus_' + entry.status) }}
-              </ui-badge>
+        <div class="workload-row">
+          <div class="workload-row__info">
+            <ui-icon name="User" [size]="24" color="var(--ihelp-accent)" />
+            <div class="workload-row__details">
+              <span class="workload-row__name">{{ entry.consultantName }}</span>
+              <span class="workload-row__cases">
+                {{ entry.activeCases }} / {{ entry.maxCases }} {{ t('coordinator.workloadCasesOf') }}
+              </span>
             </div>
-            <div class="workload-card__cases">
-              {{ entry.activeCases }} / {{ entry.maxCases }} {{ t('coordinator.workloadCases') }}
-            </div>
+          </div>
+
+          <div class="workload-row__bar">
             <ui-progress-bar
               [value]="entry.utilizationPercent"
-              [showLabel]="true"
+              [showLabel]="false"
               [variant]="getProgressVariant(entry.status)"
             />
           </div>
-        </ui-card>
+
+          <div class="workload-row__status">
+            <ui-badge [variant]="getStatusVariant(entry.status)" size="sm">
+              {{ t('coordinator.workloadStatus_' + entry.status) }}
+            </ui-badge>
+            <span class="workload-row__percent">{{ entry.utilizationPercent }}%</span>
+          </div>
+        </div>
       } @empty {
         <p class="workload__empty">{{ t('coordinator.workloadEmpty') }}</p>
       }

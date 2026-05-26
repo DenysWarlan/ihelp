@@ -47,6 +47,20 @@ export const staffRoutes: Routes = [
           import('./admin/admin.component').then((m) => m.AdminComponent),
       },
       {
+        path: 'supervisor/cases',
+        loadComponent: () =>
+          import('./supervisor-cases/supervisor-cases.component').then(
+            (m) => m.SupervisorCasesComponent,
+          ),
+      },
+      {
+        path: 'supervisor/cases/:id',
+        loadComponent: () =>
+          import('./supervisor-case-detail/supervisor-case-detail.component').then(
+            (m) => m.SupervisorCaseDetailComponent,
+          ),
+      },
+      {
         path: 'cases',
         loadComponent: () =>
           import('./cases-list/cases-list.component').then(
@@ -72,6 +86,13 @@ export const staffRoutes: Routes = [
         loadComponent: () =>
           import('./meetings/meetings.component').then(
             (m) => m.MeetingsComponent,
+          ),
+      },
+      {
+        path: 'meetings/schedule/:caseId',
+        loadComponent: () =>
+          import('./schedule-meeting/schedule-meeting.component').then(
+            (m) => m.ScheduleMeetingComponent,
           ),
       },
       {
@@ -121,6 +142,13 @@ export const staffRoutes: Routes = [
         loadComponent: () =>
           import('./crisis/crisis.component').then(
             (m) => m.CrisisComponent,
+          ),
+      },
+      {
+        path: 'supervisor/crisis',
+        loadComponent: () =>
+          import('./crisis-history/crisis-history.component').then(
+            (m) => m.CrisisHistoryComponent,
           ),
       },
       {

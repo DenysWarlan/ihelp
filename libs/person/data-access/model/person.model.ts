@@ -4,6 +4,8 @@ export interface PersonDashboard {
   readonly courseProgress: number;
   readonly unreadMessages: number;
   readonly recentActivity: PersonActivity[];
+  readonly consultantName: string | null;
+  readonly consultantSpecialty: string | null;
 }
 
 export interface PersonActivity {
@@ -61,4 +63,10 @@ export interface PersonProfile {
   readonly email: string;
   readonly avatarUrl: string | null;
   readonly timezone: string;
+  readonly hasPassword: boolean;
+}
+
+export interface SetPasswordRequest {
+  readonly password: string;
+  readonly currentPassword?: string;
 }

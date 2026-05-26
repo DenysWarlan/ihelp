@@ -1,6 +1,9 @@
 <ng-container *transloco="let t">
   <div class="meetings-page">
-    <h1 class="meetings-page__title">{{ t('personMeetings.title') }}</h1>
+    <div class="meetings-page__header">
+      <h1 class="meetings-page__title">{{ t('personMeetings.title') }}</h1>
+      <p class="meetings-page__subtitle">{{ t('personMeetings.subtitle') }}</p>
+    </div>
 
     @if (facade.isLoading()) {
       <p class="meetings-page__loading">{{ t('common.loading') }}</p>
@@ -12,31 +15,29 @@
     } @else {
       <div class="meetings-page__list">
         @for (meeting of facade.meetings(); track meeting.id) {
-          <ui-card>
-            <div class="meeting-card">
-              <div class="meeting-card__info">
-                <h3 class="meeting-card__title">{{ meeting.title }}</h3>
-                <div class="meeting-card__meta">
-                  <ui-icon name="User" [size]="14" color="var(--ihelp-text-muted)" />
-                  <span>{{ meeting.consultantName }}</span>
-                </div>
-                <div class="meeting-card__meta">
-                  <ui-icon name="Clock" [size]="14" color="var(--ihelp-text-muted)" />
-                  <span>{{ meeting.scheduledAt }} · {{ meeting.durationMinutes }} {{ t('personMeetings.minutes') }}</span>
-                </div>
-              </div>
-              <div class="meeting-card__actions">
-                <ui-badge [variant]="getStatusVariant(meeting.status)">
-                  {{ t('personMeetings.status.' + meeting.status) }}
-                </ui-badge>
-                @if (meeting.meetingUrl && meeting.status === 'SCHEDULED') {
-                  <a [href]="meeting.meetingUrl" target="_blank" class="meeting-card__join">
-                    {{ t('personMeetings.join') }}
-                  </a>
-                }
-              </div>
+          <div class="meeting-entry">
+            <div class="meeting-entry__left">
+              <span class="meeting-entry__title">{{ meeting.title }}</span>
+              <ui-badge [variant]="getStatusVariant(meeting.status)" size="sm">
+                {{ t('personMeetings.status.' + meeting.status) }}
+              </ui-badge>
             </div>
-          </ui-card>
+            <div class="meeting-entry__right">
+              <div class="meeting-entry__consultant">
+                <ui-icon name="User" [size]="14" color="var(--ihelp-text-muted)" />
+                <span>{{ meeting.consultantName }}</span>
+              </div>
+              <div class="meeting-entry__time">
+                <ui-icon name="Clock" [size]="14" color="var(--ihelp-text-muted)" />
+                <span>{{ meeting.scheduledAt }} · {{ meeting.durationMinutes }} {{ t('personMeetings.minutes') }}</span>
+              </div>
+              @if (meeting.meetingUrl && meeting.status === 'SCHEDULED') {
+                <a [href]="meeting.meetingUrl" target="_blank" rel="noopener noreferrer">
+                  <ui-button variant="primary" size="sm">{{ t('personMeetings.join') }}</ui-button>
+                </a>
+              }
+            </div>
+          </div>
         }
       </div>
     }

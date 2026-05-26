@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { CardComponent, BadgeComponent, IconComponent } from '@org/shared/ui';
+import { BadgeComponent, IconComponent } from '@org/shared/ui';
 import { SupervisorFacadeService } from '@org/staff/data-access';
 import type { TeamMember } from '@org/staff/data-access';
 
 @Component({
   selector: 'app-team',
   standalone: true,
-  imports: [TranslocoDirective, CardComponent, BadgeComponent, IconComponent],
+  imports: [TranslocoDirective, BadgeComponent, IconComponent],
   templateUrl: './team.component.html',
   styleUrl: './team.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,138 @@
+:host { display: block; }
+
+$b: sv-case-detail;
+
+.#{$b} { height: 100%; }
+
+.#{$b}__loading { font-size: 14px; color: var(--ihelp-text-muted); padding: var(--ihelp-space-4); }
+
+.#{$b}__layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--ihelp-space-4);
+  height: calc(100vh - 80px);
+  min-height: 500px;
+}
+
+.#{$b}__chat {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ihelp-border);
+  border-radius: 12px;
+  background: var(--ihelp-bg-primary);
+  overflow: hidden;
+}
+
+.#{$b}__chat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+  padding: var(--ihelp-space-3) var(--ihelp-space-4);
+  border-bottom: 1px solid var(--ihelp-border);
+}
+
+.#{$b}__person-name {
+  font-family: var(--ihelp-font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+}
+
+.#{$b}__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ihelp-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.#{$b}__message { display: flex; flex-direction: column; max-width: 75%; }
+
+.#{$b}__message--person {
+  align-self: flex-start;
+  .#{$b}__msg-bubble { background: var(--ihelp-bg-secondary); border-radius: 12px 12px 12px 4px; }
+}
+
+.#{$b}__message--consultant,
+.#{$b}__message--supervisor {
+  align-self: flex-end;
+  .#{$b}__msg-bubble { border-radius: 12px 12px 4px 12px; }
+  .#{$b}__msg-meta { text-align: right; }
+}
+
+.#{$b}__message--consultant .#{$b}__msg-bubble { background: var(--ihelp-accent-light, #c8dbbc); }
+.#{$b}__message--supervisor .#{$b}__msg-bubble { background: var(--ihelp-brand-light, #dbeafe); }
+
+.#{$b}__msg-bubble { padding: var(--ihelp-space-2) var(--ihelp-space-3); }
+.#{$b}__msg-text { font-size: 14px; line-height: 1.5; color: var(--ihelp-text-primary); margin: 0; word-wrap: break-word; }
+.#{$b}__msg-meta { font-size: 11px; color: var(--ihelp-text-muted); margin-top: 4px; padding: 0 var(--ihelp-space-1); }
+.#{$b}__no-messages { font-size: 14px; color: var(--ihelp-text-muted); text-align: center; margin: auto 0; }
+
+.#{$b}__chat-footer {
+  padding: var(--ihelp-space-3) var(--ihelp-space-4);
+  border-top: 1px solid var(--ihelp-border);
+  text-align: center;
+}
+
+.#{$b}__readonly-note { font-size: 13px; color: var(--ihelp-text-muted); font-style: italic; }
+
+.#{$b}__sidebar { display: flex; flex-direction: column; gap: var(--ihelp-space-4); overflow-y: auto; }
+
+.#{$b}__details-section,
+.#{$b}__notes-section,
+.#{$b}__comment-section {
+  border: 1px solid var(--ihelp-border);
+  border-radius: 12px;
+  padding: var(--ihelp-space-4);
+  background: var(--ihelp-bg-primary);
+}
+
+.#{$b}__section-title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+  margin: 0 0 var(--ihelp-space-3);
+}
+
+.#{$b}__detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ihelp-space-1) 0;
+  & + & { border-top: 1px solid var(--ihelp-border-light, #f3f4f6); }
+}
+
+.#{$b}__detail-label { font-size: 13px; color: var(--ihelp-text-muted); }
+.#{$b}__detail-value { font-size: 13px; font-weight: 500; color: var(--ihelp-text-primary); }
+
+.#{$b}__note {
+  padding: var(--ihelp-space-2) 0;
+  & + & { border-top: 1px solid var(--ihelp-border-light, #f3f4f6); }
+}
+
+.#{$b}__note-text { font-size: 13px; color: var(--ihelp-text-secondary); line-height: 1.5; margin: 0; }
+.#{$b}__note-meta { font-size: 11px; color: var(--ihelp-text-muted); margin-top: 4px; display: block; }
+.#{$b}__no-notes { font-size: 13px; color: var(--ihelp-text-muted); }
+
+.#{$b}__comment-input {
+  width: 100%;
+  padding: var(--ihelp-space-2) var(--ihelp-space-3);
+  border: 1px solid var(--ihelp-border-input);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ihelp-text-primary);
+  background: var(--ihelp-bg-primary);
+  resize: vertical;
+  margin-bottom: var(--ihelp-space-2);
+  box-sizing: border-box;
+  &:focus { outline: none; border-color: var(--ihelp-brand); }
+  &::placeholder { color: var(--ihelp-text-muted); }
+}
+
+@media (max-width: 768px) {
+  .#{$b}__layout { grid-template-columns: 1fr; height: auto; }
+  .#{$b}__chat { min-height: 400px; }
+}

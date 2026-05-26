@@ -11,6 +11,8 @@ import { EMPTY, pipe, switchMap, tap, catchError } from 'rxjs';
 import {
   CaseDetail,
   CaseListItem,
+  CaseNote,
+  ScheduleMeetingRequest,
   StaffDashboard,
   StaffMeeting,
 } from '../model/staff.model';
@@ -110,6 +112,44 @@ export const StaffStore = signalStore(
         )
       ),
 
+      sendCaseMessage: rxMethod<{ caseId: string; content: string }>(
+        pipe(
+          switchMap(({ caseId, content }) =>
+            staffService.sendMessage(caseId, content).pipe(
+              switchMap(() => staffService.getCaseDetail(caseId)),
+              tap((caseDetail: CaseDetail) =>
+                patchState(store, { selectedCase: caseDetail })
+              ),
+              catchError(() => {
+                patchState(store, { error: 'Failed to send message' });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
+      addCaseNote: rxMethod<{ caseId: string; content: string; isInternal: boolean }>(
+        pipe(
+          switchMap(({ caseId, content, isInternal }) =>
+            staffService.addNote(caseId, content, isInternal).pipe(
+              tap((note: CaseNote) => {
+                const current: CaseDetail | null = store.selectedCase();
+                if (current) {
+                  patchState(store, {
+                    selectedCase: { ...current, notes: [...current.notes, note] },
+                  });
+                }
+              }),
+              catchError(() => {
+                patchState(store, { error: 'Failed to add note' });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
       loadMeetings: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { isLoading: true, error: null })),
@@ -122,6 +162,29 @@ export const StaffStore = signalStore(
                 patchState(store, {
                   isLoading: false,
                   error: 'Failed to load meetings',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
+      scheduleMeeting: rxMethod<ScheduleMeetingRequest>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap((data: ScheduleMeetingRequest) =>
+            staffService.scheduleMeeting(data).pipe(
+              tap((meeting: StaffMeeting) =>
+                patchState(store, {
+                  meetings: [...store.meetings(), meeting],
+                  isLoading: false,
+                })
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to schedule meeting',
                 });
                 return EMPTY;
               })

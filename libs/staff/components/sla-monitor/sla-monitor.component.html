@@ -1,76 +1,66 @@
 <ng-container *transloco="let t">
   <section class="sla-monitor">
-    <h1 class="sla-monitor__title">{{ t('coordinator.slaTitle') }}</h1>
+    <header class="sla-monitor__header">
+      <h1 class="sla-monitor__title">{{ t('coordinator.slaTitle') }}</h1>
+      <p class="sla-monitor__subtitle">{{ t('coordinator.slaSubtitle') }}</p>
+    </header>
 
     @if (isLoading()) {
       <p class="sla-monitor__loading">{{ t('common.loading') }}</p>
     } @else {
       <div class="sla-monitor__stats">
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="Activity" [size]="20" color="var(--ihelp-accent)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ slaOverview()?.totalActive ?? 0 }}</span>
-              <span class="stat-card__label">{{ t('coordinator.slaTotal') }}</span>
-            </div>
-          </div>
-        </ui-card>
+        <div class="stat-card stat-card--default">
+          <ui-icon name="Clock" [size]="20" />
+          <span class="stat-card__value">{{ slaOverview()?.totalActive ?? 0 }}</span>
+          <span class="stat-card__label">{{ t('coordinator.slaTotal') }}</span>
+        </div>
 
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ slaOverview()?.onTrack ?? 0 }}</span>
-              <span class="stat-card__label">{{ t('coordinator.slaOnTrack') }}</span>
-            </div>
-          </div>
-        </ui-card>
+        <div class="stat-card stat-card--success">
+          <ui-icon name="CheckCircle" [size]="20" />
+          <span class="stat-card__value">{{ slaOverview()?.onTrack ?? 0 }}</span>
+          <span class="stat-card__label">{{ t('coordinator.slaOnTrack') }}</span>
+        </div>
 
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="Clock" [size]="20" color="var(--ihelp-warning)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ slaOverview()?.atRisk ?? 0 }}</span>
-              <span class="stat-card__label">{{ t('coordinator.slaAtRisk') }}</span>
-            </div>
-          </div>
-        </ui-card>
+        <div class="stat-card stat-card--warning">
+          <ui-icon name="Clock" [size]="20" />
+          <span class="stat-card__value">{{ slaOverview()?.atRisk ?? 0 }}</span>
+          <span class="stat-card__label">{{ t('coordinator.slaAtRisk') }}</span>
+        </div>
 
-        <ui-card padding="sm">
-          <div class="stat-card">
-            <ui-icon name="AlertTriangle" [size]="20" color="var(--ihelp-error)" />
-            <div class="stat-card__content">
-              <span class="stat-card__value">{{ slaOverview()?.breached ?? 0 }}</span>
-              <span class="stat-card__label">{{ t('coordinator.slaBreached') }}</span>
-            </div>
-          </div>
-        </ui-card>
+        <div class="stat-card stat-card--error">
+          <ui-icon name="AlertTriangle" [size]="20" />
+          <span class="stat-card__value">{{ slaOverview()?.breached ?? 0 }}</span>
+          <span class="stat-card__label">{{ t('coordinator.slaBreached') }}</span>
+        </div>
       </div>
 
       <div class="sla-monitor__timers">
-        @for (timer of (slaOverview()?.timers ?? []); track timer.id) {
-          <ui-card padding="sm" [hoverable]="true">
-            <div class="timer-card">
-              <div class="timer-card__header">
-                <span class="timer-card__case">{{ timer.caseId }}</span>
+        <h2 class="sla-monitor__timers-title">{{ t('coordinator.slaTimersTitle') }}</h2>
+
+        <div class="timer-list">
+          @for (timer of (slaOverview()?.timers ?? []); track timer.id) {
+            <div class="timer-row">
+              <div class="timer-row__info">
+                <span class="timer-row__case-id">#{{ timer.caseId }}</span>
+                <span class="timer-row__person">{{ timer.personName }}</span>
+                <span class="timer-row__type">{{ timer.type }}</span>
+              </div>
+              <div class="timer-row__progress">
+                <div class="progress-bar">
+                  <div
+                    class="progress-bar__fill progress-bar__fill--{{ getStatusVariant(timer.status) }}"
+                    [style.width.%]="getProgressPercent(timer.remainingMinutes)"
+                  ></div>
+                </div>
                 <ui-badge [variant]="getStatusVariant(timer.status)" size="sm">
-                  {{ timer.status }}
+                  {{ formatRemaining(timer.remainingMinutes) }}
                 </ui-badge>
               </div>
-              <div class="timer-card__body">
-                <span class="timer-card__person">{{ timer.personName }}</span>
-                <span class="timer-card__type">{{ timer.type }}</span>
-              </div>
-              <div class="timer-card__footer">
-                <ui-icon [name]="getStatusIcon(timer.status)" [size]="16" />
-                <span class="timer-card__remaining">{{ formatRemaining(timer.remainingMinutes) }}</span>
-                <span class="timer-card__deadline">{{ timer.deadline }}</span>
-              </div>
             </div>
-          </ui-card>
-        } @empty {
-          <p class="sla-monitor__empty">{{ t('coordinator.slaEmpty') }}</p>
-        }
+          } @empty {
+            <p class="sla-monitor__empty">{{ t('coordinator.slaEmpty') }}</p>
+          }
+        </div>
       </div>
     }
   </section>

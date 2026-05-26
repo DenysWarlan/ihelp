@@ -18,7 +18,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 
 import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
 
 import { PrismaModule } from '@org/prisma-client';
 import { HealthModule } from '../health/health.module.js';
@@ -44,6 +43,7 @@ import { AdminModule } from '../admin/admin.module.js';
 import { TransferModule } from '../transfer/transfer.module.js';
 import { AnalyticsModule } from '../analytics/analytics.module.js';
 import { GdprModule } from '../gdpr/gdpr.module.js';
+import { SupervisorModule } from '../supervisor/supervisor.module.js';
 
 @Module({
   imports: [
@@ -120,10 +120,10 @@ import { GdprModule } from '../gdpr/gdpr.module.js';
     AdminModule,
     AnalyticsModule,
     GdprModule,
+    SupervisorModule,
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

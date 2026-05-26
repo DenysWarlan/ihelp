@@ -29,6 +29,14 @@ export class CoordinatorService {
     return this.http.get<CrisisAlert[]>('/api/crisis/alerts');
   }
 
+  confirmAssignment(caseId: string, consultantId: string): Observable<void> {
+    return this.http.post<void>(`/api/assignment/${caseId}/confirm`, { consultantId });
+  }
+
+  rejectAssignment(caseId: string): Observable<void> {
+    return this.http.post<void>(`/api/assignment/${caseId}/reject`, {});
+  }
+
   acknowledgeCrisis(id: string): Observable<void> {
     return this.http.post<void>(`/api/crisis/alerts/${id}/acknowledge`, {});
   }

@@ -58,7 +58,7 @@
 .login__subtitle {
   font-size: 14px;
   color: var(--ihelp-text-muted);
-  margin-bottom: var(--ihelp-space-8);
+  margin-bottom: var(--ihelp-space-6);
 }
 
 .login__error {
@@ -87,16 +87,45 @@
   &:hover { text-decoration: underline; }
 }
 
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+  margin-bottom: var(--ihelp-space-6);
+}
+
+.login__divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--ihelp-space-6);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--ihelp-border);
+  }
+}
+
+.login__divider-text {
+  padding: 0 var(--ihelp-space-3);
+  font-size: 13px;
+  color: var(--ihelp-text-muted);
+  white-space: nowrap;
+}
+
 .login__oauth {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: var(--ihelp-space-6);
 }
 
 .login__oauth-btn {
   width: 100%;
-  padding: 14px 24px;
+  padding: 12px 24px;
   border-radius: var(--ihelp-radius-full);
   font-size: 14px;
   font-weight: 500;
