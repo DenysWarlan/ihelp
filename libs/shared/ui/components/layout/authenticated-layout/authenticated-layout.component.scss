@@ -92,10 +92,80 @@
     }
   }
 
+  &__nav-badge {
+    margin-left: auto;
+    background: var(--ihelp-error, #ef4444);
+    color: var(--ihelp-text-inverse);
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: var(--ihelp-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   &__footer {
     border-top: 1px solid var(--ihelp-border);
     padding-top: var(--ihelp-space-4);
     flex-shrink: 0;
+  }
+
+  &__user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-3);
+    padding: 10px 16px;
+    margin-bottom: var(--ihelp-space-2);
+  }
+
+  &__user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--ihelp-radius-full);
+    background-color: var(--ihelp-accent);
+    flex-shrink: 0;
+
+    span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ihelp-text-inverse);
+    }
+  }
+
+  &__user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  &__user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ihelp-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__user-email {
+    font-size: 11px;
+    color: var(--ihelp-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__user-role {
+    font-size: 11px;
+    color: var(--ihelp-text-secondary);
+    text-transform: capitalize;
   }
 
   &__logout {

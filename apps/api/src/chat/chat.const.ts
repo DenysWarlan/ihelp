@@ -30,6 +30,7 @@ export const CHAT_EVENTS = {
   READ: 'chat:read',
   ERROR: 'chat:error',
   NEW_MESSAGE: 'chat:new_message',
+  NOTIFY: 'chat:notify',
   MESSAGES_READ: 'chat:messages_read',
   MESSAGE_EDITED: 'chat:message_edited',
   MESSAGE_DELETED: 'chat:message_deleted',

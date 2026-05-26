@@ -5,7 +5,16 @@ export interface StaffChatConversation {
   readonly lastMessage: string | null;
   readonly lastMessageAt: string | null;
   readonly unreadCount: number;
+  readonly topic: string | null;
+  readonly status: string;
+  readonly description: string | null;
+  readonly contactMethod: string | null;
+  readonly language: string | null;
+  readonly country: string | null;
+  readonly createdAt: string;
 }
+
+export type MessageStatus = 'sending' | 'sent' | 'read' | 'error';
 
 export interface StaffChatMessage {
   readonly id: string;
@@ -14,4 +23,5 @@ export interface StaffChatMessage {
   readonly senderName: string;
   readonly isFromStaff: boolean;
   readonly sentAt: string;
+  readonly status: MessageStatus;
 }

@@ -1,3 +1,4 @@
+<ui-toast-container />
 <ng-container *transloco="let t">
   <div class="auth-layout">
     <!-- Overlay for mobile sidebar -->
@@ -29,11 +30,24 @@
           >
             <ui-icon [name]="item.icon" [size]="20" />
             <span>{{ t(item.label) }}</span>
+            @if (item.icon === 'MessageCircle' && chatUnreadCount() > 0) {
+              <span class="sidebar__nav-badge">{{ chatUnreadCount() }}</span>
+            }
           </a>
         }
       </nav>
 
       <div class="sidebar__footer">
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-avatar">
+            <span>{{ userInitials() }}</span>
+          </div>
+          <div class="sidebar__user-details">
+            <span class="sidebar__user-name">{{ userName() }}</span>
+            <span class="sidebar__user-email">{{ userEmail() }}</span>
+            <span class="sidebar__user-role">{{ userRole() }}</span>
+          </div>
+        </div>
         <button
           class="sidebar__logout"
           type="button"

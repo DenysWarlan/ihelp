@@ -9,12 +9,15 @@
           <div
             class="chat__conv"
             [class.chat__conv--active]="facade.selectedConversationId() === conv.id"
+            [class.chat__conv--unread]="conv.unreadCount > 0"
             (click)="selectConversation(conv.id)"
           >
             <div class="chat__conv-header">
               <span class="chat__conv-name">{{ conv.personName }}</span>
-              <span class="chat__conv-case">{{ t('staffChat.case') }} {{ conv.caseId }}</span>
             </div>
+            @if (conv.topic) {
+              <div class="chat__conv-topic">{{ conv.topic }}</div>
+            }
             @if (conv.lastMessage) {
               <div class="chat__conv-preview">{{ conv.lastMessage }}</div>
             }
@@ -33,13 +36,29 @@
           <p>{{ t('staffChat.selectConversation') }}</p>
         </div>
       } @else {
-        <div class="chat__messages">
+        <div class="chat__messages" #messagesContainer (click)="onChatFocus()">
           @for (msg of facade.messages(); track msg.id) {
             <div class="chat__message" [class.chat__message--own]="msg.isFromStaff">
               <div class="chat__message-bubble">
                 <span class="chat__message-text">{{ msg.content }}</span>
-                <span class="chat__message-time">{{ msg.sentAt }}</span>
+                <span class="chat__message-meta">
+                  <span class="chat__message-time">{{ msg.sentAt | date:'HH:mm' }}</span>
+                  @if (msg.isFromStaff) {
+                    <span class="chat__message-status chat__message-status--{{ msg.status }}">
+                      @switch (msg.status) {
+                        @case ('sending') { <ui-icon name="Clock" [size]="14" /> }
+                        @case ('sent') { <ui-icon name="Check" [size]="14" /> }
+                        @case ('read') { <ui-icon name="CheckCheck" [size]="14" /> }
+                        @case ('error') { <ui-icon name="AlertCircle" [size]="14" /> }
+                      }
+                    </span>
+                  }
+                </span>
               </div>
+            </div>
+          } @empty {
+            <div class="chat__no-messages">
+              <p>{{ t('staffChat.noMessages') }}</p>
             </div>
           }
         </div>
@@ -51,6 +70,7 @@
             [(ngModel)]="messageText"
             name="message"
             [placeholder]="t('staffChat.placeholder')"
+            (focus)="onChatFocus()"
           />
           <ui-button type="submit" variant="primary" [disabled]="!messageText.trim()">
             <ui-icon name="Send" [size]="18" />
@@ -58,5 +78,64 @@
         </form>
       }
     </div>
+
+    @if (facade.selectedConversation(); as conv) {
+      <div class="chat__info">
+        <h3 class="chat__info-title">{{ t('staffChat.caseInfo') }}</h3>
+
+        <div class="chat__info-section">
+          <div class="chat__info-row">
+            <span class="chat__info-label">{{ t('staffChat.person') }}</span>
+            <span class="chat__info-value">{{ conv.personName }}</span>
+          </div>
+          @if (conv.topic) {
+            <div class="chat__info-row">
+              <span class="chat__info-label">{{ t('staffChat.topic') }}</span>
+              <span class="chat__info-value">{{ conv.topic }}</span>
+            </div>
+          }
+          <div class="chat__info-row">
+            <span class="chat__info-label">{{ t('staffChat.status') }}</span>
+            <span class="chat__info-value">
+              <ui-badge [variant]="getStatusVariant(conv.status)" size="sm">
+                {{ t('staffCases.status.' + conv.status) }}
+              </ui-badge>
+            </span>
+          </div>
+          <div class="chat__info-row">
+            <span class="chat__info-label">{{ t('staffChat.created') }}</span>
+            <span class="chat__info-value">{{ conv.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        @if (conv.description) {
+          <div class="chat__info-section">
+            <h4 class="chat__info-subtitle">{{ t('staffChat.description') }}</h4>
+            <p class="chat__info-desc">{{ conv.description }}</p>
+          </div>
+        }
+
+        <div class="chat__info-section">
+          @if (conv.contactMethod) {
+            <div class="chat__info-row">
+              <span class="chat__info-label">{{ t('staffChat.contact') }}</span>
+              <span class="chat__info-value">{{ conv.contactMethod }}</span>
+            </div>
+          }
+          @if (conv.country) {
+            <div class="chat__info-row">
+              <span class="chat__info-label">{{ t('staffChat.country') }}</span>
+              <span class="chat__info-value">{{ conv.country }}</span>
+            </div>
+          }
+          @if (conv.language) {
+            <div class="chat__info-row">
+              <span class="chat__info-label">{{ t('staffChat.language') }}</span>
+              <span class="chat__info-value">{{ conv.language }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
   </div>
 </ng-container>

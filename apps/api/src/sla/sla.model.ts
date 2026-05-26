@@ -54,6 +54,29 @@ export interface SlaDashboardResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Overview (coordinator widget)
+// ---------------------------------------------------------------------------
+
+/** Aggregated SLA overview for the coordinator dashboard widget. */
+export interface SlaOverviewResponse {
+  readonly totalActive: number;
+  readonly atRisk: number;
+  readonly breached: number;
+  readonly onTrack: number;
+  readonly timers: readonly SlaOverviewTimer[];
+}
+
+export interface SlaOverviewTimer {
+  readonly id: string;
+  readonly caseId: string;
+  readonly personName: string;
+  readonly type: string;
+  readonly deadline: string;
+  readonly remainingMinutes: number;
+  readonly status: 'ON_TRACK' | 'AT_RISK' | 'BREACHED';
+}
+
+// ---------------------------------------------------------------------------
 // Response time tracking (S-E07-03)
 // ---------------------------------------------------------------------------
 

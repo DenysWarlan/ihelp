@@ -38,6 +38,10 @@ export class ChatFacade {
     }
   }
 
+  markMessagesAsRead(): void {
+    this.store.markMessagesAsRead();
+  }
+
   updateMessageContent(content: string): void {
     this.messageForm.set({ content });
   }

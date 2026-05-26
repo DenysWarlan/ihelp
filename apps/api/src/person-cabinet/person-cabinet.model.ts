@@ -111,6 +111,7 @@ export interface PersonProfileResponse {
   readonly name: string;
   readonly avatarUrl: string | null;
   readonly timezone: string;
+  readonly hasPassword: boolean;
   readonly createdAt: Date;
 }
 
@@ -173,4 +174,16 @@ export interface PersonMeetingDto {
   readonly personTz: string;
   readonly personTzTime: string;
   readonly consultantName: string;
+}
+
+// ---------------------------------------------------------------------------
+// Conversations (chat)
+// ---------------------------------------------------------------------------
+
+export interface PersonConversationDto {
+  readonly id: string;
+  readonly consultantName: string;
+  readonly lastMessage: string | null;
+  readonly lastMessageAt: Date | null;
+  readonly unreadCount: number;
 }

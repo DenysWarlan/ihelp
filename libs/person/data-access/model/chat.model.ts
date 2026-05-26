@@ -1,3 +1,5 @@
+export type MessageStatus = 'sending' | 'sent' | 'read' | 'error';
+
 export interface ChatMessage {
   readonly id: string;
   readonly content: string;
@@ -5,6 +7,7 @@ export interface ChatMessage {
   readonly senderName: string;
   readonly isFromPerson: boolean;
   readonly sentAt: string;
+  readonly status: MessageStatus;
 }
 
 export interface ChatConversation {

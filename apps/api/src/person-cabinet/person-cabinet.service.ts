@@ -24,6 +24,7 @@ import {
   DashboardCourseDto,
   DataExportResponse,
   DeletionRequestResponse,
+  PersonConversationDto,
   PersonCourseDto,
   PersonCoursesResponse,
   PersonDashboardResponse,
@@ -235,6 +236,7 @@ export class PersonCabinetService {
         name: true,
         avatarUrl: true,
         timezone: true,
+        passwordHash: true,
         createdAt: true,
       },
     });
@@ -243,7 +245,15 @@ export class PersonCabinetService {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      timezone: user.timezone,
+      hasPassword: !!user.passwordHash,
+      createdAt: user.createdAt,
+    };
   }
 
   async updateProfile(
@@ -280,11 +290,20 @@ export class PersonCabinetService {
         name: true,
         avatarUrl: true,
         timezone: true,
+        passwordHash: true,
         createdAt: true,
       },
     });
 
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      timezone: user.timezone,
+      hasPassword: !!user.passwordHash,
+      createdAt: user.createdAt,
+    };
   }
 
   async getProviders(personId: string): Promise<ProviderLinkDto[]> {
@@ -506,6 +525,53 @@ export class PersonCabinetService {
       personTz: m.personTz,
       personTzTime: this.formatInTimezone(m.scheduledAt, m.personTz),
       consultantName: m.consultant.name,
+    }));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Conversations (chat list for person)
+  // ---------------------------------------------------------------------------
+
+  async getConversations(personId: string): Promise<PersonConversationDto[]> {
+    const cases = await this.prisma.careCase.findMany({
+      where: {
+        personId,
+        status: { in: CHAT_ELIGIBLE_STATUSES },
+      },
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        consultant: {
+          select: { name: true },
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            content: true,
+            createdAt: true,
+            isRead: true,
+          },
+        },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                isRead: false,
+                senderRole: { not: 'PERSON' },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return cases.map((c) => ({
+      id: c.id,
+      consultantName: c.consultant?.name ?? 'Consultant',
+      lastMessage: c.messages[0]?.content ?? null,
+      lastMessageAt: c.messages[0]?.createdAt ?? null,
+      unreadCount: c._count.messages,
     }));
   }
 

@@ -77,12 +77,21 @@ export class SlaService {
     try {
       const start = startedAt ?? new Date();
 
-      const timer = await this.prisma.slaTimer.create({
-        data: {
+      const timer = await this.prisma.slaTimer.upsert({
+        where: { careCaseId: caseId },
+        create: {
           careCaseId: caseId,
           startedAt: start,
           status: SlaStatus.ACTIVE,
           currentLevel: 0,
+        },
+        update: {
+          startedAt: start,
+          status: SlaStatus.ACTIVE,
+          currentLevel: 0,
+          resolvedAt: null,
+          pausedAt: null,
+          lastEscalatedAt: null,
         },
       });
 

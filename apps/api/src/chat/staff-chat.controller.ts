@@ -1,0 +1,178 @@
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Req } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { PrismaService } from '@org/prisma-client';
+import { Request } from 'express';
+
+import { JwtPayload } from '../auth/auth.model.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
+import { ChatGateway } from './chat.gateway.js';
+import { CASE_ROOM_PREFIX, CHAT_EVENTS } from './chat.const.js';
+
+const STAFF_ROLES = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as const;
+
+@ApiTags('chat')
+@ApiBearerAuth()
+@Controller('chat/staff')
+export class StaffChatController {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
+
+  @Get('conversations')
+  @Roles(...STAFF_ROLES)
+  @ApiOperation({ summary: 'List staff chat conversations (assigned cases)' })
+  @ApiResponse({ status: 200, description: 'Staff conversations' })
+  async getConversations(@Req() req: Request) {
+    const actor = req.user as JwtPayload;
+
+    const cases = await this.prisma.careCase.findMany({
+      where: {
+        consultantId: actor.sub,
+        status: { in: ['NEW', 'ASSIGNED', 'IN_PROGRESS', 'MEETING_SCHEDULED', 'ON_HOLD'] },
+      },
+      include: {
+        person: { select: { name: true } },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          where: { isDeleted: false },
+          select: { content: true, createdAt: true },
+        },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                isDeleted: false,
+                isRead: false,
+                senderId: { not: actor.sub },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    // Sort: conversations with unread messages first, then by last message time
+    const mapped = cases.map((c) => {
+      const lastMsg = c.messages[0] ?? null;
+      return {
+        id: c.id,
+        personName: c.person?.name ?? '',
+        caseId: c.id,
+        lastMessage: lastMsg?.content ?? null,
+        lastMessageAt: lastMsg?.createdAt?.toISOString() ?? null,
+        unreadCount: c._count.messages,
+        topic: c.topic,
+        status: c.status,
+        description: c.description,
+        contactMethod: c.contactMethod,
+        language: c.language,
+        country: c.country,
+        createdAt: c.createdAt.toISOString(),
+      };
+    });
+
+    mapped.sort((a, b) => {
+      // Unread first
+      if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
+      if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
+      // Then by last message time (newest first)
+      const aTime = a.lastMessageAt ?? '';
+      const bTime = b.lastMessageAt ?? '';
+      return bTime.localeCompare(aTime);
+    });
+
+    return mapped;
+  }
+
+  @Get('conversations/:id/messages')
+  @Roles(...STAFF_ROLES)
+  @ApiOperation({ summary: 'Get messages for a staff conversation' })
+  @ApiResponse({ status: 200, description: 'Conversation messages' })
+  async getMessages(
+    @Param('id', ParseUUIDPipe) caseId: string,
+    @Req() req: Request,
+  ) {
+    const actor = req.user as JwtPayload;
+
+    const messages = await this.prisma.message.findMany({
+      where: { careCaseId: caseId, isDeleted: false },
+      include: {
+        sender: { select: { name: true, role: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 200,
+    });
+
+    return messages.map((m) => ({
+      id: m.id,
+      content: m.content ?? '',
+      senderId: m.senderId,
+      senderName: m.sender?.name ?? '',
+      isFromStaff: m.sender?.role !== 'PERSON',
+      isRead: m.isRead,
+      sentAt: m.createdAt.toISOString(),
+    }));
+  }
+
+  @Post('conversations/:id/messages')
+  @Roles(...STAFF_ROLES)
+  @ApiOperation({ summary: 'Send a message in a staff conversation' })
+  @ApiResponse({ status: 201, description: 'Message sent' })
+  async sendMessage(
+    @Param('id', ParseUUIDPipe) caseId: string,
+    @Body() body: { content: string },
+    @Req() req: Request,
+  ) {
+    const actor = req.user as JwtPayload;
+
+    const message = await this.prisma.message.create({
+      data: {
+        careCaseId: caseId,
+        senderId: actor.sub,
+        senderRole: actor.role as any,
+        content: body.content,
+        channel: 'WEB',
+      },
+      include: {
+        sender: { select: { name: true, role: true } },
+        careCase: { select: { personId: true } },
+      },
+    });
+
+    const response = {
+      id: message.id,
+      content: message.content,
+      senderId: message.senderId,
+      senderName: message.sender?.name ?? '',
+      isFromStaff: true,
+      isRead: false,
+      sentAt: message.createdAt.toISOString(),
+    };
+
+    // Broadcast to all clients in the case room
+    const room = `${CASE_ROOM_PREFIX}${caseId}`;
+    this.chatGateway.server.to(room).emit(CHAT_EVENTS.NEW_MESSAGE, {
+      ...response,
+      caseId,
+    });
+
+    // Notify the person about the new message
+    if (message.careCase?.personId) {
+      this.chatGateway.notifyUser(message.careCase.personId, {
+        caseId,
+        senderName: message.sender?.name ?? '',
+        preview: (body.content ?? '').slice(0, 100),
+      });
+    }
+
+    return response;
+  }
+}

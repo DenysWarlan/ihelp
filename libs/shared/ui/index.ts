@@ -17,6 +17,8 @@ export { TableComponent } from './components/table/table.component';
 export { ProgressBarComponent } from './components/progress-bar/progress-bar.component';
 export { AlertBannerComponent } from './components/alert-banner/alert-banner.component';
 export { ModalComponent } from './components/modal/modal.component';
+export { ToastContainerComponent } from './components/toast/toast.component';
+export { ToastService } from './components/toast/toast.service';
 
 // Models
 export type { SelectOption } from './components/select/select.model';
@@ -27,4 +29,5 @@ export type { TableColumn, SortEvent } from './components/table/table.model';
 export type { ProgressBarVariant } from './components/progress-bar/progress-bar.model';
 export type { AlertBannerVariant } from './components/alert-banner/alert-banner.model';
 export type { ModalSize } from './components/modal/modal.model';
+export type { Toast, ToastVariant } from './components/toast/toast.model';
 export type { SidebarNavItem, UserRole } from './components/layout/authenticated-layout/sidebar-nav.model';

@@ -72,6 +72,8 @@ export class ChatGateway
     try {
       const user = this.authenticateClient(client);
       (client as Socket & { user: SocketUser }).user = user;
+      // Auto-join user-specific room for notifications
+      await client.join(`user:${user.sub}`);
       this.logger.log(`Client connected: ${client.id} (user: ${user.sub})`);
     } catch {
       this.logger.warn(`Unauthorized connection attempt: ${client.id}`);
@@ -233,6 +235,27 @@ export class ChatGateway
           error instanceof Error ? error.message : 'Failed to delete message',
       });
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Notification helper
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Send a notification to a specific user (by their user-specific room).
+   * Used to update unread counts and show toast notifications.
+   */
+  notifyUser(
+    userId: string,
+    payload: {
+      caseId: string;
+      senderName: string;
+      preview: string;
+    },
+  ): void {
+    this.server
+      .to(`user:${userId}`)
+      .emit(CHAT_EVENTS.NOTIFY, payload);
   }
 
   // ---------------------------------------------------------------------------

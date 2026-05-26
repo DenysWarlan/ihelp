@@ -1,4 +1,4 @@
-import { inject, Injectable, Signal, signal, WritableSignal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal, WritableSignal } from '@angular/core';
 
 import {
   StaffChatConversation,
@@ -22,6 +22,14 @@ export class StaffChatFacade {
   readonly isLoading: Signal<boolean> = this.store.isLoading;
   readonly error: Signal<string | null> = this.store.error;
 
+  readonly selectedConversation: Signal<StaffChatConversation | null> = computed(
+    () => {
+      const id = this.selectedConversationId();
+      if (!id) return null;
+      return this.conversations().find((c) => c.id === id) ?? null;
+    },
+  );
+
   readonly messageForm: WritableSignal<StaffChatMessageForm> = signal({
     content: '',
   });
@@ -40,6 +48,10 @@ export class StaffChatFacade {
       this.store.sendMessage({ conversationId, content: content.trim() });
       this.messageForm.set({ content: '' });
     }
+  }
+
+  markMessagesAsRead(): void {
+    this.store.markMessagesAsRead();
   }
 
   updateMessageContent(content: string): void {

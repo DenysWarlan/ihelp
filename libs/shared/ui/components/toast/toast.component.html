@@ -1,0 +1,16 @@
+<div class="toast-container">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast toast--{{ toast.variant }}" (click)="toastService.dismiss(toast.id)">
+      <ui-icon [name]="getIcon(toast.variant)" [size]="18" />
+      <div class="toast__body">
+        @if (toast.title) {
+          <span class="toast__title">{{ toast.title }}</span>
+        }
+        <span class="toast__message">{{ toast.message }}</span>
+      </div>
+      <button class="toast__close" type="button">
+        <ui-icon name="X" [size]="14" />
+      </button>
+    </div>
+  }
+</div>

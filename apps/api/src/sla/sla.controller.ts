@@ -13,7 +13,7 @@ import {
 } from '@nestjs/swagger';
 
 import { Roles } from '../auth/decorators/roles.decorator.js';
-import { SlaDashboardResponse, SlaTimerResponse } from './sla.model.js';
+import { SlaDashboardResponse, SlaOverviewResponse, SlaTimerResponse } from './sla.model.js';
 import { SlaDashboardService } from './sla-dashboard.service.js';
 import { SlaService } from './sla.service.js';
 
@@ -63,5 +63,18 @@ export class SlaDashboardController {
   @ApiOkResponse({ description: 'SLA dashboard data' })
   async getDashboard(): Promise<SlaDashboardResponse> {
     return this.dashboardService.getDashboard();
+  }
+
+  @Get('overview')
+  @Roles('COORDINATOR', 'ADMIN')
+  @ApiOperation({
+    summary: 'SLA overview — aggregated counts and timer list',
+    description:
+      'Returns aggregated SLA counts (on-track, at-risk, breached) and ' +
+      'a list of timers with remaining time for the coordinator widget.',
+  })
+  @ApiOkResponse({ description: 'SLA overview data' })
+  async getOverview(): Promise<SlaOverviewResponse> {
+    return this.dashboardService.getOverview();
   }
 }

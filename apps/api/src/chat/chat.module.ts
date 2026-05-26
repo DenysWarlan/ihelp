@@ -11,6 +11,7 @@ import {
   MessageController,
   MessageReadController,
 } from './message.controller.js';
+import { StaffChatController } from './staff-chat.controller.js';
 import { ChatGateway } from './chat.gateway.js';
 import { TelegramWebhookController } from './telegram/telegram-webhook.controller.js';
 import { TelegramService } from './telegram/telegram.service.js';
@@ -35,6 +36,7 @@ import { AdapterFactory } from './adapters/adapter.factory.js';
     MessageController,
     MessageReadController,
     CaseChannelController,
+    StaffChatController,
     TelegramWebhookController,
   ],
   providers: [

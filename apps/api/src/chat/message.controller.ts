@@ -19,6 +19,7 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { PrismaService } from '@org/prisma-client';
 import { Request } from 'express';
 
 import { JwtPayload } from '../auth/auth.model.js';
@@ -31,13 +32,19 @@ import {
   PaginatedMessagesResponse,
   SendMessageDto,
 } from './chat.model.js';
+import { ChatGateway } from './chat.gateway.js';
+import { CASE_ROOM_PREFIX, CHAT_EVENTS } from './chat.const.js';
 import { MessageService } from './message.service.js';
 
 @ApiTags('chat')
 @ApiBearerAuth()
 @Controller('cases/:caseId/messages')
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly chatGateway: ChatGateway,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get paginated message history for a case' })
@@ -49,6 +56,7 @@ export class MessageController {
     @Req() req: Request,
   ): Promise<PaginatedMessagesResponse> {
     const actor = req.user as JwtPayload;
+
     return this.messageService.findByCaseId(
       caseId,
       actor,
@@ -68,7 +76,29 @@ export class MessageController {
     @Req() req: Request,
   ): Promise<MessageResponse> {
     const actor = req.user as JwtPayload;
-    return this.messageService.create(caseId, dto, actor);
+    const message = await this.messageService.create(caseId, dto, actor);
+
+    // Broadcast to all clients in the case room
+    const room = `${CASE_ROOM_PREFIX}${caseId}`;
+    this.chatGateway.server.to(room).emit(CHAT_EVENTS.NEW_MESSAGE, {
+      ...message,
+      caseId,
+    });
+
+    // Notify the consultant about the new message from person
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { consultantId: true, personId: true, person: { select: { name: true } } },
+    });
+    if (careCase?.consultantId && careCase.consultantId !== actor.sub) {
+      this.chatGateway.notifyUser(careCase.consultantId, {
+        caseId,
+        senderName: careCase.person?.name ?? '',
+        preview: (dto.content ?? '').slice(0, 100),
+      });
+    }
+
+    return message;
   }
 }
 
