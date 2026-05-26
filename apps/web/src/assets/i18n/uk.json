@@ -675,8 +675,22 @@
   },
   "courseDetail": {
     "back": "Назад до курсів",
-    "lessons": "Уроки",
+    "lessons": "уроків",
     "completed": "Завершено",
-    "markComplete": "Позначити завершеним"
+    "markComplete": "Позначити завершеним",
+    "progress": "Прогрес",
+    "typeVideo": "Відео",
+    "typeQuiz": "Тест",
+    "typeAssignment": "Завдання",
+    "typeDocument": "Документ",
+    "typeLesson": "Урок"
+  },
+  "lessonDetail": {
+    "backToCourse": "Назад до курсу",
+    "lessonN": "Урок {{n}}",
+    "typeMixed": "Змішаний",
+    "triggerWarning": "Цей урок може містити чутливий контент. Будь ласка, зверніться до свого консультанта, якщо потрібна підтримка.",
+    "videoNotSupported": "Ваш браузер не підтримує відтворення відео.",
+    "notFound": "Урок не знайдено."
   }
 }

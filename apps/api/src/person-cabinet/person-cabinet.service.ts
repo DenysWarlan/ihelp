@@ -156,6 +156,151 @@ export class PersonCabinetService {
   }
 
   // ---------------------------------------------------------------------------
+  // Course detail + lesson completion
+  // ---------------------------------------------------------------------------
+
+  async getCourseDetail(personId: string, courseId: string) {
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { personId, courseId, status: EnrollmentStatus.ACTIVE },
+    });
+
+    if (!enrollment) {
+      throw new NotFoundException('Course not found or not enrolled');
+    }
+
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        lessons: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            sortOrder: true,
+            contentType: true,
+          },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    const completedLessons = await this.prisma.lessonProgress.findMany({
+      where: { personId, courseId, isCompleted: true },
+      select: { lessonId: true },
+    });
+
+    const completedSet = new Set(completedLessons.map((lp) => lp.lessonId));
+
+    const lessons = course.lessons.map((l) => ({
+      id: l.id,
+      title: l.title,
+      orderIndex: l.sortOrder,
+      contentType: l.contentType,
+      isCompleted: completedSet.has(l.id),
+    }));
+
+    const completedCount = lessons.filter((l) => l.isCompleted).length;
+    const progress = lessons.length > 0
+      ? Math.round((completedCount / lessons.length) * 100)
+      : 0;
+
+    return {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      progress,
+      lessons,
+    };
+  }
+
+  async getLessonDetail(personId: string, courseId: string, lessonId: string) {
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { personId, courseId, status: EnrollmentStatus.ACTIVE },
+    });
+
+    if (!enrollment) {
+      throw new NotFoundException('Course not found or not enrolled');
+    }
+
+    const lesson = await this.prisma.lesson.findFirst({
+      where: { id: lessonId, courseId },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        contentType: true,
+        videoUrl: true,
+        sortOrder: true,
+        hasTriggerWarning: true,
+      },
+    });
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found in this course');
+    }
+
+    const progress = await this.prisma.lessonProgress.findUnique({
+      where: { personId_lessonId: { personId, lessonId } },
+      select: { isCompleted: true, completedAt: true },
+    });
+
+    return {
+      id: lesson.id,
+      title: lesson.title,
+      content: lesson.content,
+      contentType: lesson.contentType,
+      videoUrl: lesson.videoUrl,
+      orderIndex: lesson.sortOrder,
+      hasTriggerWarning: lesson.hasTriggerWarning,
+      isCompleted: progress?.isCompleted ?? false,
+      completedAt: progress?.completedAt ?? null,
+    };
+  }
+
+  async completeLesson(personId: string, courseId: string, lessonId: string) {
+    // Verify enrollment
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { personId, courseId, status: EnrollmentStatus.ACTIVE },
+    });
+
+    if (!enrollment) {
+      throw new NotFoundException('Course not found or not enrolled');
+    }
+
+    // Verify lesson belongs to course
+    const lesson = await this.prisma.lesson.findFirst({
+      where: { id: lessonId, courseId },
+    });
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found in this course');
+    }
+
+    // Upsert lesson progress
+    await this.prisma.lessonProgress.upsert({
+      where: {
+        personId_lessonId: { personId, lessonId },
+      },
+      update: { isCompleted: true, completedAt: new Date() },
+      create: {
+        personId,
+        courseId,
+        lessonId,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+
+    return { success: true };
+  }
+
+  // ---------------------------------------------------------------------------
   // S-E15-03: Chat messages for person
   // ---------------------------------------------------------------------------
 

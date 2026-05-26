@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -47,6 +47,47 @@ export class PersonCabinetController {
   ): Promise<PersonCoursesResponse> {
     const actor = req.user as JwtPayload;
     return this.cabinetService.getCourses(actor.sub);
+  }
+
+  @Get('courses/:id')
+  @Roles('PERSON')
+  @ApiOperation({ summary: 'Get course detail with lessons and progress' })
+  @ApiResponse({ status: 200, description: 'Course detail with lessons' })
+  @ApiResponse({ status: 404, description: 'Course not found or not enrolled' })
+  async getCourseDetail(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) courseId: string,
+  ) {
+    const actor = req.user as JwtPayload;
+    return this.cabinetService.getCourseDetail(actor.sub, courseId);
+  }
+
+  @Get('courses/:courseId/lessons/:lessonId')
+  @Roles('PERSON')
+  @ApiOperation({ summary: 'Get lesson detail with content' })
+  @ApiResponse({ status: 200, description: 'Lesson detail with content' })
+  @ApiResponse({ status: 404, description: 'Course or lesson not found' })
+  async getLessonDetail(
+    @Req() req: Request,
+    @Param('courseId', ParseUUIDPipe) courseId: string,
+    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+  ) {
+    const actor = req.user as JwtPayload;
+    return this.cabinetService.getLessonDetail(actor.sub, courseId, lessonId);
+  }
+
+  @Post('courses/:courseId/lessons/:lessonId/complete')
+  @Roles('PERSON')
+  @ApiOperation({ summary: 'Mark a lesson as completed' })
+  @ApiResponse({ status: 201, description: 'Lesson marked as completed' })
+  @ApiResponse({ status: 404, description: 'Course or lesson not found' })
+  async completeLesson(
+    @Req() req: Request,
+    @Param('courseId', ParseUUIDPipe) courseId: string,
+    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+  ) {
+    const actor = req.user as JwtPayload;
+    return this.cabinetService.completeLesson(actor.sub, courseId, lessonId);
   }
 
   @Get('profile')

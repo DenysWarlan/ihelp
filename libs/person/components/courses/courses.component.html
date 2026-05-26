@@ -39,7 +39,7 @@
                   <p class="active-card__meta">
                     {{ course.totalLessons }} {{ t('courses.lessonsCount') }} · {{ course.completedLessons }} {{ t('courses.lessonsProgress', { completed: course.completedLessons }) }}
                   </p>
-                  <ui-progress-bar [value]="course.progress" variant="success" />
+                  <ui-progress-bar [value]="course.progress" variant="success" [showLabel]="true" />
                   <div class="active-card__action">
                     <ui-button variant="primary" size="sm">{{ t('courses.continue') }}</ui-button>
                   </div>

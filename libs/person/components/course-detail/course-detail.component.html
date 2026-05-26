@@ -11,42 +11,66 @@
       <div class="course-detail-page__header">
         <h1 class="course-detail-page__title">{{ course.title }}</h1>
         <p class="course-detail-page__desc">{{ course.description }}</p>
+        <div class="course-detail-page__stats">
+          <div class="course-detail-page__stat">
+            <ui-icon name="BookOpen" [size]="18" color="var(--ihelp-accent)" />
+            <span>{{ course.lessons.length }} {{ t('courseDetail.lessons') }}</span>
+          </div>
+          <div class="course-detail-page__stat">
+            <ui-icon name="CheckCircle" [size]="18" color="var(--ihelp-success)" />
+            <span>{{ completedCount(course) }} {{ t('courseDetail.completed') }}</span>
+          </div>
+        </div>
         <div class="course-detail-page__progress">
-          <span class="course-detail-page__progress-label">
-            {{ course.progress }}% {{ t('courseDetail.completed') }}
-          </span>
-          <ui-progress-bar [value]="course.progress" variant="success" [showLabel]="false" />
+          <div class="course-detail-page__progress-header">
+            <span class="course-detail-page__progress-label">{{ t('courseDetail.progress') }}</span>
+            <span class="course-detail-page__progress-percent">{{ course.progress }}%</span>
+          </div>
+          <div class="course-detail-page__progress-bar">
+            <div class="course-detail-page__progress-fill" [style.width.%]="course.progress"></div>
+          </div>
         </div>
       </div>
 
-      <h2 class="course-detail-page__section-title">{{ t('courseDetail.lessons') }}</h2>
-
       <div class="course-detail-page__lessons">
-        @for (lesson of course.lessons; track lesson.id) {
-          <ui-card>
-            <div class="lesson-card">
-              <div class="lesson-card__order">{{ lesson.orderIndex }}</div>
-              <div class="lesson-card__info">
-                <h3 class="lesson-card__title">{{ lesson.title }}</h3>
-              </div>
-              <div class="lesson-card__status">
+        @for (lesson of course.lessons; track lesson.id; let i = $index; let last = $last) {
+          <div class="lesson-item" [class.lesson-item--completed]="lesson.isCompleted">
+            <div class="lesson-item__timeline">
+              <div class="lesson-item__circle" [class.lesson-item__circle--completed]="lesson.isCompleted">
                 @if (lesson.isCompleted) {
-                  <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
-                  <ui-badge variant="success" size="sm">
-                    {{ t('courseDetail.completed') }}
-                  </ui-badge>
+                  <ui-icon name="Check" [size]="14" color="#fff" />
                 } @else {
-                  <ui-button
-                    variant="secondary"
-                    size="sm"
-                    (click)="onCompleteLesson(lesson.id)"
-                  >
+                  <span>{{ lesson.orderIndex }}</span>
+                }
+              </div>
+              @if (!last) {
+                <div class="lesson-item__line" [class.lesson-item__line--completed]="lesson.isCompleted"></div>
+              }
+            </div>
+
+            <div class="lesson-item__card" (click)="onOpenLesson(lesson.id)">
+              <div class="lesson-item__content">
+                <div class="lesson-item__type">
+                  <ui-icon [name]="getLessonIcon(lesson.contentType)" [size]="14" />
+                  <span>{{ getLessonTypeLabel(lesson.contentType, t) }}</span>
+                </div>
+                <h3 class="lesson-item__title">{{ lesson.title }}</h3>
+              </div>
+
+              <div class="lesson-item__action">
+                @if (lesson.isCompleted) {
+                  <div class="lesson-item__completed-badge">
+                    <ui-icon name="CheckCircle" [size]="16" color="var(--ihelp-success)" />
+                    <span>{{ t('courseDetail.completed') }}</span>
+                  </div>
+                } @else {
+                  <button class="lesson-item__btn" (click)="onCompleteLesson(lesson.id); $event.stopPropagation()">
                     {{ t('courseDetail.markComplete') }}
-                  </ui-button>
+                  </button>
                 }
               </div>
             </div>
-          </ui-card>
+          </div>
         }
       </div>
     } @else {

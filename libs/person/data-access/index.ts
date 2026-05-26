@@ -9,6 +9,7 @@ export type {
   PersonProfile,
   PersonActivity,
   PersonLesson,
+  PersonLessonDetail,
 } from './model/person.model';
 
 export { ChatService } from './service/chat.service';

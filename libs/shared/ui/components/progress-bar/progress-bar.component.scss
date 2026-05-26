@@ -18,15 +18,15 @@
   transition: width var(--ihelp-transition-normal);
 }
 
-.progress-bar--default .progress-bar__fill {
+:host(.progress-bar--default) .progress-bar__fill {
   background-color: var(--ihelp-accent);
 }
 
-.progress-bar--success .progress-bar__fill {
+:host(.progress-bar--success) .progress-bar__fill {
   background-color: var(--ihelp-success);
 }
 
-.progress-bar--warning .progress-bar__fill {
+:host(.progress-bar--warning) .progress-bar__fill {
   background-color: var(--ihelp-warning);
 }
 

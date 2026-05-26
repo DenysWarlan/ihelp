@@ -6,6 +6,7 @@ import {
   PersonCourse,
   PersonCourseDetail,
   PersonDashboard,
+  PersonLessonDetail,
   PersonMeeting,
   PersonProfile,
   SetPasswordRequest,
@@ -110,6 +111,12 @@ export class PersonService {
   getCourseDetail(id: string): Observable<PersonCourseDetail> {
     return this.http.get<PersonCourseDetail>(
       `/api/person-cabinet/courses/${id}`,
+    );
+  }
+
+  getLessonDetail(courseId: string, lessonId: string): Observable<PersonLessonDetail> {
+    return this.http.get<PersonLessonDetail>(
+      `/api/person-cabinet/courses/${courseId}/lessons/${lessonId}`,
     );
   }
 

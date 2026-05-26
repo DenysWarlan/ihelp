@@ -12,6 +12,7 @@ import {
   PersonCourse,
   PersonCourseDetail,
   PersonDashboard,
+  PersonLessonDetail,
   PersonMeeting,
   PersonProfile,
   PersonLesson,
@@ -22,6 +23,7 @@ interface PersonState {
   dashboard: PersonDashboard | null;
   courses: PersonCourse[];
   selectedCourse: PersonCourseDetail | null;
+  selectedLesson: PersonLessonDetail | null;
   meetings: PersonMeeting[];
   profile: PersonProfile | null;
   isLoading: boolean;
@@ -35,6 +37,7 @@ const initialState: PersonState = {
   dashboard: null,
   courses: [],
   selectedCourse: null,
+  selectedLesson: null,
   meetings: [],
   profile: null,
   isLoading: false,
@@ -112,6 +115,35 @@ export const PersonStore = signalStore(
                 patchState(store, {
                   isLoading: false,
                   error: 'Failed to load course',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      loadLessonDetail: rxMethod<{ courseId: string; lessonId: string }>(
+        pipe(
+          tap(() =>
+            patchState(store, {
+              isLoading: true,
+              error: null,
+              selectedLesson: null,
+            }),
+          ),
+          switchMap(({ courseId, lessonId }) =>
+            personService.getLessonDetail(courseId, lessonId).pipe(
+              tap((lesson: PersonLessonDetail) =>
+                patchState(store, {
+                  selectedLesson: lesson,
+                  isLoading: false,
+                }),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to load lesson',
                 });
                 return EMPTY;
               }),
@@ -236,6 +268,7 @@ export const PersonStore = signalStore(
           switchMap(({ courseId, lessonId }) =>
             personService.completeLesson(courseId, lessonId).pipe(
               tap(() => {
+                // Update selectedCourse
                 const current = store.selectedCourse();
                 if (current) {
                   const updatedLessons: PersonLesson[] = current.lessons.map(
@@ -245,14 +278,35 @@ export const PersonStore = signalStore(
                   const completedCount = updatedLessons.filter(
                     (l: PersonLesson) => l.isCompleted,
                   ).length;
+                  const progress = Math.round(
+                    (completedCount / updatedLessons.length) * 100,
+                  );
                   patchState(store, {
                     selectedCourse: {
                       ...current,
                       lessons: updatedLessons,
-                      progress: Math.round(
-                        (completedCount / updatedLessons.length) * 100,
-                      ),
+                      progress,
                     },
+                  });
+
+                  // Update courses list
+                  const courses = store.courses();
+                  if (courses.length > 0) {
+                    patchState(store, {
+                      courses: courses.map((c: PersonCourse) =>
+                        c.id === courseId
+                          ? { ...c, completedLessons: completedCount, progress }
+                          : c,
+                      ),
+                    });
+                  }
+                }
+
+                // Update selectedLesson
+                const lesson = store.selectedLesson();
+                if (lesson && lesson.id === lessonId) {
+                  patchState(store, {
+                    selectedLesson: { ...lesson, isCompleted: true, completedAt: new Date().toISOString() },
                   });
                 }
               }),

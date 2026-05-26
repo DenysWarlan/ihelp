@@ -1,0 +1,70 @@
+<ng-container *transloco="let t">
+  <div class="lesson-detail-page">
+    <button class="lesson-detail-page__back" (click)="onBack()">
+      <ui-icon name="ArrowLeft" [size]="16" color="var(--ihelp-accent)" />
+      <span>{{ t('lessonDetail.backToCourse') }}</span>
+    </button>
+
+    @if (facade.isLoading()) {
+      <p class="lesson-detail-page__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.selectedLesson(); as lesson) {
+      <div class="lesson-detail-page__header">
+        <div class="lesson-detail-page__meta">
+          <span class="lesson-detail-page__type">
+            <ui-icon [name]="lesson.contentType === 'VIDEO' ? 'Play' : 'BookOpen'" [size]="14" />
+            {{ lesson.contentType === 'VIDEO' ? t('courseDetail.typeVideo') : lesson.contentType === 'MIXED' ? t('lessonDetail.typeMixed') : t('courseDetail.typeLesson') }}
+          </span>
+          <span class="lesson-detail-page__order">{{ t('lessonDetail.lessonN', { n: lesson.orderIndex }) }}</span>
+        </div>
+        <h1 class="lesson-detail-page__title">{{ lesson.title }}</h1>
+      </div>
+
+      @if (lesson.hasTriggerWarning) {
+        <div class="lesson-detail-page__warning">
+          <ui-icon name="AlertTriangle" [size]="18" color="var(--ihelp-warning)" />
+          <span>{{ t('lessonDetail.triggerWarning') }}</span>
+        </div>
+      }
+
+      @if (lesson.videoUrl) {
+        <div class="lesson-detail-page__video">
+          @if (isYoutube()) {
+            <iframe
+              class="lesson-detail-page__video-iframe"
+              [src]="youtubeEmbedUrl()"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          } @else {
+            <video controls [src]="lesson.videoUrl" class="lesson-detail-page__video-player">
+              {{ t('lessonDetail.videoNotSupported') }}
+            </video>
+          }
+        </div>
+      }
+
+      @if (lesson.content) {
+        <div class="lesson-detail-page__content">
+          {{ lesson.content }}
+        </div>
+      }
+
+      <div class="lesson-detail-page__footer">
+        @if (lesson.isCompleted) {
+          <div class="lesson-detail-page__completed">
+            <ui-icon name="CheckCircle" [size]="20" color="var(--ihelp-success)" />
+            <span>{{ t('courseDetail.completed') }}</span>
+          </div>
+        } @else {
+          <button class="lesson-detail-page__complete-btn" (click)="onCompleteLesson()">
+            <ui-icon name="Check" [size]="16" color="#fff" />
+            <span>{{ t('courseDetail.markComplete') }}</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <p class="lesson-detail-page__empty">{{ t('lessonDetail.notFound') }}</p>
+    }
+  </div>
+</ng-container>

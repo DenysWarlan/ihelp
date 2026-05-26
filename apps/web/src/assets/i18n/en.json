@@ -675,8 +675,22 @@
   },
   "courseDetail": {
     "back": "Back to courses",
-    "lessons": "Lessons",
+    "lessons": "lessons",
     "completed": "Completed",
-    "markComplete": "Mark complete"
+    "markComplete": "Mark complete",
+    "progress": "Progress",
+    "typeVideo": "Video",
+    "typeQuiz": "Quiz",
+    "typeAssignment": "Assignment",
+    "typeDocument": "Document",
+    "typeLesson": "Lesson"
+  },
+  "lessonDetail": {
+    "backToCourse": "Back to course",
+    "lessonN": "Lesson {{n}}",
+    "typeMixed": "Mixed",
+    "triggerWarning": "This lesson may contain sensitive content. Please reach out to your consultant if you need support.",
+    "videoNotSupported": "Your browser does not support video playback.",
+    "notFound": "Lesson not found."
   }
 }

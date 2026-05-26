@@ -47,6 +47,18 @@ export interface PersonLesson {
   readonly contentType: string;
 }
 
+export interface PersonLessonDetail {
+  readonly id: string;
+  readonly title: string;
+  readonly content: string;
+  readonly contentType: string;
+  readonly videoUrl: string | null;
+  readonly orderIndex: number;
+  readonly hasTriggerWarning: boolean;
+  readonly isCompleted: boolean;
+  readonly completedAt: string | null;
+}
+
 export interface PersonMeeting {
   readonly id: string;
   readonly title: string;

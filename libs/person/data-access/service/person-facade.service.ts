@@ -5,6 +5,7 @@ import {
   PersonCourse,
   PersonCourseDetail,
   PersonDashboard,
+  PersonLessonDetail,
   PersonMeeting,
   PersonProfile,
 } from '../model/person.model';
@@ -24,6 +25,8 @@ export class PersonFacade {
   readonly courses: Signal<PersonCourse[]> = this.store.courses;
   readonly selectedCourse: Signal<PersonCourseDetail | null> =
     this.store.selectedCourse;
+  readonly selectedLesson: Signal<PersonLessonDetail | null> =
+    this.store.selectedLesson;
   readonly meetings: Signal<PersonMeeting[]> = this.store.meetings;
   readonly profile: Signal<PersonProfile | null> = this.store.profile;
   readonly isLoading: Signal<boolean> = this.store.isLoading;
@@ -48,6 +51,14 @@ export class PersonFacade {
 
   loadCourseDetail(id: string): void {
     this.store.loadCourseDetail(id);
+  }
+
+  loadLessonDetail(courseId: string, lessonId: string): void {
+    this.store.loadLessonDetail({ courseId, lessonId });
+  }
+
+  navigateToLesson(courseId: string, lessonId: string): void {
+    this.router.navigate(['/person/courses', courseId, 'lessons', lessonId]);
   }
 
   loadMeetings(): void {

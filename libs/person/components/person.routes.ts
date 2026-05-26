@@ -22,6 +22,11 @@ export const personRoutes: Routes = [
           import('./course-detail/course-detail.component').then((m) => m.CourseDetailComponent),
       },
       {
+        path: 'courses/:courseId/lessons/:lessonId',
+        loadComponent: () =>
+          import('./lesson-detail/lesson-detail.component').then((m) => m.LessonDetailComponent),
+      },
+      {
         path: 'chat',
         loadComponent: () =>
           import('./chat/chat.component').then((m) => m.ChatComponent),
