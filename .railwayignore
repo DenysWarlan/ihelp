@@ -1,0 +1,12 @@
+node_modules/
+dist/
+vault/
+.git/
+.nx/
+.angular/
+.idea/
+.vscode/
+.claude/
+__screenshots__/
+test-output/
+.DS_Store

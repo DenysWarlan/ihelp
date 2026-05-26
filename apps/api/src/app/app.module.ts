@@ -2,8 +2,10 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { BullModule } from '@nestjs/bullmq';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+import { join } from 'path';
 
 import { envValidationSchema } from '../common/config/env.validation.js';
 import { createLoggerConfig } from '../common/logging/logger.config.js';
@@ -81,6 +83,8 @@ import { SupervisorModule } from '../supervisor/supervisor.module.js';
           connection: {
             host: redisUrl.hostname,
             port: Number(redisUrl.port) || 6379,
+            password: redisUrl.password || undefined,
+            username: redisUrl.username || undefined,
           },
         };
       },
@@ -90,6 +94,13 @@ import { SupervisorModule } from '../supervisor/supervisor.module.js';
       { name: 'notifications' },
       { name: 'auto-pause' },
     ),
+
+    // Static files (video uploads)
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'apps', 'api', 'uploads'),
+      serveRoot: '/uploads',
+      serveStaticOptions: { index: false },
+    }),
 
     // Database
     PrismaModule,

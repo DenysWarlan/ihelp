@@ -32,3 +32,7 @@ vitest.config.*.timestamp*
 # OS
 .DS_Store
 /.nx/
+
+# Large assets (not needed for build/deploy)
+vault/90-assets/
+apps/api/uploads/

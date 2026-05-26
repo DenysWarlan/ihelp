@@ -1,0 +1,42 @@
+FROM node:24-slim AS builder
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy source
+COPY . .
+
+# Generate Prisma client
+RUN cd libs/prisma-client && npx prisma generate
+
+# Build API
+RUN npx nx build api
+
+# --- Production stage ---
+FROM node:24-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+# Copy full node_modules from builder (includes prisma CLI + generated client + ts-node)
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy Prisma schema + config for migrations
+COPY --from=builder /app/libs/prisma-client/prisma ./libs/prisma-client/prisma
+COPY --from=builder /app/libs/prisma-client/tsconfig.json ./libs/prisma-client/tsconfig.json
+
+# Copy built API
+COPY --from=builder /app/apps/api/dist ./dist
+
+# Copy package.json for npx
+COPY package.json ./
+
+EXPOSE 3000
+ENV PORT=3000
+ENV NODE_ENV=production
+
+CMD ["sh", "-c", "cd /app/libs/prisma-client/prisma && npx prisma db push --accept-data-loss && cd /app && node dist/main.js"]
