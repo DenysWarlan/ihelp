@@ -82,21 +82,18 @@ jobs:
 
   deploy:
     name: Deploy to Railway
-    needs: [check]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [docker]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Deploy API
+      - name: Redeploy API (pulls latest image from GHCR)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service c7bed7cf-26a1-4cfd-aede-6cc6d96a7261 --detach
+        run: railway redeploy --service c7bed7cf-26a1-4cfd-aede-6cc6d96a7261 --yes --from-source
 
-      - name: Deploy Web
+      - name: Redeploy Web (pulls latest image from GHCR)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service 3bd655ea-5e80-4c7f-853c-7538d17348a9 --detach
+        run: railway redeploy --service 3bd655ea-5e80-4c7f-853c-7538d17348a9 --yes --from-source
