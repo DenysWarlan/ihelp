@@ -18,6 +18,9 @@
   ],
   "references": [
     {
+      "path": "../../public/data-access/tsconfig.lib.json"
+    },
+    {
       "path": "../data-access/tsconfig.lib.json"
     },
     {
