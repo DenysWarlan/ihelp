@@ -8,6 +8,19 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
   </head>
   <body>
+    <script>
+      (function() {
+        var h = window.location.hash;
+        if (h && h.indexOf('#tgAuthResult=') === 0) {
+          try {
+            var d = JSON.parse(atob(h.substring(14)));
+            var p = new URLSearchParams();
+            for (var k in d) { p.set(k, d[k]); }
+            window.location.href = '/api/auth/telegram/callback?' + p.toString();
+          } catch(e) {}
+        }
+      })();
+    </script>
     <app-root></app-root>
   </body>
 </html>
