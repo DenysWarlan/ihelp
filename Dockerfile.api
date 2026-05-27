@@ -15,14 +15,22 @@ RUN cd libs/prisma-client && npx prisma generate
 # Build API
 RUN npx nx build api
 
+# Install only production dependencies in a separate layer
+RUN cp -r node_modules node_modules_full && \
+    rm -rf node_modules && \
+    npm ci --omit=dev && \
+    cp -r node_modules_full/.prisma node_modules/.prisma && \
+    cp -r node_modules_full/@prisma node_modules/@prisma && \
+    rm -rf node_modules_full
+
 # --- Production stage ---
 FROM node:24-slim
 
-WORKDIR /app
-
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy full node_modules from builder (includes prisma CLI + generated client + ts-node)
+WORKDIR /app
+
+# Copy production node_modules only
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy Prisma schema + config for migrations
