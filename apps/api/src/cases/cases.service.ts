@@ -100,19 +100,16 @@ export class CasesService {
       );
     }
 
-    // Only one active case per person
+    // If person already has an active case, return it instead of blocking
     const activeCase = await this.prisma.careCase.findFirst({
       where: {
         personId,
         status: { notIn: TERMINAL_STATUSES },
       },
-      select: { id: true },
     });
 
     if (activeCase) {
-      throw new ConflictException(
-        'Person already has an active case. Complete or close the existing case first.',
-      );
+      return activeCase;
     }
 
     // Validate course reference when source=COURSE
