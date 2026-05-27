@@ -4,8 +4,8 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
-    # DNS resolver for dynamic upstream resolution
-    resolver ${NGINX_RESOLVER} valid=10s ipv6=off;
+    # DNS resolver (injected by 25-set-resolver.sh at container start)
+    resolver __RESOLVER__ valid=10s ipv6=off;
 
     # SPA fallback
     location / {
