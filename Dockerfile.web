@@ -16,3 +16,6 @@ COPY --from=builder /app/dist/apps/web/browser /usr/share/nginx/html
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
+
+# Extract DNS resolver from /etc/resolv.conf at container start
+CMD ["sh", "-c", "export NGINX_RESOLVER=$(grep nameserver /etc/resolv.conf | head -1 | awk '{print $2}') && /docker-entrypoint.sh nginx -g 'daemon off;'"]
