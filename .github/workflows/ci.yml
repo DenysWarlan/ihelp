@@ -15,6 +15,10 @@ env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository }}
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   lint:
     name: Lint
