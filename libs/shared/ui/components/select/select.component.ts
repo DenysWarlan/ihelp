@@ -25,6 +25,8 @@ import { SelectOption } from './select.model';
   ],
 })
 export class SelectComponent implements ControlValueAccessor {
+  private static nextId = 0;
+  readonly selectId: string = `ui-select-${SelectComponent.nextId++}`;
   readonly label = input('');
   readonly placeholder = input('');
   readonly options = input<SelectOption[]>([]);

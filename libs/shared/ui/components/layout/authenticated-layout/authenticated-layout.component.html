@@ -3,7 +3,7 @@
   <div class="auth-layout">
     <!-- Overlay for mobile sidebar -->
     @if (sidebarOpen()) {
-      <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+      <div class="sidebar-overlay" role="presentation" (click)="closeSidebar()" (keydown.escape)="closeSidebar()" tabindex="-1"></div>
     }
 
     <aside

@@ -23,6 +23,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class TextareaComponent implements ControlValueAccessor {
+  private static nextId = 0;
+  readonly textareaId: string = `ui-textarea-${TextareaComponent.nextId++}`;
   readonly label = input('');
   readonly placeholder = input('');
   readonly rows = input(4);

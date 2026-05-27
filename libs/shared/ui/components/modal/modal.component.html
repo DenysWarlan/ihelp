@@ -1,7 +1,10 @@
 @if (isOpen()) {
   <div
     class="modal__overlay"
+    role="presentation"
     (click)="onOverlayClick($event)"
+    (keydown.escape)="closed.emit()"
+    tabindex="-1"
   >
     <div
       #dialog

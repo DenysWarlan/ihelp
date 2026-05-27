@@ -23,6 +23,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class InputComponent implements ControlValueAccessor {
+  private static nextId = 0;
+  readonly inputId: string = `ui-input-${InputComponent.nextId++}`;
   readonly label = input('');
   readonly placeholder = input('');
   readonly type = input('text');

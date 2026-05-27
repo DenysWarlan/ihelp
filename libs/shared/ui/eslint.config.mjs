@@ -22,10 +22,11 @@ export default [
                 "error",
                 {
                     type: "element",
-                    prefix: "lib",
+                    prefix: ["lib", "ui", "app"],
                     style: "kebab-case"
                 }
-            ]
+            ],
+            "@typescript-eslint/no-empty-function": "off"
         }
     },
     {

@@ -3,14 +3,21 @@
   [class.checkbox--checked]="checked()"
   [class.checkbox--disabled]="isDisabled()"
 >
+  <input
+    type="checkbox"
+    class="checkbox__native"
+    [checked]="checked()"
+    [disabled]="isDisabled()"
+    (change)="toggle()"
+    (keydown)="onKeyDown($event)"
+  />
   <span
     class="checkbox__box"
     role="checkbox"
     [attr.aria-checked]="checked()"
     [attr.aria-disabled]="isDisabled()"
     [attr.tabindex]="isDisabled() ? -1 : 0"
-    (click)="toggle()"
-    (keydown)="onKeyDown($event)"
+    aria-hidden="true"
   >
     @if (checked()) {
       <svg class="checkbox__check" viewBox="0 0 16 16" fill="none" aria-hidden="true">

@@ -1,6 +1,6 @@
 <div class="toast-container">
   @for (toast of toastService.toasts(); track toast.id) {
-    <div class="toast toast--{{ toast.variant }}" (click)="toastService.dismiss(toast.id)">
+    <div class="toast toast--{{ toast.variant }}" role="alert" (click)="toastService.dismiss(toast.id)" (keydown.enter)="toastService.dismiss(toast.id)" tabindex="0">
       <ui-icon [name]="getIcon(toast.variant)" [size]="18" />
       <div class="toast__body">
         @if (toast.title) {

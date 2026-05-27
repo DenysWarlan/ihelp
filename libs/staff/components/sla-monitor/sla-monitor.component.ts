@@ -51,7 +51,7 @@ export class SlaMonitorComponent implements OnInit {
   }
 
   getProgressPercent(remainingMinutes: number): number {
-    const maxMinutes: number = 480;
+    const maxMinutes = 480;
     if (remainingMinutes <= 0) {
       return 0;
     }

@@ -1,8 +1,9 @@
 <div class="input-field" [class.input-field--error]="errorMessage()" [class.input-field--disabled]="isDisabled()">
   @if (label()) {
-    <label class="input-field__label">{{ label() }}</label>
+    <label class="input-field__label" [attr.for]="inputId">{{ label() }}</label>
   }
   <input
+    [id]="inputId"
     class="input-field__control"
     [type]="type()"
     [placeholder]="placeholder()"

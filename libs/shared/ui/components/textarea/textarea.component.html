@@ -1,8 +1,9 @@
 <div class="textarea-field" [class.textarea-field--error]="errorMessage()" [class.textarea-field--disabled]="isDisabled()">
   @if (label()) {
-    <label class="textarea-field__label">{{ label() }}</label>
+    <label class="textarea-field__label" [attr.for]="textareaId">{{ label() }}</label>
   }
   <textarea
+    [id]="textareaId"
     class="textarea-field__control"
     [placeholder]="placeholder()"
     [rows]="rows()"

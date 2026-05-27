@@ -1,9 +1,10 @@
 <div class="select-field" [class.select-field--error]="errorMessage()" [class.select-field--disabled]="isDisabled()">
   @if (label()) {
-    <label class="select-field__label">{{ label() }}</label>
+    <label class="select-field__label" [attr.for]="selectId">{{ label() }}</label>
   }
   <div class="select-field__wrapper">
     <select
+      [id]="selectId"
       class="select-field__control"
       [value]="value()"
       [disabled]="isDisabled()"
