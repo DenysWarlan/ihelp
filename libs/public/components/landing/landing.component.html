@@ -5,9 +5,9 @@
         <h1 class="landing__heading">{{ t('landing.heroHeading') }}</h1>
         <p class="landing__subtitle">{{ t('landing.heroSubtitle') }}</p>
         <div class="landing__actions">
-          <a routerLink="/need-help" class="landing__btn landing__btn--primary">
+          <button class="landing__btn landing__btn--primary" (click)="onNeedHelp()">
             {{ t('landing.needSupport') }}
-          </a>
+          </button>
           <a routerLink="/catalog" class="landing__btn landing__btn--outline">
             {{ t('landing.browseCourses') }}
           </a>

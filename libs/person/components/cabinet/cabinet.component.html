@@ -36,6 +36,7 @@
             <button class="cabinet__green-btn" (click)="onWriteConsultant()">{{ t('cabinet.write') }}</button>
           } @else {
             <p class="consultant-card__empty">{{ t('cabinet.noConsultant') }}</p>
+            <button class="cabinet__green-btn" (click)="onStartConversation()">{{ t('cabinet.startConversation') }}</button>
           }
         </div>
 
@@ -64,7 +65,10 @@
       <!-- Recommended Courses -->
       @if (facade.courses().length > 0) {
         <section class="cabinet__section">
-          <h2 class="cabinet__section-title">{{ t('cabinet.recommendedCourses') }}</h2>
+          <div class="cabinet__section-header">
+            <h2 class="cabinet__section-title">{{ t('cabinet.recommendedCourses') }}</h2>
+            <button class="cabinet__view-all" (click)="onViewCourses()">{{ t('cabinet.viewAll') }}</button>
+          </div>
           <div class="cabinet__courses">
             @for (course of facade.courses(); track course.id) {
               <div class="course-card" (click)="facade.navigateToCourse(course.id)">

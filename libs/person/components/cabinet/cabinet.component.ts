@@ -45,4 +45,16 @@ export class CabinetComponent implements OnInit {
   onWriteConsultant(): void {
     this.router.navigate(['/person/chat']);
   }
+
+  onStartConversation(): void {
+    if (this.facade.dashboard()?.consultantName) {
+      this.router.navigate(['/person/chat']);
+    } else {
+      this.router.navigate(['/person/request-help']);
+    }
+  }
+
+  onViewCourses(): void {
+    this.router.navigate(['/person/courses']);
+  }
 }

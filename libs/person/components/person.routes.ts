@@ -27,6 +27,11 @@ export const personRoutes: Routes = [
           import('./lesson-detail/lesson-detail.component').then((m) => m.LessonDetailComponent),
       },
       {
+        path: 'request-help',
+        loadComponent: () =>
+          import('./request-help/request-help.component').then((m) => m.RequestHelpComponent),
+      },
+      {
         path: 'chat',
         loadComponent: () =>
           import('./chat/chat.component').then((m) => m.ChatComponent),

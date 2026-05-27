@@ -44,10 +44,18 @@ export class AuthCallbackComponent {
         // ignore decode errors
       }
 
-      const role = win.localStorage.getItem('ihelp_user_role');
-      const staffRoles = ['consultant', 'supervisor', 'coordinator', 'admin'];
-      const redirectPath = role && staffRoles.includes(role) ? '/staff' : '/person';
-      this.router.navigate([redirectPath]);
+      const pendingCourse = win.localStorage.getItem('ihelp_pending_course');
+      if (pendingCourse) {
+        win.localStorage.removeItem('ihelp_pending_course');
+        this.router.navigate(['/person/courses', pendingCourse], {
+          queryParams: { autostart: '1' },
+        });
+      } else {
+        const role = win.localStorage.getItem('ihelp_user_role');
+        const staffRoles = ['consultant', 'supervisor', 'coordinator', 'admin'];
+        const redirectPath = role && staffRoles.includes(role) ? '/staff' : '/person';
+        this.router.navigate([redirectPath]);
+      }
     } else {
       this.router.navigate(['/login']);
     }

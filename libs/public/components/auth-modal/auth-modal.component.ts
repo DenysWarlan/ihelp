@@ -47,6 +47,9 @@ export class AuthModalComponent {
     const win = this.doc.defaultView;
     if (win) {
       const courseId = this.courseId();
+      if (courseId) {
+        win.localStorage.setItem('ihelp_pending_course', courseId);
+      }
       const returnUrl = courseId ? `/person/courses` : '/person';
       win.location.href = `/api/auth/${provider}?returnUrl=${encodeURIComponent(returnUrl)}`;
     }

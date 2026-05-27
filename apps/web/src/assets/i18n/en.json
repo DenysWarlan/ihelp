@@ -233,7 +233,15 @@
     "privacyTitle": "Privacy & account",
     "consultant": "Consultant",
     "settings": "Settings",
-    "notLinked": "Not linked"
+    "notLinked": "Not linked",
+    "startConversation": "Start conversation",
+    "viewAll": "View all"
+  },
+  "requestHelp": {
+    "title": "Request Help",
+    "subtitle": "Fill out the form and we will match you with a consultant",
+    "submit": "Send Request",
+    "back": "Back to cabinet"
   },
   "courses": {
     "title": "My Courses",

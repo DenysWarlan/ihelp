@@ -55,7 +55,7 @@ export class LessonDetailComponent implements OnInit {
   onCompleteLesson(): void {
     const lesson = this.facade.selectedLesson();
     if (lesson && this.courseId) {
-      this.facade.completeLesson(this.courseId, lesson.id);
+      this.facade.completeLessonAndNavigateNext(this.courseId, lesson.id);
     }
   }
 

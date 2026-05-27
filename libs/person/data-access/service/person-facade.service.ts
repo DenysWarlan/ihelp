@@ -5,6 +5,7 @@ import {
   PersonCourse,
   PersonCourseDetail,
   PersonDashboard,
+  PersonLesson,
   PersonLessonDetail,
   PersonMeeting,
   PersonProfile,
@@ -90,8 +91,35 @@ export class PersonFacade {
     this.passwordModel.set({ newPassword: '', currentPassword: '' });
   }
 
+  startCourse(courseId: string): void {
+    this.store.enrollAndStart(courseId);
+  }
+
   completeLesson(courseId: string, lessonId: string): void {
     this.store.completeLesson({ courseId, lessonId });
+  }
+
+  completeLessonAndNavigateNext(courseId: string, lessonId: string): void {
+    this.store.completeLesson({ courseId, lessonId });
+
+    const course: PersonCourseDetail | null = this.selectedCourse();
+    if (!course) {
+      this.navigateToCourse(courseId);
+      return;
+    }
+
+    const sorted: PersonLesson[] = [...course.lessons].sort(
+      (a: PersonLesson, b: PersonLesson) => a.orderIndex - b.orderIndex,
+    );
+    const next: PersonLesson | undefined = sorted.find(
+      (l: PersonLesson) => l.id !== lessonId && !l.isCompleted,
+    );
+
+    if (next) {
+      this.navigateToLesson(courseId, next.id);
+    } else {
+      this.navigateToCourse(courseId);
+    }
   }
 
   enrollInCourse(id: string): void {

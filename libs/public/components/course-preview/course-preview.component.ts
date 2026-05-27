@@ -4,7 +4,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { CoursesFacade } from '@org/public/data-access';
 import { IconComponent } from '@org/shared/ui';
@@ -22,6 +23,8 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 export class CoursePreviewComponent {
   private readonly facade: CoursesFacade = inject(CoursesFacade);
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
+  private readonly router: Router = inject(Router);
+  private readonly doc = inject(DOCUMENT);
 
   readonly course = this.facade.selectedCourse;
   readonly isLoading = this.facade.isLoading;
@@ -37,8 +40,16 @@ export class CoursePreviewComponent {
     }
   }
 
-  openAuthModal(): void {
-    this.isAuthModalOpen.set(true);
+  onStartCourse(): void {
+    const win = this.doc.defaultView;
+    const token = win?.localStorage.getItem('ihelp_token');
+    if (token) {
+      this.router.navigate(['/person/courses', this.courseId], {
+        queryParams: { autostart: '1' },
+      });
+    } else {
+      this.isAuthModalOpen.set(true);
+    }
   }
 
   closeAuthModal(): void {

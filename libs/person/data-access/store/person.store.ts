@@ -6,7 +6,7 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { EMPTY, pipe, switchMap, tap, catchError } from 'rxjs';
+import { EMPTY, of, pipe, switchMap, tap, catchError } from 'rxjs';
 
 import {
   PersonCourse,
@@ -204,6 +204,37 @@ export const PersonStore = signalStore(
                 patchState(store, {
                   isSaving: false,
                   error: 'Failed to update profile',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      enrollAndStart: rxMethod<string>(
+        pipe(
+          tap(() =>
+            patchState(store, {
+              isLoading: true,
+              error: null,
+              selectedCourse: null,
+            }),
+          ),
+          switchMap((courseId: string) =>
+            personService.enrollInCourse(courseId).pipe(
+              catchError(() => of(undefined)),
+              switchMap(() => personService.getCourseDetail(courseId)),
+              tap((course: PersonCourseDetail) => {
+                patchState(store, {
+                  selectedCourse: course,
+                  isLoading: false,
+                });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to start course',
                 });
                 return EMPTY;
               }),

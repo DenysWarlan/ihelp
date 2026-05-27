@@ -117,12 +117,31 @@
     margin-bottom: var(--ihelp-space-6);
   }
 
+  &__section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--ihelp-space-4);
+  }
+
   &__section-title {
     font-family: var(--ihelp-font-heading);
     font-size: 16px;
     font-weight: 600;
     color: var(--ihelp-text-primary);
-    margin: 0 0 var(--ihelp-space-4);
+    margin: 0;
+  }
+
+  &__view-all {
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ihelp-accent);
+    cursor: pointer;
+    padding: 0;
+
+    &:hover { text-decoration: underline; }
   }
 
   &__courses {

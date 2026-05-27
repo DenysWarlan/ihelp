@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { IconComponent } from '@org/shared/ui';
-import { PersonCourseDetail } from '@org/person/data-access';
+import { PersonCourseDetail, PersonLesson } from '@org/person/data-access';
 import { PersonFacade } from '@org/person/data-access';
 
 @Component({
@@ -20,11 +20,33 @@ import { PersonFacade } from '@org/person/data-access';
 export class CourseDetailComponent implements OnInit {
   readonly facade: PersonFacade = inject(PersonFacade);
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
+  private autoStart = false;
+
+  constructor() {
+    effect(() => {
+      const course: PersonCourseDetail | null = this.facade.selectedCourse();
+      if (this.autoStart && course && course.lessons.length > 0) {
+        this.autoStart = false;
+        const sorted: PersonLesson[] = [...course.lessons].sort(
+          (a: PersonLesson, b: PersonLesson) => a.orderIndex - b.orderIndex,
+        );
+        const next: PersonLesson | undefined =
+          sorted.find((l: PersonLesson) => !l.isCompleted) ?? sorted[0];
+        this.facade.navigateToLesson(course.id, next.id);
+      }
+    });
+  }
 
   ngOnInit(): void {
     const id: string = this.route.snapshot.params['id'];
+    const autostart: string | undefined = this.route.snapshot.queryParams['autostart'];
     if (id) {
-      this.facade.loadCourseDetail(id);
+      if (autostart === '1') {
+        this.autoStart = true;
+        this.facade.startCourse(id);
+      } else {
+        this.facade.loadCourseDetail(id);
+      }
     }
   }
 

@@ -1,0 +1,143 @@
+<ng-container *transloco="let t">
+  <div class="request-help">
+    @if (!submitted()) {
+      <div class="request-help__card">
+        <button class="request-help__back" (click)="onBack()">
+          <ui-icon name="ArrowLeft" [size]="16" color="var(--ihelp-accent)" />
+          <span>{{ t('requestHelp.back') }}</span>
+        </button>
+
+        <h1 class="request-help__title">{{ t('requestHelp.title') }}</h1>
+        <p class="request-help__subtitle">{{ t('requestHelp.subtitle') }}</p>
+
+        <form class="request-help__form" (submit)="onSubmit()">
+          <!-- Country -->
+          <div class="request-help__field">
+            <label class="request-help__label">{{ t('needHelp.countryLabel') }}</label>
+            <div class="request-help__select-wrapper">
+              <select
+                class="request-help__select"
+                [ngModel]="country()"
+                (ngModelChange)="country.set($event)"
+                name="country"
+              >
+                <option value="" disabled>{{ t('needHelp.countryPlaceholder') }}</option>
+                <option value="ua">Україна</option>
+                <option value="pl">Польща</option>
+                <option value="de">Німеччина</option>
+                <option value="other">{{ t('needHelp.countryOther') }}</option>
+              </select>
+              <ui-icon name="ChevronDown" [size]="16" color="var(--ihelp-text-muted)" class="request-help__select-icon" />
+            </div>
+          </div>
+
+          <!-- Language -->
+          <div class="request-help__field">
+            <label class="request-help__label">{{ t('needHelp.languageLabel') }}</label>
+            <div class="request-help__select-wrapper">
+              <select
+                class="request-help__select"
+                [ngModel]="language()"
+                (ngModelChange)="language.set($event)"
+                name="language"
+              >
+                <option value="" disabled>{{ t('needHelp.languagePlaceholder') }}</option>
+                <option value="uk">Українська</option>
+                <option value="ru">Російська</option>
+                <option value="en">English</option>
+              </select>
+              <ui-icon name="ChevronDown" [size]="16" color="var(--ihelp-text-muted)" class="request-help__select-icon" />
+            </div>
+          </div>
+
+          <!-- Topic -->
+          <div class="request-help__field">
+            <label class="request-help__label">{{ t('needHelp.topicLabel') }}</label>
+            <div class="request-help__select-wrapper">
+              <select
+                class="request-help__select"
+                [ngModel]="topic()"
+                (ngModelChange)="topic.set($event)"
+                name="topic"
+              >
+                <option value="" disabled>{{ t('needHelp.topicPlaceholder') }}</option>
+                <option value="anxiety">{{ t('needHelp.topicAnxiety') }}</option>
+                <option value="relationships">{{ t('needHelp.topicRelationships') }}</option>
+                <option value="grief">{{ t('needHelp.topicGrief') }}</option>
+                <option value="burnout">{{ t('needHelp.topicBurnout') }}</option>
+                <option value="ptsd">{{ t('needHelp.topicPtsd') }}</option>
+                <option value="other">{{ t('needHelp.topicOther') }}</option>
+              </select>
+              <ui-icon name="ChevronDown" [size]="16" color="var(--ihelp-text-muted)" class="request-help__select-icon" />
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="request-help__field">
+            <label class="request-help__label">{{ t('needHelp.messageLabel') }}</label>
+            <textarea
+              class="request-help__textarea"
+              [placeholder]="t('needHelp.messagePlaceholder')"
+              [ngModel]="message()"
+              (ngModelChange)="message.set($event)"
+              name="message"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <!-- Sensitive consent only -->
+          <div class="request-help__consents">
+            <label class="request-help__consent">
+              <input
+                type="checkbox"
+                class="request-help__checkbox"
+                [ngModel]="consentSensitive()"
+                (ngModelChange)="consentSensitive.set($event)"
+                name="consentSensitive"
+              />
+              <span>{{ t('needHelp.consentProcessing') }}</span>
+            </label>
+          </div>
+
+          @if (error()) {
+            <div class="request-help__error" role="alert">
+              <ui-icon name="AlertCircle" [size]="16" color="var(--ihelp-error, #dc2626)" />
+              <span>{{ t(error()!) }}</span>
+            </div>
+          }
+
+          <button
+            type="submit"
+            class="request-help__submit"
+            [class.request-help__submit--loading]="loading()"
+            [disabled]="!canSubmit()"
+          >
+            @if (loading()) {
+              <span class="request-help__spinner"></span>
+              {{ t('needHelp.submitting') }}
+            } @else {
+              {{ t('requestHelp.submit') }}
+            }
+          </button>
+        </form>
+      </div>
+    } @else {
+      <div class="request-help__success">
+        <div class="request-help__success-icon">
+          <ui-icon name="Check" [size]="36" color="var(--ihelp-accent)" />
+        </div>
+        <h2 class="request-help__success-title">{{ t('needHelp.successTitle') }}</h2>
+        <p class="request-help__success-text">{{ t('needHelp.successText') }}</p>
+
+        <div class="request-help__actions">
+          <button class="request-help__action-btn" (click)="onGoToCourses()">
+            {{ t('needHelp.browseCourses') }}
+          </button>
+          <button class="request-help__action-btn request-help__action-btn--outline" (click)="onBack()">
+            {{ t('requestHelp.back') }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</ng-container>
