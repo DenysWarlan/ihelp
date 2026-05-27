@@ -9,7 +9,14 @@ export default [
             "**/*.ts",
             "**/*.js"
         ],
-        // Override or add rules here
-        rules: {}
+        rules: {
+            "playwright/no-networkidle": "warn",
+            "playwright/no-conditional-in-test": "warn",
+            "playwright/no-conditional-expect": "warn",
+            "playwright/prefer-web-first-assertions": "warn",
+            "playwright/valid-title": "warn",
+            "@typescript-eslint/no-non-null-assertion": "warn",
+            "@typescript-eslint/no-unused-expressions": "warn",
+        }
     }
 ];
