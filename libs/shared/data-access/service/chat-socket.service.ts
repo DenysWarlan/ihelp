@@ -57,9 +57,9 @@ export class ChatSocketService implements OnDestroy {
     const token = win.localStorage.getItem('ihelp_token');
     if (!token) return;
 
-    // Connect directly to the API server (CORS is enabled on the gateway)
-    const apiHost = win.location.hostname;
-    const apiUrl = `${win.location.protocol}//${apiHost}:8888/chat`;
+    // Connect to the API through the same origin (nginx/Railway proxy handles routing)
+    // In production, Socket.io path /socket.io/ is proxied to the API server
+    const apiUrl = `${win.location.origin}/chat`;
 
     this.socket = io(apiUrl, {
       auth: { token },
