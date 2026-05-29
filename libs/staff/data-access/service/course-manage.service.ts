@@ -2,7 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { AdminCourse, CreateCourseFormModel } from '../model/course-manage.model';
+import {
+  AdminCourse,
+  AdminCourseDetail,
+  AdminLesson,
+  CourseStatus,
+  CreateCourseFormModel,
+} from '../model/course-manage.model';
 
 @Injectable({ providedIn: 'root' })
 export class CourseManageService {
@@ -17,20 +23,74 @@ export class CourseManageService {
     );
   }
 
+  getCourseDetail(id: string): Observable<AdminCourseDetail> {
+    return this.http.get<AdminCourseDetail>(`/api/admin/courses/${id}`);
+  }
+
   createCourse(dto: CreateCourseFormModel): Observable<AdminCourse> {
     return this.http.post<AdminCourse>('/api/admin/courses', dto);
+  }
+
+  updateCourse(
+    id: string,
+    dto: Partial<{ title: string; description: string }>
+  ): Observable<AdminCourseDetail> {
+    return this.http.patch<AdminCourseDetail>(`/api/admin/courses/${id}`, dto);
   }
 
   deleteCourse(id: string): Observable<void> {
     return this.http.delete<void>(`/api/admin/courses/${id}`);
   }
 
-  changeStatus(
-    id: string,
-    status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
-  ): Observable<AdminCourse> {
+  changeStatus(id: string, status: CourseStatus): Observable<AdminCourse> {
     return this.http.post<AdminCourse>(`/api/admin/courses/${id}/status`, {
       status,
     });
+  }
+
+  createLesson(
+    courseId: string,
+    dto: {
+      title: string;
+      content: string;
+      contentType: string;
+      videoUrl?: string;
+      imageUrl?: string;
+    }
+  ): Observable<AdminLesson> {
+    return this.http.post<AdminLesson>(
+      `/api/admin/courses/${courseId}/lessons`,
+      dto
+    );
+  }
+
+  updateLesson(
+    courseId: string,
+    lessonId: string,
+    dto: Partial<{
+      title: string;
+      content: string;
+      contentType: string;
+      videoUrl: string | null;
+      imageUrl: string | null;
+    }>
+  ): Observable<AdminLesson> {
+    return this.http.patch<AdminLesson>(
+      `/api/admin/courses/${courseId}/lessons/${lessonId}`,
+      dto
+    );
+  }
+
+  deleteLesson(courseId: string, lessonId: string): Observable<void> {
+    return this.http.delete<void>(
+      `/api/admin/courses/${courseId}/lessons/${lessonId}`
+    );
+  }
+
+  uploadFile(formData: unknown): Observable<{ key: string; url: string }> {
+    return this.http.post<{ key: string; url: string }>(
+      '/api/storage/upload',
+      formData
+    );
   }
 }

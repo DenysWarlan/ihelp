@@ -96,6 +96,10 @@
   }
 
   &:not(:empty) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--ihelp-space-3);
     padding: var(--ihelp-space-4) var(--ihelp-space-6);
     border-top: 1px solid var(--ihelp-border);
     flex-shrink: 0;

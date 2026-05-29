@@ -103,6 +103,13 @@ export const staffRoutes: Routes = [
           ),
       },
       {
+        path: 'courses/:id',
+        loadComponent: () =>
+          import('./course-edit/course-edit.component').then(
+            (m) => m.CourseEditComponent,
+          ),
+      },
+      {
         path: 'team',
         loadComponent: () =>
           import('./team/team.component').then(

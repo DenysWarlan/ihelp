@@ -19,31 +19,53 @@
 
     <div class="courses-page__grid">
       @for (course of facade.courses(); track course.id) {
-        <ui-card padding="md">
-          <div class="course-card">
+        <div class="course-card">
+          <div class="course-card__accent-strip course-card__accent-strip--{{ course.status | lowercase }}"></div>
+          <div class="course-card__body">
             <div class="course-card__header">
-              <span class="course-card__title">{{ course.title }}</span>
+              <h3 class="course-card__title">{{ course.title }}</h3>
               <ui-badge [variant]="facade.getStatusBadgeVariant(course.status)" size="sm">
                 {{ t('admin.courseStatus_' + course.status) }}
               </ui-badge>
             </div>
-            <div class="course-card__meta">
+            <div class="course-card__stats">
               <span class="course-card__stat">
-                {{ course.lessonsCount }} {{ t('admin.lessonsUnit') }} · {{ course.enrollmentsCount }} {{ t('admin.studentsUnit') }}
+                <ui-icon name="BookOpen" [size]="14" color="var(--ihelp-text-muted)" />
+                {{ course.lessonsCount }} {{ t('admin.lessonsUnit') }}
+              </span>
+              <span class="course-card__stat">
+                <ui-icon name="Users" [size]="14" color="var(--ihelp-text-muted)" />
+                {{ course.enrollmentsCount }} {{ t('admin.studentsUnit') }}
               </span>
             </div>
             <div class="course-card__actions">
-              <ui-button variant="secondary" size="sm">
+              <ui-button variant="secondary" size="sm" (click)="onEditCourse(course.id)">
                 <ui-icon name="Edit" [size]="14" />
                 {{ t('admin.editCourse') }}
               </ui-button>
-              <ui-button variant="secondary" size="sm">
-                <ui-icon name="Eye" [size]="14" />
-                {{ t('admin.previewCourse') }}
-              </ui-button>
+              @switch (course.status) {
+                @case ('DRAFT') {
+                  <ui-button variant="primary" size="sm" (click)="onChangeStatus(course.id, 'PUBLISHED')">
+                    <ui-icon name="Globe" [size]="14" />
+                    {{ t('admin.publish') }}
+                  </ui-button>
+                }
+                @case ('PUBLISHED') {
+                  <ui-button variant="secondary" size="sm" (click)="onChangeStatus(course.id, 'HIDDEN')">
+                    <ui-icon name="EyeOff" [size]="14" />
+                    {{ t('admin.hide') }}
+                  </ui-button>
+                }
+                @case ('HIDDEN') {
+                  <ui-button variant="primary" size="sm" (click)="onChangeStatus(course.id, 'PUBLISHED')">
+                    <ui-icon name="Globe" [size]="14" />
+                    {{ t('admin.publish') }}
+                  </ui-button>
+                }
+              }
             </div>
           </div>
-        </ui-card>
+        </div>
       } @empty {
         @if (!facade.isLoading()) {
           <p class="courses-page__empty">{{ t('admin.noCourses') }}</p>

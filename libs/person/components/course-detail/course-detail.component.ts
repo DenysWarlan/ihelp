@@ -74,18 +74,18 @@ export class CourseDetailComponent implements OnInit {
     }
   }
 
-  onOpenLesson(lessonId: string): void {
-    const course = this.facade.selectedCourse();
-    if (course) {
-      this.facade.navigateToLesson(course.id, lessonId);
-    }
+  isLessonLocked(index: number, course: PersonCourseDetail): boolean {
+    if (index === 0) return false;
+    const sorted: PersonLesson[] = [...course.lessons].sort(
+      (a: PersonLesson, b: PersonLesson) => a.orderIndex - b.orderIndex,
+    );
+    const prevLesson: PersonLesson | undefined = sorted[index - 1];
+    return prevLesson ? !prevLesson.isCompleted : false;
   }
 
-  onCompleteLesson(lessonId: string): void {
-    const course = this.facade.selectedCourse();
-    if (course) {
-      this.facade.completeLesson(course.id, lessonId);
-    }
+  onOpenLesson(lessonId: string, index: number, course: PersonCourseDetail): void {
+    if (this.isLessonLocked(index, course)) return;
+    this.facade.navigateToLesson(course.id, lessonId);
   }
 
   onBack(): void {

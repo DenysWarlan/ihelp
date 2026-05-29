@@ -234,6 +234,7 @@ model Lesson {
   content           String            @default("")
   contentType       LessonContentType @default(TEXT) @map("content_type")
   videoUrl          String?           @map("video_url")
+  imageUrl          String?           @map("image_url")
   sortOrder         Int               @default(0) @map("sort_order")
   hasTriggerWarning Boolean           @default(false) @map("has_trigger_warning")
   createdAt         DateTime          @default(now()) @map("created_at")

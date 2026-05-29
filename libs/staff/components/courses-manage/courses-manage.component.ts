@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
   BadgeComponent,
   ButtonComponent,
-  CardComponent,
   IconComponent,
   InputComponent,
   ModalComponent,
   TextareaComponent,
 } from '@org/shared/ui';
-import { CourseManageFacade } from '@org/staff/data-access';
+import { CourseManageFacade, CourseStatus } from '@org/staff/data-access';
 
 @Component({
   selector: 'app-courses-manage',
@@ -19,9 +19,9 @@ import { CourseManageFacade } from '@org/staff/data-access';
   imports: [
     TranslocoDirective,
     FormsModule,
+    LowerCasePipe,
     BadgeComponent,
     ButtonComponent,
-    CardComponent,
     IconComponent,
     InputComponent,
     ModalComponent,
@@ -54,7 +54,11 @@ export class CoursesManageComponent implements OnInit {
     this.facade.updateField(field, value);
   }
 
-  protected onArchiveCourse(id: string): void {
-    this.facade.changeStatus(id, 'ARCHIVED');
+  protected onEditCourse(id: string): void {
+    this.facade.navigateToCourseEdit(id);
+  }
+
+  protected onChangeStatus(id: string, status: CourseStatus): void {
+    this.facade.changeStatus(id, status);
   }
 }

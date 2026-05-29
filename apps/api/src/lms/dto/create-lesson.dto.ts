@@ -23,6 +23,11 @@ export class CreateLessonDto {
   @IsOptional()
   videoUrl?: string;
 
+  @ApiPropertyOptional({ description: 'Image URL (uploaded or external link)' })
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
+
   @ApiPropertyOptional({ description: 'Sort position within course' })
   @IsInt()
   @Min(0)

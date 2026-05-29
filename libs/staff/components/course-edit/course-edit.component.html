@@ -1,0 +1,188 @@
+<ng-container *transloco="let t">
+  <section class="course-edit">
+    <button class="course-edit__back" (click)="onBack()">
+      <ui-icon name="ArrowLeft" [size]="16" color="var(--ihelp-accent)" />
+      <span>{{ t('admin.backToCourses') }}</span>
+    </button>
+
+    @if (facade.isLoading()) {
+      <p class="course-edit__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.selectedCourse(); as course) {
+      <div class="course-edit__header">
+        <div class="course-edit__header-left">
+          <h1 class="course-edit__title">{{ course.title }}</h1>
+          <ui-badge [variant]="facade.getStatusBadgeVariant(course.status)" size="sm">
+            {{ t('admin.courseStatus_' + course.status) }}
+          </ui-badge>
+        </div>
+        <div class="course-edit__header-actions">
+          @switch (course.status) {
+            @case ('DRAFT') {
+              <ui-button variant="primary" size="sm" (click)="onPublish()" [loading]="facade.isSaving()">
+                <ui-icon name="Globe" [size]="14" />
+                {{ t('admin.publish') }}
+              </ui-button>
+            }
+            @case ('PUBLISHED') {
+              <ui-button variant="secondary" size="sm" (click)="onHide()" [loading]="facade.isSaving()">
+                <ui-icon name="EyeOff" [size]="14" />
+                {{ t('admin.hide') }}
+              </ui-button>
+              <ui-button variant="secondary" size="sm" (click)="onDraft()" [loading]="facade.isSaving()">
+                <ui-icon name="Edit3" [size]="14" />
+                {{ t('admin.toDraft') }}
+              </ui-button>
+            }
+            @case ('HIDDEN') {
+              <ui-button variant="primary" size="sm" (click)="onPublish()" [loading]="facade.isSaving()">
+                <ui-icon name="Globe" [size]="14" />
+                {{ t('admin.publish') }}
+              </ui-button>
+              <ui-button variant="secondary" size="sm" (click)="onDraft()" [loading]="facade.isSaving()">
+                <ui-icon name="Edit3" [size]="14" />
+                {{ t('admin.toDraft') }}
+              </ui-button>
+            }
+          }
+        </div>
+      </div>
+
+      @if (facade.error(); as errorMsg) {
+        <p class="course-edit__error">{{ errorMsg }}</p>
+      }
+
+      <h2 class="course-edit__section-title">{{ t('admin.courseInfo') }}</h2>
+      <div class="course-edit__form">
+        <ui-input
+          [label]="t('admin.courseTitle')"
+          [ngModel]="course.title"
+          (ngModelChange)="onSaveTitle($event)"
+          name="courseTitle"
+        />
+        <ui-textarea
+          [label]="t('admin.courseDescription')"
+          [ngModel]="course.description"
+          (ngModelChange)="onSaveDescription($event)"
+          name="courseDescription"
+        />
+      </div>
+
+      <div class="course-edit__lessons-header">
+        <h2 class="course-edit__section-title">
+          {{ t('admin.lessons') }} ({{ course.lessons.length }})
+        </h2>
+        <ui-button variant="primary" size="sm" (click)="onAddLesson()">
+          <ui-icon name="Plus" [size]="14" />
+          {{ t('admin.addLesson') }}
+        </ui-button>
+      </div>
+
+      <div class="course-edit__lessons">
+        @for (lesson of course.lessons; track lesson.id; let i = $index) {
+          <div class="lesson-row">
+            <div class="lesson-row__order">{{ i + 1 }}</div>
+            <ui-icon [name]="getLessonIcon(lesson.contentType)" [size]="16" color="var(--ihelp-text-muted)" />
+            <div class="lesson-row__info">
+              <span class="lesson-row__title">{{ lesson.title }}</span>
+              <span class="lesson-row__meta">
+                {{ lesson.contentType }}
+                @if (lesson.videoUrl) {
+                  · {{ t('admin.hasVideo') }}
+                }
+                @if (lesson.imageUrl) {
+                  · {{ t('admin.hasImage') }}
+                }
+                @if (lesson.hasTriggerWarning) {
+                  · <ui-icon name="AlertTriangle" [size]="12" color="var(--ihelp-warning)" />
+                  {{ t('admin.triggerWarning') }}
+                }
+              </span>
+            </div>
+            <div class="lesson-row__actions">
+              <ui-button variant="secondary" size="sm" (click)="onEditLesson(lesson)">
+                <ui-icon name="Edit" [size]="14" />
+              </ui-button>
+              <ui-button variant="secondary" size="sm" (click)="onDeleteLesson(lesson)">
+                <ui-icon name="Trash2" [size]="14" />
+              </ui-button>
+            </div>
+          </div>
+        } @empty {
+          <p class="course-edit__empty">{{ t('admin.noLessons') }}</p>
+        }
+      </div>
+    } @else {
+      <p class="course-edit__empty">{{ t('admin.courseNotFound') }}</p>
+    }
+  </section>
+
+  <ui-modal
+    [isOpen]="facade.showLessonModal()"
+    [title]="facade.editingLesson() ? t('admin.editLesson') : t('admin.addLesson')"
+    (closed)="onCloseLessonModal()"
+  >
+    <form class="modal-form" (submit)="onSubmitLesson()">
+      <ui-input
+        [label]="t('admin.lessonTitle')"
+        [placeholder]="t('admin.lessonTitlePlaceholder')"
+        [ngModel]="facade.lessonModel().title"
+        (ngModelChange)="onLessonFieldChange('title', $event)"
+        name="lessonTitle"
+      />
+      <ui-textarea
+        [label]="t('admin.lessonDescription')"
+        [placeholder]="t('admin.lessonDescriptionPlaceholder')"
+        [ngModel]="facade.lessonModel().content"
+        (ngModelChange)="onLessonFieldChange('content', $event)"
+        name="lessonContent"
+      />
+      <ui-select
+        [label]="t('admin.contentType')"
+        [options]="contentTypeOptions"
+        [ngModel]="facade.lessonModel().contentType"
+        (ngModelChange)="onLessonFieldChange('contentType', $event)"
+        name="contentType"
+      />
+      <ui-input
+        [label]="t('admin.videoUrl')"
+        [placeholder]="t('admin.videoUrlPlaceholder')"
+        [ngModel]="facade.lessonModel().videoUrl"
+        (ngModelChange)="onLessonFieldChange('videoUrl', $event)"
+        name="videoUrl"
+      />
+
+      <ui-checkbox
+        [label]="t('admin.hasTriggerWarning')"
+        [ngModel]="facade.lessonModel().hasTriggerWarning"
+        (ngModelChange)="onLessonFieldChange('hasTriggerWarning', $event)"
+        name="hasTriggerWarning"
+      />
+
+      <ui-input
+        [label]="t('admin.imageUrlOrUpload')"
+        [placeholder]="t('admin.imageUrlPlaceholder')"
+        [ngModel]="facade.lessonModel().imageUrl"
+        (ngModelChange)="onLessonFieldChange('imageUrl', $event)"
+        name="imageUrl"
+      />
+      <div class="modal-form__upload">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          (change)="onImageFileSelected($event)"
+          class="modal-form__file-input"
+        />
+        @if (facade.isUploading()) {
+          <span class="modal-form__uploading">{{ t('common.loading') }}</span>
+        }
+      </div>
+
+    </form>
+    <ui-button modal-footer variant="secondary" (click)="onCloseLessonModal()">
+      {{ t('admin.cancel') }}
+    </ui-button>
+    <ui-button modal-footer variant="primary" (click)="onSubmitLesson();" [loading]="facade.isSaving()">
+      {{ facade.editingLesson() ? t('admin.save') : t('admin.create') }}
+    </ui-button>
+  </ui-modal>
+</ng-container>

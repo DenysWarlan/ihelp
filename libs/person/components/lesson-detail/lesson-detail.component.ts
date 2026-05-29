@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, Signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { IconComponent } from '@org/shared/ui';
-import { PersonFacade } from '@org/person/data-access';
+import { PersonFacade, PersonLesson, PersonLessonDetail } from '@org/person/data-access';
 
 @Component({
   selector: 'app-lesson-detail',
@@ -17,12 +18,29 @@ import { PersonFacade } from '@org/person/data-access';
   styleUrl: './lesson-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LessonDetailComponent implements OnInit {
+export class LessonDetailComponent {
   readonly facade: PersonFacade = inject(PersonFacade);
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
   private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
 
-  private courseId = '';
+  private readonly params: Signal<Params | undefined> = toSignal(this.route.params);
+
+  readonly courseId: Signal<string> = computed(() => this.params()?.['courseId'] ?? '');
+  private readonly lessonId: Signal<string> = computed(() => this.params()?.['lessonId'] ?? '');
+
+  constructor() {
+    effect(() => {
+      const courseId = this.courseId();
+      const lessonId = this.lessonId();
+      if (courseId && lessonId) {
+        this.facade.loadLessonDetail(courseId, lessonId);
+        const course = this.facade.selectedCourse();
+        if (!course || course.id !== courseId) {
+          this.facade.loadCourseDetail(courseId);
+        }
+      }
+    });
+  }
 
   readonly youtubeEmbedUrl: Signal<SafeResourceUrl | null> = computed(() => {
     const lesson = this.facade.selectedLesson();
@@ -40,22 +58,62 @@ export class LessonDetailComponent implements OnInit {
     return lesson.videoUrl.includes('youtube.com') || lesson.videoUrl.includes('youtu.be');
   });
 
-  ngOnInit(): void {
-    this.courseId = this.route.snapshot.params['courseId'];
-    const lessonId: string = this.route.snapshot.params['lessonId'];
-    if (this.courseId && lessonId) {
-      this.facade.loadLessonDetail(this.courseId, lessonId);
+  readonly nextLesson: Signal<PersonLesson | null> = computed(() => {
+    const lesson = this.facade.selectedLesson();
+    const course = this.facade.selectedCourse();
+    if (!lesson || !course) return null;
+    const sorted: PersonLesson[] = [...course.lessons].sort(
+      (a: PersonLesson, b: PersonLesson) => a.orderIndex - b.orderIndex,
+    );
+    const currentIndex: number = sorted.findIndex((l: PersonLesson) => l.id === lesson.id);
+    if (currentIndex < 0 || currentIndex >= sorted.length - 1) return null;
+    return sorted[currentIndex + 1];
+  });
+
+  readonly canGoToNext: Signal<boolean> = computed(() => {
+    const lesson = this.facade.selectedLesson();
+    return !!lesson?.isCompleted && !!this.nextLesson();
+  });
+
+  readonly sortedLessons: Signal<PersonLesson[]> = computed(() => {
+    const course = this.facade.selectedCourse();
+    if (!course) return [];
+    return [...course.lessons].sort(
+      (a: PersonLesson, b: PersonLesson) => a.orderIndex - b.orderIndex,
+    );
+  });
+
+  readonly currentLessonIndex: Signal<number> = computed(() => {
+    const lesson: PersonLessonDetail | null = this.facade.selectedLesson();
+    const sorted: PersonLesson[] = this.sortedLessons();
+    if (!lesson || sorted.length === 0) return -1;
+    return sorted.findIndex((l: PersonLesson) => l.id === lesson.id);
+  });
+
+  onGoToLesson(lesson: PersonLesson): void {
+    const courseId = this.courseId();
+    if (courseId) {
+      this.facade.navigateToLesson(courseId, lesson.id);
     }
   }
 
   onBack(): void {
-    this.facade.navigateToCourse(this.courseId);
+    this.facade.navigateToCourse(this.courseId());
   }
 
   onCompleteLesson(): void {
     const lesson = this.facade.selectedLesson();
-    if (lesson && this.courseId) {
-      this.facade.completeLessonAndNavigateNext(this.courseId, lesson.id);
+    const courseId = this.courseId();
+    if (lesson && courseId) {
+      this.facade.completeLesson(courseId, lesson.id);
+    }
+  }
+
+  onNextLesson(): void {
+    const next = this.nextLesson();
+    const courseId = this.courseId();
+    if (next && courseId) {
+      this.facade.navigateToLesson(courseId, next.id);
     }
   }
 

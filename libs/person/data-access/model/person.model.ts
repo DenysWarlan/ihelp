@@ -53,6 +53,7 @@ export interface PersonLessonDetail {
   readonly content: string;
   readonly contentType: string;
   readonly videoUrl: string | null;
+  readonly imageUrl: string | null;
   readonly orderIndex: number;
   readonly hasTriggerWarning: boolean;
   readonly isCompleted: boolean;

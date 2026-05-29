@@ -3,6 +3,8 @@
 }
 
 .course-detail-page {
+  max-width: 760px;
+
   &__back {
     display: inline-flex;
     align-items: center;
@@ -21,11 +23,7 @@
     }
   }
 
-  &__loading {
-    color: var(--ihelp-text-muted);
-    font-size: var(--ihelp-text-sm);
-  }
-
+  &__loading,
   &__empty {
     color: var(--ihelp-text-muted);
     font-size: var(--ihelp-text-sm);
@@ -34,8 +32,10 @@
   &__header {
     display: flex;
     flex-direction: column;
-    gap: var(--ihelp-space-3);
+    gap: var(--ihelp-space-4);
     margin-bottom: var(--ihelp-space-8);
+    padding-bottom: var(--ihelp-space-6);
+    border-bottom: 1px solid var(--ihelp-border);
   }
 
   &__title {
@@ -44,12 +44,13 @@
     font-weight: var(--ihelp-font-bold);
     color: var(--ihelp-text-primary);
     margin: 0;
+    line-height: 1.2;
   }
 
   &__desc {
     font-size: var(--ihelp-text-sm);
     color: var(--ihelp-text-muted);
-    line-height: 1.5;
+    line-height: 1.6;
     margin: 0;
   }
 
@@ -109,6 +110,7 @@
   }
 }
 
+// Timeline lesson item
 .lesson-item {
   display: flex;
   gap: var(--ihelp-space-4);
@@ -118,21 +120,21 @@
     flex-direction: column;
     align-items: center;
     flex-shrink: 0;
-    width: 32px;
+    width: 36px;
   }
 
   &__circle {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background-color: var(--ihelp-bg-secondary);
+    background-color: var(--ihelp-surface, #fff);
     border: 2px solid var(--ihelp-border);
     color: var(--ihelp-text-secondary);
-    font-size: var(--ihelp-text-xs);
+    font-size: var(--ihelp-text-sm);
     font-weight: var(--ihelp-font-semibold);
     transition: all 0.2s ease;
 
@@ -141,12 +143,18 @@
       border-color: var(--ihelp-success);
       color: #fff;
     }
+
+    &--locked {
+      background-color: var(--ihelp-bg-secondary);
+      border-color: var(--ihelp-border);
+      color: var(--ihelp-text-muted);
+    }
   }
 
   &__line {
     width: 2px;
     flex: 1;
-    min-height: 16px;
+    min-height: 20px;
     background-color: var(--ihelp-border);
     transition: background-color 0.2s ease;
 
@@ -160,23 +168,35 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ihelp-space-3);
-    padding: var(--ihelp-space-4);
+    gap: var(--ihelp-space-4);
+    padding: var(--ihelp-space-4) var(--ihelp-space-5);
     margin-bottom: var(--ihelp-space-3);
-    background-color: var(--ihelp-bg-primary);
+    background-color: var(--ihelp-surface, #fff);
     border: 1px solid var(--ihelp-border);
     border-radius: var(--ihelp-radius-lg);
     cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 
     &:hover {
       border-color: var(--ihelp-accent);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
     }
   }
 
   &--completed &__card {
     background-color: var(--ihelp-bg-secondary);
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--locked &__card {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   &__content {
@@ -210,13 +230,13 @@
   &__btn {
     display: inline-flex;
     align-items: center;
-    padding: var(--ihelp-space-2) var(--ihelp-space-4);
+    padding: var(--ihelp-space-2) var(--ihelp-space-5);
     font-size: var(--ihelp-text-sm);
     font-weight: var(--ihelp-font-medium);
     color: var(--ihelp-accent);
     background-color: transparent;
     border: 1px solid var(--ihelp-accent);
-    border-radius: var(--ihelp-radius-md);
+    border-radius: var(--ihelp-radius-full, 9999px);
     cursor: pointer;
     white-space: nowrap;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -230,9 +250,18 @@
   &__completed-badge {
     display: flex;
     align-items: center;
-    gap: var(--ihelp-space-1);
+    gap: var(--ihelp-space-2);
     font-size: var(--ihelp-text-sm);
     color: var(--ihelp-success);
+    font-weight: var(--ihelp-font-medium);
+  }
+
+  &__locked-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-1);
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-text-muted);
     font-weight: var(--ihelp-font-medium);
   }
 }

@@ -1,0 +1,215 @@
+:host {
+  display: block;
+}
+
+.course-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-6);
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ihelp-space-2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--ihelp-text-sm);
+    font-weight: var(--ihelp-font-medium);
+    color: var(--ihelp-accent);
+    padding: 0;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__loading,
+  &__empty {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-text-muted);
+  }
+
+  &__error {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-error);
+    padding: var(--ihelp-space-3) var(--ihelp-space-4);
+    background-color: rgba(239, 68, 68, 0.08);
+    border: 1px solid var(--ihelp-error);
+    border-radius: var(--ihelp-radius-md);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--ihelp-space-3);
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-3);
+  }
+
+  &__title {
+    font-family: var(--ihelp-font-heading);
+    font-size: var(--ihelp-text-2xl);
+    font-weight: var(--ihelp-font-bold);
+    color: var(--ihelp-text-primary);
+    margin: 0;
+  }
+
+  &__header-actions {
+    display: flex;
+    gap: var(--ihelp-space-2);
+  }
+
+  &__section-title {
+    font-family: var(--ihelp-font-heading);
+    font-size: var(--ihelp-text-lg);
+    font-weight: var(--ihelp-font-semibold);
+    color: var(--ihelp-text-primary);
+    margin: 0;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-4);
+    margin-top: var(--ihelp-space-3);
+  }
+
+  &__lessons-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__lessons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-2);
+  }
+}
+
+// Lesson row — clean card-like rows
+.lesson-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+  padding: var(--ihelp-space-3) var(--ihelp-space-4);
+  background-color: var(--ihelp-surface, #fff);
+  border: 1px solid var(--ihelp-border);
+  border-radius: var(--ihelp-radius-lg);
+  transition: border-color 0.2s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: var(--ihelp-accent);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  &__order {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-color: var(--ihelp-bg-secondary);
+    font-size: var(--ihelp-text-xs);
+    font-weight: var(--ihelp-font-semibold);
+    color: var(--ihelp-text-secondary);
+  }
+
+  &__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: var(--ihelp-text-base);
+    font-weight: var(--ihelp-font-medium);
+    color: var(--ihelp-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-2);
+    font-size: var(--ihelp-text-xs);
+    color: var(--ihelp-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--ihelp-space-1);
+    flex-shrink: 0;
+  }
+}
+
+// Lesson modal form
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+
+  &__upload {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-3);
+  }
+
+  &__file-input {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-text-secondary);
+
+    &::file-selector-button {
+      padding: var(--ihelp-space-2) var(--ihelp-space-4);
+      border-radius: var(--ihelp-radius-md);
+      border: 1px solid var(--ihelp-border);
+      background-color: var(--ihelp-surface, #fff);
+      font-size: var(--ihelp-text-sm);
+      font-weight: var(--ihelp-font-medium);
+      color: var(--ihelp-text-secondary);
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+
+      &:hover {
+        border-color: var(--ihelp-accent);
+      }
+    }
+  }
+
+  &__uploading {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-accent);
+    font-weight: var(--ihelp-font-medium);
+  }
+}
+
+@media (max-width: 767px) {
+  .course-edit__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lesson-row {
+    flex-wrap: wrap;
+
+    &__actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}

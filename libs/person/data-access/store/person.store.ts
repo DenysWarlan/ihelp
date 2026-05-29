@@ -296,6 +296,7 @@ export const PersonStore = signalStore(
 
       completeLesson: rxMethod<{ courseId: string; lessonId: string }>(
         pipe(
+          tap(() => patchState(store, { isSaving: true })),
           switchMap(({ courseId, lessonId }) =>
             personService.completeLesson(courseId, lessonId).pipe(
               tap(() => {
@@ -338,12 +339,16 @@ export const PersonStore = signalStore(
                 if (lesson && lesson.id === lessonId) {
                   patchState(store, {
                     selectedLesson: { ...lesson, isCompleted: true, completedAt: new Date().toISOString() },
+                    isSaving: false,
                   });
+                } else {
+                  patchState(store, { isSaving: false });
                 }
               }),
               catchError(() => {
                 patchState(store, {
                   error: 'Failed to complete lesson',
+                  isSaving: false,
                 });
                 return EMPTY;
               }),

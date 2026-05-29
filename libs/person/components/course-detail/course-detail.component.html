@@ -34,11 +34,17 @@
 
       <div class="course-detail-page__lessons">
         @for (lesson of course.lessons; track lesson.id; let i = $index; let last = $last) {
-          <div class="lesson-item" [class.lesson-item--completed]="lesson.isCompleted">
+          <div class="lesson-item"
+               [class.lesson-item--completed]="lesson.isCompleted"
+               [class.lesson-item--locked]="isLessonLocked(i, course)">
             <div class="lesson-item__timeline">
-              <div class="lesson-item__circle" [class.lesson-item__circle--completed]="lesson.isCompleted">
+              <div class="lesson-item__circle"
+                   [class.lesson-item__circle--completed]="lesson.isCompleted"
+                   [class.lesson-item__circle--locked]="isLessonLocked(i, course)">
                 @if (lesson.isCompleted) {
                   <ui-icon name="Check" [size]="14" color="#fff" />
+                } @else if (isLessonLocked(i, course)) {
+                  <ui-icon name="Lock" [size]="14" />
                 } @else {
                   <span>{{ lesson.orderIndex }}</span>
                 }
@@ -48,7 +54,7 @@
               }
             </div>
 
-            <div class="lesson-item__card" (click)="onOpenLesson(lesson.id)">
+            <div class="lesson-item__card" (click)="onOpenLesson(lesson.id, i, course)">
               <div class="lesson-item__content">
                 <div class="lesson-item__type">
                   <ui-icon [name]="getLessonIcon(lesson.contentType)" [size]="14" />
@@ -63,9 +69,14 @@
                     <ui-icon name="CheckCircle" [size]="16" color="var(--ihelp-success)" />
                     <span>{{ t('courseDetail.completed') }}</span>
                   </div>
+                } @else if (isLessonLocked(i, course)) {
+                  <div class="lesson-item__locked-badge">
+                    <ui-icon name="Lock" [size]="14" />
+                    <span>{{ t('courseDetail.locked') }}</span>
+                  </div>
                 } @else {
-                  <button class="lesson-item__btn" (click)="onCompleteLesson(lesson.id); $event.stopPropagation()">
-                    {{ t('courseDetail.markComplete') }}
+                  <button class="lesson-item__btn" (click)="onOpenLesson(lesson.id, i, course); $event.stopPropagation()">
+                    {{ t('courseDetail.goToLesson') }}
                   </button>
                 }
               </div>

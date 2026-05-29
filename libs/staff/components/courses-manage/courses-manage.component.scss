@@ -5,7 +5,7 @@
 .courses-page {
   display: flex;
   flex-direction: column;
-  gap: var(--ihelp-space-4);
+  gap: var(--ihelp-space-6);
 }
 
 .courses-page__header {
@@ -18,8 +18,8 @@
 
 .courses-page__title {
   font-family: var(--ihelp-font-heading);
-  font-size: 28px;
-  font-weight: 700;
+  font-size: var(--ihelp-text-2xl);
+  font-weight: var(--ihelp-font-bold);
   color: var(--ihelp-text-primary);
   margin: 0;
 }
@@ -44,13 +44,14 @@
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
-  gap: var(--ihelp-space-3);
+
+  gap: var(--ihelp-space-4);
 }
 
 .courses-page__loading,
 .courses-page__error,
 .courses-page__empty {
-  font-size: 14px;
+  font-size: var(--ihelp-text-sm);
   color: var(--ihelp-text-muted);
 }
 
@@ -58,41 +59,82 @@
   color: var(--ihelp-error);
 }
 
+// Course card — matches design mockup
 .course-card {
   display: flex;
   flex-direction: column;
-  gap: var(--ihelp-space-2);
-}
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--ihelp-surface);
+  border: 1px solid var(--ihelp-border, rgba(0, 0, 0, 0.08));
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 
-.course-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ihelp-space-2);
-}
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
 
-.course-card__title {
-  font-weight: 600;
-  font-size: 16px;
-  color: var(--ihelp-text-primary);
-}
+  &__accent-strip {
+    height: 4px;
+    flex-shrink: 0;
 
-.course-card__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--ihelp-space-2);
-  flex-wrap: wrap;
-}
+    &--published {
+      background-color: var(--ihelp-success, #22c55e);
+    }
 
-.course-card__stat {
-  font-size: 12px;
-  color: var(--ihelp-text-muted);
-}
+    &--draft {
+      background-color: var(--ihelp-warning, #eab308);
+    }
 
-.course-card__actions {
-  display: flex;
-  gap: var(--ihelp-space-2);
-  margin-top: var(--ihelp-space-1);
+    &--hidden {
+      background-color: var(--ihelp-text-muted, #9ca3af);
+    }
+  }
+
+  &__body {
+    padding: var(--ihelp-space-4) var(--ihelp-space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-3);
+    flex: 1;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ihelp-space-2);
+  }
+
+  &__title {
+    font-weight: var(--ihelp-font-semibold);
+    font-size: var(--ihelp-text-base);
+    color: var(--ihelp-text-primary);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-4);
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-1);
+    font-size: var(--ihelp-text-xs);
+    color: var(--ihelp-text-muted);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--ihelp-space-2);
+    margin-top: auto;
+    padding-top: var(--ihelp-space-2);
+    border-top: 1px solid var(--ihelp-border, rgba(0, 0, 0, 0.06));
+  }
 }
 
 .modal-form {

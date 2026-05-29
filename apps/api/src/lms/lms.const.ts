@@ -7,7 +7,7 @@ import { CourseStatus } from '@prisma/client';
 export const ALLOWED_COURSE_TRANSITIONS: Record<CourseStatus, CourseStatus[]> = {
   [CourseStatus.DRAFT]: [CourseStatus.PUBLISHED],
   [CourseStatus.PUBLISHED]: [CourseStatus.HIDDEN, CourseStatus.DRAFT],
-  [CourseStatus.HIDDEN]: [CourseStatus.ARCHIVED, CourseStatus.DRAFT],
+  [CourseStatus.HIDDEN]: [CourseStatus.PUBLISHED, CourseStatus.ARCHIVED, CourseStatus.DRAFT],
   [CourseStatus.ARCHIVED]: [],
 };
 

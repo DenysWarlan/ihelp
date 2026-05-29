@@ -85,7 +85,11 @@ export { StaffChatStore } from './store/staff-chat.store';
 // Course Manage Models
 export type {
   AdminCourse,
+  AdminCourseDetail,
+  AdminLesson,
+  CourseStatus,
   CreateCourseFormModel,
+  LessonFormModel,
 } from './model/course-manage.model';
 
 // Course Manage Services
