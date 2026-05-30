@@ -53,16 +53,31 @@ export class WorkloadService {
       orderBy: { currentCases: 'desc' },
     });
 
+    // Count actual active cases per consultant to avoid stale counter issues
+    const activeCaseCounts = await this.prisma.careCase.groupBy({
+      by: ['consultantId'],
+      where: {
+        consultantId: { in: profiles.map((p) => p.userId) },
+        status: { notIn: ['CLOSED'] },
+      },
+      _count: { id: true },
+    });
+    const caseCountMap = new Map(
+      activeCaseCounts.map((c) => [c.consultantId, c._count.id]),
+    );
+
     const consultants: ConsultantWorkloadEntry[] = profiles.map((p) => {
+      // Use actual case count instead of potentially stale counter
+      const actualCases = caseCountMap.get(p.userId) ?? 0;
       const utilizationPercent =
         p.maxCases > 0
-          ? Math.round((p.currentCases / p.maxCases) * 100)
+          ? Math.round((actualCases / p.maxCases) * 100)
           : 0;
 
       return {
         userId: p.userId,
         name: p.user?.name ?? null,
-        currentCases: p.currentCases,
+        currentCases: actualCases,
         maxCases: p.maxCases,
         currentCrisis: p.currentCrisis,
         maxCrisisCases: p.maxCrisisCases,
