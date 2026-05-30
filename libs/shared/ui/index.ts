@@ -20,7 +20,10 @@ export { ModalComponent } from './components/modal/modal.component';
 export { ToastContainerComponent } from './components/toast/toast.component';
 export { ToastService } from './components/toast/toast.service';
 
+export { PaginationComponent } from './components/pagination/pagination.component';
+
 // Models
+export type { PageChangeEvent } from './components/pagination/pagination.model';
 export type { SelectOption } from './components/select/select.model';
 export type { ButtonVariant, ButtonSize, ButtonType } from './components/button/button.model';
 export type { BadgeVariant, BadgeSize } from './components/badge/badge.model';

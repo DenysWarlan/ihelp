@@ -16,14 +16,15 @@ export const SIDEBAR_NAV_ITEMS: readonly SidebarNavItem[] = [
   { label: 'nav.courses', icon: 'BookOpen', route: '/staff/courses', roles: ['consultant'] },
 
   // Supervisor
-  { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff', roles: ['supervisor'] },
+  { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff/supervisor', roles: ['supervisor'] },
   { label: 'nav.team', icon: 'Users', route: '/staff/team', roles: ['supervisor'] },
-  { label: 'nav.cases', icon: 'FolderOpen', route: '/staff/cases', roles: ['supervisor'] },
+  { label: 'nav.cases', icon: 'FolderOpen', route: '/staff/supervisor/cases', roles: ['supervisor'] },
   { label: 'nav.analytics', icon: 'BarChart3', route: '/staff/analytics', roles: ['supervisor'] },
+  { label: 'nav.crisis', icon: 'AlertTriangle', route: '/staff/supervisor/crisis', roles: ['supervisor'] },
   { label: 'nav.meetings', icon: 'Calendar', route: '/staff/meetings', roles: ['supervisor'] },
 
   // Coordinator
-  { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff', roles: ['coordinator'] },
+  { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff/coordinator', roles: ['coordinator'] },
   { label: 'nav.sla', icon: 'Timer', route: '/staff/sla', roles: ['coordinator'] },
   { label: 'nav.assignment', icon: 'UserCheck', route: '/staff/assignment', roles: ['coordinator'] },
   { label: 'nav.workload', icon: 'Activity', route: '/staff/workload', roles: ['coordinator'] },
@@ -31,7 +32,7 @@ export const SIDEBAR_NAV_ITEMS: readonly SidebarNavItem[] = [
   { label: 'nav.crisis', icon: 'AlertTriangle', route: '/staff/crisis', roles: ['coordinator'] },
 
   // Admin
-  { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff', roles: ['admin'] },
+  { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff/admin', roles: ['admin'] },
   { label: 'nav.users', icon: 'Users', route: '/staff/users', roles: ['admin'] },
   { label: 'nav.courseMgmt', icon: 'BookOpen', route: '/staff/courses', roles: ['admin'] },
   { label: 'nav.settings', icon: 'Settings', route: '/staff/settings', roles: ['admin'] },

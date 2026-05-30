@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { DOCUMENT } from '@angular/common';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
+import { AuthStore } from '@org/shared/data-access';
 import { IconComponent } from '../../icon/icon.component';
 
 @Component({
@@ -14,6 +15,7 @@ import { IconComponent } from '../../icon/icon.component';
 })
 export class PublicLayoutComponent {
   private readonly doc = inject(DOCUMENT);
+  private readonly authStore = inject(AuthStore);
 
   readonly mobileMenuOpen = signal(false);
   readonly isAuthenticated = signal(false);
@@ -42,5 +44,9 @@ export class PublicLayoutComponent {
 
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
+  }
+
+  logout(): void {
+    this.authStore.logout();
   }
 }

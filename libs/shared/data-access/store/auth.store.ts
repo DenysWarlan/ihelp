@@ -99,7 +99,13 @@ export const AuthStore = signalStore(
                     }
                   }
                   patchState(store, { isLoading: false });
-                  router.navigate(['/staff']);
+                  const savedRole = win?.localStorage.getItem('ihelp_user_role');
+                  const roleRoutes: Record<string, string> = {
+                    admin: '/staff/admin',
+                    coordinator: '/staff/coordinator',
+                    supervisor: '/staff/supervisor',
+                  };
+                  router.navigate([roleRoutes[savedRole ?? ''] ?? '/staff']);
                 }
               }),
               catchError((err) => {

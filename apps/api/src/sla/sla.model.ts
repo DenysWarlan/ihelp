@@ -73,6 +73,7 @@ export interface SlaOverviewTimer {
   readonly type: string;
   readonly deadline: string;
   readonly remainingMinutes: number;
+  readonly elapsedMinutes: number;
   readonly status: 'ON_TRACK' | 'AT_RISK' | 'BREACHED';
 }
 

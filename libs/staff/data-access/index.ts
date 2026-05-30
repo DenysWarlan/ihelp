@@ -19,6 +19,10 @@ export { StaffStore } from './store/staff.store';
 
 // Admin Models
 export type {
+  AdminDashboardResponse,
+  AdminDashboardStats,
+  AdminDashboardAlerts,
+  AdminDashboardAuditEntry,
   AdminUser,
   AdminInvite,
   AuditLogEntry,
@@ -27,6 +31,9 @@ export type {
   CreateInviteRequest,
   CreateUserFormModel,
   CreateInviteFormModel,
+  EditUserFormModel,
+  UsersQueryParams,
+  PaginatedUsersResponse,
 } from './model/admin.model';
 
 // Admin Services
@@ -44,6 +51,8 @@ export type {
   AssignmentSuggestion,
   AssignmentPriority,
   CrisisAlert,
+  ConsultantDetail,
+  ConsultantCaseItem,
 } from './model/coordinator.model';
 
 // Coordinator Services
@@ -98,6 +107,25 @@ export { CourseManageFacade } from './service/course-manage-facade.service';
 
 // Course Manage Stores
 export { CourseManageStore } from './store/course-manage.store';
+
+// Duplicate Models
+export type {
+  DuplicateUserSummary,
+  DuplicateGroup,
+  DuplicateGroupsResponse,
+  MergePreview,
+  MergeExecutionResult,
+  ExecuteMergeRequest,
+  MergeHistoryEntry,
+  MergeHistoryResponse,
+} from './model/duplicate.model';
+
+// Duplicate Services
+export { DuplicateService } from './service/duplicate.service';
+export { DuplicateFacade } from './service/duplicate-facade.service';
+
+// Duplicate Stores
+export { DuplicateStore } from './store/duplicate.store';
 
 // GDPR Models
 export type {

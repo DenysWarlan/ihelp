@@ -1,6 +1,11 @@
 import { Routes } from '@angular/router';
 import { AuthenticatedLayoutComponent } from '@org/shared/ui';
-import {authGuard} from '@org/shared/data-access';
+import { authGuard, roleGuard } from '@org/shared/data-access';
+
+const ADMIN_ONLY = ['ADMIN'] as const;
+const COORD_ONLY = ['COORDINATOR'] as const;
+const SUPER_ONLY = ['SUPERVISOR'] as const;
+const ADMIN_COORD = ['ADMIN', 'COORDINATOR'] as const;
 
 export const staffRoutes: Routes = [
   {
@@ -43,11 +48,13 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'admin',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
         loadComponent: () =>
           import('./admin/admin.component').then((m) => m.AdminComponent),
       },
       {
         path: 'supervisor/cases',
+        canActivate: [roleGuard(...SUPER_ONLY)],
         loadComponent: () =>
           import('./supervisor-cases/supervisor-cases.component').then(
             (m) => m.SupervisorCasesComponent,
@@ -55,6 +62,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'supervisor/cases/:id',
+        canActivate: [roleGuard(...SUPER_ONLY)],
         loadComponent: () =>
           import('./supervisor-case-detail/supervisor-case-detail.component').then(
             (m) => m.SupervisorCaseDetailComponent,
@@ -97,6 +105,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'courses',
+        canActivate: [roleGuard(...ADMIN_COORD)],
         loadComponent: () =>
           import('./courses-manage/courses-manage.component').then(
             (m) => m.CoursesManageComponent,
@@ -104,6 +113,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'courses/:id',
+        canActivate: [roleGuard(...ADMIN_COORD)],
         loadComponent: () =>
           import('./course-edit/course-edit.component').then(
             (m) => m.CourseEditComponent,
@@ -125,6 +135,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'sla',
+        canActivate: [roleGuard(...COORD_ONLY)],
         loadComponent: () =>
           import('./sla-monitor/sla-monitor.component').then(
             (m) => m.SlaMonitorComponent,
@@ -132,6 +143,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'assignment',
+        canActivate: [roleGuard(...COORD_ONLY)],
         loadComponent: () =>
           import('./assignment/assignment.component').then(
             (m) => m.AssignmentComponent,
@@ -139,6 +151,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'workload',
+        canActivate: [roleGuard(...COORD_ONLY)],
         loadComponent: () =>
           import('./workload/workload.component').then(
             (m) => m.WorkloadComponent,
@@ -146,6 +159,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'crisis',
+        canActivate: [roleGuard(...COORD_ONLY)],
         loadComponent: () =>
           import('./crisis/crisis.component').then(
             (m) => m.CrisisComponent,
@@ -153,6 +167,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'supervisor/crisis',
+        canActivate: [roleGuard(...SUPER_ONLY)],
         loadComponent: () =>
           import('./crisis-history/crisis-history.component').then(
             (m) => m.CrisisHistoryComponent,
@@ -160,13 +175,31 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'users',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
         loadComponent: () =>
           import('./users-manage/users-manage.component').then(
             (m) => m.UsersManageComponent,
           ),
       },
       {
+        path: 'duplicates',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
+        loadComponent: () =>
+          import('./duplicate-list/duplicate-list.component').then(
+            (m) => m.DuplicateListComponent,
+          ),
+      },
+      {
+        path: 'duplicates/:groupId',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
+        loadComponent: () =>
+          import('./duplicate-review/duplicate-review.component').then(
+            (m) => m.DuplicateReviewComponent,
+          ),
+      },
+      {
         path: 'settings',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
         loadComponent: () =>
           import('./settings/settings.component').then(
             (m) => m.SettingsComponent,
@@ -174,6 +207,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'audit',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
         loadComponent: () =>
           import('./audit-log/audit-log.component').then(
             (m) => m.AuditLogComponent,
@@ -181,6 +215,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'gdpr',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
         loadComponent: () =>
           import('./gdpr/gdpr.component').then(
             (m) => m.GdprComponent,

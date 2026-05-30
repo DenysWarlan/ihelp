@@ -18,7 +18,7 @@
               <img [src]="profile.avatarUrl" [alt]="profile.name" class="profile-header__img" />
             } @else {
               <div class="profile-header__placeholder">
-                <span class="profile-header__initials">{{ profile.name?.charAt(0) ?? '' }}</span>
+                <span class="profile-header__initials">{{ profile.name.charAt(0) }}</span>
               </div>
             }
           </div>

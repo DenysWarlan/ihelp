@@ -37,6 +37,9 @@ import { AdminConfigService } from './admin-config.service.js';
 import { AdminDutyService } from './admin-duty.service.js';
 import { AdminInviteService } from './admin-invite.service.js';
 import { AdminService } from './admin.service.js';
+import { DuplicateDetectionService } from './duplicate-detection.service.js';
+import { DismissDuplicateDto, ExecuteMergeDto, ListDuplicatesDto } from './duplicate.model.js';
+import { UserMergeService } from './user-merge.service.js';
 
 @ApiTags('admin')
 @Controller('admin')
@@ -49,7 +52,20 @@ export class AdminController {
     private readonly adminConfigService: AdminConfigService,
     private readonly adminAuditService: AdminAuditService,
     private readonly adminDutyService: AdminDutyService,
+    private readonly duplicateDetectionService: DuplicateDetectionService,
+    private readonly userMergeService: UserMergeService,
   ) {}
+
+  // ---------------------------------------------------------------------------
+  // Dashboard (admin overview stats)
+  // ---------------------------------------------------------------------------
+
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Get admin dashboard stats, alerts, and recent audit' })
+  @ApiResponse({ status: 200, description: 'Dashboard data' })
+  async getDashboard() {
+    return this.adminService.getDashboardData();
+  }
 
   // ---------------------------------------------------------------------------
   // Staff user CRUD (S-E13-01)
@@ -63,12 +79,87 @@ export class AdminController {
     return this.adminService.listUsers(query);
   }
 
-  // S-E13-05: Must be before :id route to avoid param capture
+  // ---------------------------------------------------------------------------
+  // Duplicate detection & merge (S-E13-05)
+  // ---------------------------------------------------------------------------
+
+  @Get('duplicates')
+  @ApiOperation({ summary: 'List duplicate user groups with clustering' })
+  @ApiResponse({ status: 200, description: 'Grouped list of duplicate users' })
+  async listDuplicates(@Query() query: ListDuplicatesDto) {
+    return this.duplicateDetectionService.listDuplicateGroups(query);
+  }
+
+  @Get('duplicates/history')
+  @ApiOperation({ summary: 'List merge history with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated merge history' })
+  async listMergeHistory(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ) {
+    return this.userMergeService.listMergeHistory(
+      page ? Number(page) : undefined,
+      pageSize ? Number(pageSize) : undefined,
+    );
+  }
+
+  @Get('duplicates/history/:mergeId')
+  @ApiOperation({ summary: 'Get merge detail by ID' })
+  @ApiResponse({ status: 200, description: 'Merge detail' })
+  @ApiResponse({ status: 404, description: 'Merge record not found' })
+  async getMergeDetail(@Param('mergeId', ParseUUIDPipe) mergeId: string) {
+    return this.userMergeService.getMergeDetail(mergeId);
+  }
+
+  @Get('duplicates/:groupId')
+  @ApiOperation({ summary: 'Get duplicate group detail' })
+  @ApiResponse({ status: 200, description: 'Group detail with user summaries' })
+  @ApiResponse({ status: 404, description: 'Group not found' })
+  async getDuplicateGroup(@Param('groupId') groupId: string) {
+    return this.duplicateDetectionService.getGroupDetail(groupId);
+  }
+
+  @Post('duplicates/:groupId/dismiss')
+  @ApiOperation({ summary: 'Dismiss a duplicate group as not-duplicate' })
+  @ApiResponse({ status: 201, description: 'Group dismissed' })
+  @ApiResponse({ status: 404, description: 'Group not found' })
+  async dismissDuplicate(
+    @Param('groupId') groupId: string,
+    @Body() dto: DismissDuplicateDto,
+    @Req() req: Request,
+  ) {
+    const actor = req.user as JwtPayload;
+    return this.duplicateDetectionService.dismissDuplicate(
+      groupId,
+      actor.sub,
+      dto.reason,
+    );
+  }
+
+  @Post('duplicates/:groupId/merge')
+  @ApiOperation({ summary: 'Merge two duplicate users' })
+  @ApiResponse({ status: 201, description: 'Users merged successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid merge (same user, cross-role, inactive)' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async executeMerge(
+    @Body() dto: ExecuteMergeDto,
+    @Req() req: Request,
+  ) {
+    const actor = req.user as JwtPayload;
+    return this.userMergeService.executeMerge(
+      dto.primaryUserId,
+      dto.secondaryUserId,
+      actor.sub,
+    );
+  }
+
+  // Keep legacy endpoint for backward compatibility with frontend banner
   @Get('users/duplicates')
-  @ApiOperation({ summary: 'List potential duplicate user accounts' })
+  @ApiOperation({ summary: 'List potential duplicate user accounts (legacy)' })
   @ApiResponse({ status: 200, description: 'List of potential duplicates' })
   async findDuplicates() {
-    return this.adminService.findDuplicates();
+    const result = await this.duplicateDetectionService.listDuplicateGroups({});
+    return { duplicates: [], total: result.total };
   }
 
   @Post('users')

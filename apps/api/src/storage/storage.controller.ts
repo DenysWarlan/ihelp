@@ -16,16 +16,22 @@ import {
   ApiBadRequestResponse,
   ApiConsumes,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
+import { Roles } from '../auth/decorators/roles.decorator.js';
 import { StorageService } from './storage.service.js';
 
+const STAFF_ROLES = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as const;
+
 @ApiTags('storage')
+@ApiBearerAuth()
 @Controller('storage')
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
   @Post('upload')
+  @Roles(...STAFF_ROLES, 'PERSON')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Upload a file to object storage' })
   @ApiConsumes('multipart/form-data')
@@ -52,6 +58,7 @@ export class StorageController {
   }
 
   @Delete(':key')
+  @Roles(...STAFF_ROLES)
   @ApiOperation({ summary: 'Delete a file from object storage' })
   @ApiOkResponse({ description: 'File deleted' })
   async delete(@Param('key') key: string) {

@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, Signal, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DOCUMENT } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { ChatSocketService, NavBadgeService, NotificationSoundService } from '@org/shared/data-access';
+import { AuthStore, ChatSocketService, NavBadgeService, NotificationSoundService } from '@org/shared/data-access';
 import { IconComponent } from '../../icon/icon.component';
 import { ToastContainerComponent } from '../../toast/toast.component';
 import { ToastService } from '../../toast/toast.service';
@@ -20,6 +21,8 @@ import { SidebarNavItem, UserRole } from './sidebar-nav.model';
 export class AuthenticatedLayoutComponent implements OnInit {
   private readonly doc = inject(DOCUMENT);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly authStore = inject(AuthStore);
   private readonly navBadgeService = inject(NavBadgeService);
   private readonly socketService = inject(ChatSocketService);
   private readonly toastService = inject(ToastService);
@@ -66,7 +69,7 @@ export class AuthenticatedLayoutComponent implements OnInit {
     // Connect WebSocket early so we receive notifications on any page
     this.socketService.connect();
 
-    this.socketService.notify$.subscribe((notification) => {
+    this.socketService.notify$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((notification) => {
       // Skip notification if staff chat page is open with this case
       if (this.router.url.includes('/staff/chat') && this.router.url.includes(notification.caseId)) return;
 
@@ -99,17 +102,6 @@ export class AuthenticatedLayoutComponent implements OnInit {
 
   logout(): void {
     this.socketService.disconnect();
-    const win = this.doc.defaultView;
-    const role = win?.localStorage.getItem('ihelp_user_role') ?? '';
-    const staffRoles = ['consultant', 'supervisor', 'coordinator', 'admin'];
-    const redirectPath = staffRoles.includes(role) ? '/staff/login' : '/login';
-    if (win) {
-      win.localStorage.removeItem('ihelp_token');
-      win.localStorage.removeItem('ihelp_refresh_token');
-      win.localStorage.removeItem('ihelp_user_role');
-      win.localStorage.removeItem('ihelp_user_name');
-      win.localStorage.removeItem('ihelp_user_email');
-    }
-    this.router.navigate([redirectPath]);
+    this.authStore.logout();
   }
 }

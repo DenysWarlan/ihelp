@@ -1,4 +1,4 @@
-export const JWT_ACCESS_EXPIRY = '15m';
+export const JWT_ACCESS_EXPIRY = '8h';
 export const JWT_REFRESH_EXPIRY = '7d';
 export const REFRESH_TOKEN_DAYS = 7;
 export const CRISIS_SESSION_HOURS = 24;

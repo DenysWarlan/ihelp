@@ -160,13 +160,13 @@
   &__message-meta {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--ihelp-space-1);
     justify-content: flex-end;
-    margin-top: 4px;
+    margin-top: var(--ihelp-space-1);
   }
 
   &__message-time {
-    font-size: 10px;
+    font-size: var(--ihelp-text-xs);
     opacity: 0.6;
   }
 
@@ -187,7 +187,7 @@
     }
 
     &--error {
-      color: var(--ihelp-error, #ef4444);
+      color: var(--ihelp-error);
     }
   }
 

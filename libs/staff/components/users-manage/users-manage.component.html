@@ -48,7 +48,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (user of filteredUsers(); track user.id) {
+          @for (user of users(); track user.id) {
             <tr>
               <td class="users-table__name">{{ user.name }}</td>
               <td class="users-table__email">{{ user.email }}</td>
@@ -63,8 +63,16 @@
                 </ui-badge>
               </td>
               <td class="users-table__actions">
-                <button class="action-btn" type="button">
-                  <ui-icon name="edit" [size]="16" />
+                <button class="action-btn" type="button" (click)="onEditUser(user)">
+                  <ui-icon name="Pencil" [size]="16" />
+                </button>
+                <button
+                  class="action-btn"
+                  [class.action-btn--danger]="user.isActive"
+                  type="button"
+                  (click)="onToggleActive(user)"
+                >
+                  <ui-icon [name]="user.isActive ? 'UserX' : 'UserCheck'" [size]="16" />
                 </button>
               </td>
             </tr>
@@ -79,14 +87,22 @@
       </table>
     </div>
 
-    <ui-alert-banner [variant]="'warning'">
-      <span class="duplicate-alert">
-        <span class="duplicate-alert__text">{{ t('admin.duplicateAlert') }}</span>
-        <ui-button variant="secondary" size="sm" class="duplicate-alert__btn">
-          {{ t('admin.review') }}
+    <ui-pagination
+      [currentPage]="facade.usersPage()"
+      [totalPages]="facade.usersTotalPages()"
+      [total]="facade.usersTotal()"
+      [pageSize]="facade.usersPageSize()"
+      (pageChange)="onPageChange($event)"
+    />
+
+    @if (facade.duplicatesCount() > 0) {
+      <ui-alert-banner [variant]="'warning'" [dismissible]="true">
+        {{ facade.duplicatesCount() }} {{ t('admin.duplicateAlert') }}
+        <ui-button variant="secondary" size="sm" (click)="onReviewDuplicates()">
+          {{ t('admin.duplicateReviewGroup') }}
         </ui-button>
-      </span>
-    </ui-alert-banner>
+      </ui-alert-banner>
+    }
 
     }
   </section>
@@ -128,15 +144,13 @@
         (ngModelChange)="onUserFieldChange('password', $event)"
         name="password"
       />
-      <div modal-footer>
-        <ui-button variant="secondary" (click)="onCloseCreateUser()">
-          {{ t('admin.cancel') }}
-        </ui-button>
-        <ui-button variant="primary" type="submit" [loading]="facade.isLoading()">
-          {{ t('admin.create') }}
-        </ui-button>
-      </div>
     </form>
+    <ui-button modal-footer variant="secondary" (click)="onCloseCreateUser()">
+      {{ t('admin.cancel') }}
+    </ui-button>
+    <ui-button modal-footer variant="primary" (click)="onSubmitCreateUser()" [loading]="facade.isLoading()">
+      {{ t('admin.create') }}
+    </ui-button>
   </ui-modal>
 
   <ui-modal
@@ -161,14 +175,42 @@
         (ngModelChange)="onInviteFieldChange('role', $event)"
         name="inviteRole"
       />
-      <div modal-footer>
-        <ui-button variant="secondary" (click)="onCloseCreateInvite()">
-          {{ t('admin.cancel') }}
-        </ui-button>
-        <ui-button variant="primary" type="submit" [loading]="facade.isLoading()">
-          {{ t('admin.sendInvite') }}
-        </ui-button>
-      </div>
     </form>
+    <ui-button modal-footer variant="secondary" (click)="onCloseCreateInvite()">
+      {{ t('admin.cancel') }}
+    </ui-button>
+    <ui-button modal-footer variant="primary" (click)="onSubmitCreateInvite()" [loading]="facade.isLoading()">
+      {{ t('admin.sendInvite') }}
+    </ui-button>
+  </ui-modal>
+
+  <ui-modal
+    [isOpen]="facade.showEditUserModal()"
+    [title]="t('admin.editUser')"
+    (closed)="onCloseEditUser()"
+  >
+    <form class="modal-form" (submit)="onSubmitEditUser()">
+      <ui-input
+        [label]="t('admin.nameLabel')"
+        [placeholder]="t('admin.namePlaceholder')"
+        [ngModel]="facade.editUserModel().name"
+        (ngModelChange)="onEditUserFieldChange('name', $event)"
+        name="editName"
+      />
+      <ui-select
+        [label]="t('admin.roleLabel')"
+        [placeholder]="t('admin.rolePlaceholder')"
+        [options]="facade.roleOptions"
+        [ngModel]="facade.editUserModel().role"
+        (ngModelChange)="onEditUserFieldChange('role', $event)"
+        name="editRole"
+      />
+    </form>
+    <ui-button modal-footer variant="secondary" (click)="onCloseEditUser()">
+      {{ t('admin.cancel') }}
+    </ui-button>
+    <ui-button modal-footer variant="primary" (click)="onSubmitEditUser()" [loading]="facade.isLoading()">
+      {{ t('admin.save') }}
+    </ui-button>
   </ui-modal>
 </ng-container>

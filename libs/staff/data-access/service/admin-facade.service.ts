@@ -2,12 +2,17 @@ import { inject, Injectable, Signal, WritableSignal, signal } from '@angular/cor
 
 import { AdminStore } from '../store/admin.store';
 import {
+  AdminDashboardStats,
+  AdminDashboardAlerts,
+  AdminDashboardAuditEntry,
   AdminUser,
   AdminInvite,
   AuditLogEntry,
   SystemSetting,
   CreateUserFormModel,
   CreateInviteFormModel,
+  EditUserFormModel,
+  UsersQueryParams,
 } from '../model/admin.model';
 import type { SelectOption } from '@org/shared/ui';
 
@@ -15,8 +20,17 @@ import type { SelectOption } from '@org/shared/ui';
 export class AdminFacade {
   private readonly store = inject(AdminStore);
 
+  readonly dashboardStats: Signal<AdminDashboardStats | null> = this.store.dashboardStats;
+  readonly dashboardAlerts: Signal<AdminDashboardAlerts | null> = this.store.dashboardAlerts;
+  readonly dashboardAudit: Signal<AdminDashboardAuditEntry[]> = this.store.dashboardAudit;
+  readonly dashboardLoading: Signal<boolean> = this.store.dashboardLoading;
+
   readonly users: Signal<AdminUser[]> = this.store.users;
   readonly usersTotal: Signal<number> = this.store.usersTotal;
+  readonly usersPage: Signal<number> = this.store.usersPage;
+  readonly usersPageSize: Signal<number> = this.store.usersPageSize;
+  readonly usersTotalPages: Signal<number> = this.store.usersTotalPages;
+  readonly duplicatesCount: Signal<number> = this.store.duplicatesCount;
   readonly invites: Signal<AdminInvite[]> = this.store.invites;
   readonly invitesTotal: Signal<number> = this.store.invitesTotal;
   readonly auditLog: Signal<AuditLogEntry[]> = this.store.auditLog;
@@ -27,6 +41,13 @@ export class AdminFacade {
 
   readonly showCreateUserModal: WritableSignal<boolean> = signal(false);
   readonly showCreateInviteModal: WritableSignal<boolean> = signal(false);
+  readonly showEditUserModal: WritableSignal<boolean> = signal(false);
+  readonly editingUser: WritableSignal<AdminUser | null> = signal(null);
+
+  readonly editUserModel: WritableSignal<EditUserFormModel> = signal({
+    name: '',
+    role: '',
+  });
 
   readonly createUserModel: WritableSignal<CreateUserFormModel> = signal({
     email: '',
@@ -47,8 +68,22 @@ export class AdminFacade {
     { value: 'ADMIN', label: 'Admin' },
   ];
 
-  loadUsers(): void {
-    this.store.loadUsers();
+  loadDashboard(): void {
+    this.store.loadDashboard();
+  }
+
+  loadUsers(params?: Partial<UsersQueryParams>): void {
+    const query: UsersQueryParams = {
+      page: params?.page ?? this.store.usersPage(),
+      pageSize: params?.pageSize ?? this.store.usersPageSize(),
+      search: params?.search,
+      role: params?.role,
+    };
+    this.store.loadUsers(query);
+  }
+
+  loadDuplicates(): void {
+    this.store.loadDuplicates();
   }
 
   loadInvites(): void {
@@ -109,6 +144,35 @@ export class AdminFacade {
     this.createInviteModel.update(
       (m: CreateInviteFormModel) => ({ ...m, [field]: value })
     );
+  }
+
+  openEditUserModal(user: AdminUser): void {
+    this.editingUser.set(user);
+    this.editUserModel.set({ name: user.name, role: user.role });
+    this.showEditUserModal.set(true);
+  }
+
+  closeEditUserModal(): void {
+    this.showEditUserModal.set(false);
+    this.editingUser.set(null);
+  }
+
+  updateEditUserField(field: keyof EditUserFormModel, value: string): void {
+    this.editUserModel.update(
+      (m: EditUserFormModel) => ({ ...m, [field]: value }),
+    );
+  }
+
+  submitEditUser(): void {
+    const user: AdminUser | null = this.editingUser();
+    const model: EditUserFormModel = this.editUserModel();
+    if (!user || !model.name || !model.role) return;
+    this.store.updateUser({ id: user.id, dto: model });
+    this.closeEditUserModal();
+  }
+
+  toggleUserActive(user: AdminUser): void {
+    this.store.toggleUserActive({ id: user.id, isActive: !user.isActive });
   }
 
   getRoleBadgeVariant(role: string): 'success' | 'warning' | 'error' | 'info' | 'neutral' {

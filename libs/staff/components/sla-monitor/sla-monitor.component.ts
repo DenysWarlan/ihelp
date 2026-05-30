@@ -4,7 +4,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { BadgeComponent, IconComponent } from '@org/shared/ui';
 import type { BadgeVariant } from '@org/shared/ui';
 import { CoordinatorFacadeService } from '@org/staff/data-access';
-import type { SlaOverview } from '@org/staff/data-access';
+import type { SlaOverview, SlaTimer } from '@org/staff/data-access';
 
 @Component({
   selector: 'app-sla-monitor',
@@ -50,20 +50,31 @@ export class SlaMonitorComponent implements OnInit {
     }
   }
 
-  getProgressPercent(remainingMinutes: number): number {
-    const maxMinutes = 480;
-    if (remainingMinutes <= 0) {
-      return 0;
+  getProgressPercent(timer: SlaTimer): number {
+    if (timer.status === 'BREACHED') {
+      return 100;
     }
-    return Math.min(100, Math.round((remainingMinutes / maxMinutes) * 100));
+    const elapsed = timer.elapsedMinutes ?? 0;
+    const remaining = timer.remainingMinutes ?? 0;
+    const total = remaining + elapsed;
+    if (total <= 0) return 0;
+    return Math.min(100, Math.round((elapsed / total) * 100));
   }
 
-  formatRemaining(minutes: number): string {
-    if (minutes < 0) {
-      return 'Прострочено';
+  formatTime(timer: SlaTimer): string {
+    if (timer.status === 'BREACHED') {
+      return this.formatDuration(timer.elapsedMinutes ?? 0);
     }
-    const hours: number = Math.floor(minutes / 60);
+    return this.formatDuration(timer.remainingMinutes ?? 0);
+  }
+
+  private formatDuration(minutes: number): string {
+    if (!minutes || minutes <= 0) return '0хв';
+    const days: number = Math.floor(minutes / 1440);
+    const hours: number = Math.floor((minutes % 1440) / 60);
     const mins: number = minutes % 60;
-    return hours > 0 ? `${hours}г ${mins}хв` : `${mins}хв`;
+    if (days > 0) return `${days}д ${hours}г`;
+    if (hours > 0) return `${hours}г ${mins}хв`;
+    return `${mins}хв`;
   }
 }

@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
   BadgeComponent,
   ButtonComponent,
   IconComponent,
+  ModalComponent,
   ProgressBarComponent,
 } from '@org/shared/ui';
 import type { BadgeVariant, ProgressBarVariant } from '@org/shared/ui';
@@ -19,6 +20,7 @@ import type { AssignmentSuggestion, AssignmentPriority, WorkloadEntry } from '@o
     BadgeComponent,
     ButtonComponent,
     IconComponent,
+    ModalComponent,
     ProgressBarComponent,
   ],
   templateUrl: './assignment.component.html',
@@ -31,6 +33,9 @@ export class AssignmentComponent implements OnInit {
   readonly assignments: Signal<AssignmentSuggestion[]> = this.facade.assignments;
   readonly workload: Signal<WorkloadEntry[]> = this.facade.workload;
   readonly isLoading: Signal<boolean> = this.facade.isLoading;
+
+  readonly isOtherModalOpen: WritableSignal<boolean> = signal(false);
+  readonly selectedCase: WritableSignal<AssignmentSuggestion | null> = signal(null);
 
   ngOnInit(): void {
     this.facade.loadAssignmentSuggestions();
@@ -68,5 +73,22 @@ export class AssignmentComponent implements OnInit {
 
   onReject(caseId: string): void {
     this.facade.rejectAssignment(caseId);
+  }
+
+  onOther(item: AssignmentSuggestion): void {
+    this.selectedCase.set(item);
+    this.isOtherModalOpen.set(true);
+  }
+
+  onCloseOtherModal(): void {
+    this.isOtherModalOpen.set(false);
+    this.selectedCase.set(null);
+  }
+
+  onSelectConsultant(consultantId: string): void {
+    const caseItem = this.selectedCase();
+    if (!caseItem) return;
+    this.facade.confirmAssignment(caseItem.caseId, consultantId);
+    this.onCloseOtherModal();
   }
 }

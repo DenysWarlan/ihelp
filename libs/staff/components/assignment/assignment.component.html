@@ -49,7 +49,7 @@
                 <ui-button variant="primary" size="sm" (click)="onConfirm(item)">
                   {{ t('coordinator.confirm') }}
                 </ui-button>
-                <ui-button variant="secondary" size="sm">
+                <ui-button variant="secondary" size="sm" (click)="onOther(item)">
                   {{ t('coordinator.other') }}
                 </ui-button>
                 <button class="case-card__reject" (click)="onReject(item.caseId)">
@@ -87,4 +87,41 @@
     </div>
     }
   </section>
+
+  <!-- Choose other consultant modal -->
+  <ui-modal
+    [isOpen]="isOtherModalOpen()"
+    [title]="t('coordinator.chooseConsultantTitle')"
+    (closed)="onCloseOtherModal()"
+  >
+    @if (selectedCase(); as caseItem) {
+      <p class="other-modal__case-info">
+        {{ caseItem.personName }} &mdash; {{ caseItem.topic }}
+      </p>
+    }
+
+    <div class="other-modal__list">
+      @for (entry of workload(); track entry.consultantId) {
+        <button
+          class="other-modal__consultant"
+          [class.other-modal__consultant--full]="entry.status === 'OVERLOADED'"
+          [disabled]="entry.status === 'OVERLOADED'"
+          (click)="onSelectConsultant(entry.consultantId)"
+        >
+          <div class="other-modal__consultant-info">
+            <span class="other-modal__consultant-name">{{ entry.consultantName }}</span>
+            <span class="other-modal__consultant-load">{{ entry.activeCases }}/{{ entry.maxCases }} {{ t('coordinator.casesCount') }}</span>
+          </div>
+          <ui-badge
+            [variant]="entry.status === 'AVAILABLE' ? 'success' : entry.status === 'AT_CAPACITY' ? 'warning' : 'error'"
+            size="sm"
+          >
+            {{ t('coordinator.workloadStatus_' + entry.status) }}
+          </ui-badge>
+        </button>
+      } @empty {
+        <p class="other-modal__empty">{{ t('coordinator.workloadEmpty') }}</p>
+      }
+    </div>
+  </ui-modal>
 </ng-container>

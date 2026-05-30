@@ -5,6 +5,7 @@ import type {
   WorkloadEntry,
   AssignmentSuggestion,
   CrisisAlert,
+  ConsultantDetail,
 } from '../model/coordinator.model';
 import { CoordinatorStore } from '../store/coordinator.store';
 
@@ -18,6 +19,7 @@ export class CoordinatorFacadeService {
   readonly crisisAlerts: Signal<CrisisAlert[]> = this.store.crisisAlerts;
   readonly isLoading: Signal<boolean> = this.store.isLoading;
   readonly error: Signal<string | null> = this.store.error;
+  readonly consultantDetail: Signal<ConsultantDetail | null> = this.store.consultantDetail;
 
   loadSlaOverview(): void {
     this.store.loadSlaOverview();
@@ -45,5 +47,13 @@ export class CoordinatorFacadeService {
 
   acknowledgeCrisis(id: string): void {
     this.store.acknowledgeCrisis(id);
+  }
+
+  loadConsultantCases(userId: string): void {
+    this.store.loadConsultantCases(userId);
+  }
+
+  clearConsultantDetail(): void {
+    this.store.clearConsultantDetail();
   }
 }

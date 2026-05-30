@@ -1,0 +1,42 @@
+@if (totalPages() > 1) {
+  <nav class="pagination">
+    <span class="pagination__info">
+      {{ rangeStart() }}–{{ rangeEnd() }} of {{ total() }}
+    </span>
+
+    <div class="pagination__controls">
+      <button
+        class="pagination__btn"
+        [disabled]="currentPage() <= 1"
+        (click)="onPrev()"
+        type="button"
+      >
+        <lucide-angular [img]="chevronLeft" [size]="16" />
+      </button>
+
+      @for (page of pages(); track $index) {
+        @if (page === -1) {
+          <span class="pagination__ellipsis">&hellip;</span>
+        } @else {
+          <button
+            class="pagination__btn"
+            [class.pagination__btn--active]="page === currentPage()"
+            (click)="onPageClick(page)"
+            type="button"
+          >
+            {{ page }}
+          </button>
+        }
+      }
+
+      <button
+        class="pagination__btn"
+        [disabled]="currentPage() >= totalPages()"
+        (click)="onNext()"
+        type="button"
+      >
+        <lucide-angular [img]="chevronRight" [size]="16" />
+      </button>
+    </div>
+  </nav>
+}

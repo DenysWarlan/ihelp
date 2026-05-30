@@ -10,31 +10,110 @@
     } @else {
     <div class="workload__list">
       @for (entry of workload(); track entry.consultantId) {
-        <div class="workload-row">
-          <div class="workload-row__info">
-            <ui-icon name="User" [size]="24" color="var(--ihelp-accent)" />
-            <div class="workload-row__details">
-              <span class="workload-row__name">{{ entry.consultantName }}</span>
-              <span class="workload-row__cases">
-                {{ entry.activeCases }} / {{ entry.maxCases }} {{ t('coordinator.workloadCasesOf') }}
-              </span>
+        <div class="workload-card" [class.workload-card--expanded]="expandedId() === entry.consultantId">
+          <!-- Consultant summary row -->
+          <button class="workload-card__header" (click)="toggleExpand(entry.consultantId)">
+            <div class="workload-card__info">
+              <ui-icon name="User" [size]="24" color="var(--ihelp-accent)" />
+              <div class="workload-card__details">
+                <span class="workload-card__name">{{ entry.consultantName }}</span>
+                <span class="workload-card__cases">
+                  {{ entry.activeCases }} / {{ entry.maxCases }} {{ t('coordinator.workloadCasesOf') }}
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div class="workload-row__bar">
-            <ui-progress-bar
-              [value]="entry.utilizationPercent"
-              [showLabel]="false"
-              [variant]="getProgressVariant(entry.status)"
+            <div class="workload-card__bar">
+              <ui-progress-bar
+                [value]="entry.utilizationPercent"
+                [showLabel]="false"
+                [variant]="getProgressVariant(entry.status)"
+              />
+            </div>
+
+            <div class="workload-card__status">
+              <ui-badge [variant]="getStatusVariant(entry.status)" size="sm">
+                {{ t('coordinator.workloadStatus_' + entry.status) }}
+              </ui-badge>
+              <span class="workload-card__percent">{{ entry.utilizationPercent }}%</span>
+            </div>
+
+            <ui-icon
+              [name]="expandedId() === entry.consultantId ? 'ChevronUp' : 'ChevronDown'"
+              [size]="18"
+              color="var(--ihelp-text-muted)"
             />
-          </div>
+          </button>
 
-          <div class="workload-row__status">
-            <ui-badge [variant]="getStatusVariant(entry.status)" size="sm">
-              {{ t('coordinator.workloadStatus_' + entry.status) }}
-            </ui-badge>
-            <span class="workload-row__percent">{{ entry.utilizationPercent }}%</span>
-          </div>
+          <!-- Expanded detail panel -->
+          @if (expandedId() === entry.consultantId) {
+            <div class="workload-card__detail">
+              @if (consultantDetail(); as detail) {
+                <!-- Specializations & languages -->
+                @if (detail.specializations.length > 0 || detail.languages.length > 0) {
+                  <div class="workload-card__tags">
+                    @for (spec of detail.specializations; track spec) {
+                      <span class="workload-card__tag">{{ spec }}</span>
+                    }
+                    @for (lang of detail.languages; track lang) {
+                      <span class="workload-card__tag workload-card__tag--lang">{{ lang }}</span>
+                    }
+                  </div>
+                }
+
+                <!-- Cases table -->
+                @if (detail.cases.length > 0) {
+                  <table class="workload-card__table">
+                    <thead>
+                      <tr>
+                        <th>{{ t('staffCases.colName') }}</th>
+                        <th>{{ t('staffCases.colTopic') }}</th>
+                        <th>{{ t('staffCases.colStatus') }}</th>
+                        <th>{{ t('staffCases.colPriority') }}</th>
+                        <th>SLA</th>
+                        <th>{{ t('staffCases.colLastActivity') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (c of detail.cases; track c.id) {
+                        <tr>
+                          <td class="workload-card__cell-name">{{ c.personName }}</td>
+                          <td>{{ c.topic }}</td>
+                          <td>
+                            <ui-badge [variant]="getCaseStatusVariant(c.status)" size="sm">
+                              {{ t('staffCases.status.' + c.status) }}
+                            </ui-badge>
+                          </td>
+                          <td>
+                            <ui-badge [variant]="getCasePriorityVariant(c.priority)" size="sm">
+                              {{ t('staffCases.priority.' + c.priority) }}
+                            </ui-badge>
+                          </td>
+                          <td>
+                            @if (c.slaStatus) {
+                              <ui-badge
+                                [variant]="c.slaStatus === 'ESCALATED' ? 'error' : c.slaStatus === 'ACTIVE' ? 'info' : 'neutral'"
+                                size="sm"
+                              >
+                                {{ c.slaStatus }}
+                              </ui-badge>
+                            } @else {
+                              <span class="workload-card__no-sla">—</span>
+                            }
+                          </td>
+                          <td class="workload-card__cell-date">{{ c.createdAt | date:'mediumDate' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                } @else {
+                  <p class="workload-card__empty">{{ t('staffCases.empty') }}</p>
+                }
+              } @else {
+                <p class="workload-card__loading">{{ t('common.loading') }}</p>
+              }
+            </div>
+          }
         </div>
       } @empty {
         <p class="workload__empty">{{ t('coordinator.workloadEmpty') }}</p>

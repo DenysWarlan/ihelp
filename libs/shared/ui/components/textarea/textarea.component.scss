@@ -61,7 +61,7 @@
     border-color: var(--ihelp-error);
 
     &:focus {
-      box-shadow: 0 0 0 2px rgba(200, 35, 51, 0.15);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ihelp-error) 15%, transparent);
     }
   }
 

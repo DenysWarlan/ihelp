@@ -3,25 +3,38 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
+  AdminDashboardResponse,
   AdminUser,
   AdminInvite,
   AuditLogEntry,
   SystemSetting,
   CreateUserRequest,
   CreateInviteRequest,
+  UsersQueryParams,
+  PaginatedUsersResponse,
+  DuplicatesResponse,
 } from '../model/admin.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http: HttpClient = inject(HttpClient);
 
-  getUsers(
-    params?: Record<string, string>
-  ): Observable<{ data: AdminUser[]; total: number }> {
-    return this.http.get<{ data: AdminUser[]; total: number }>(
-      '/api/admin/users',
-      { params }
-    );
+  getDashboard(): Observable<AdminDashboardResponse> {
+    return this.http.get<AdminDashboardResponse>('/api/admin/dashboard');
+  }
+
+  getUsers(query: UsersQueryParams): Observable<PaginatedUsersResponse> {
+    const params: Record<string, string> = {
+      page: String(query.page),
+      pageSize: String(query.pageSize),
+    };
+    if (query.search) {
+      params['search'] = query.search;
+    }
+    if (query.role) {
+      params['role'] = query.role;
+    }
+    return this.http.get<PaginatedUsersResponse>('/api/admin/users', { params });
   }
 
   createUser(dto: CreateUserRequest): Observable<AdminUser> {
@@ -30,6 +43,10 @@ export class AdminService {
 
   updateUser(id: string, dto: Partial<AdminUser>): Observable<AdminUser> {
     return this.http.patch<AdminUser>(`/api/admin/users/${id}`, dto);
+  }
+
+  getDuplicates(): Observable<DuplicatesResponse> {
+    return this.http.get<DuplicatesResponse>('/api/admin/users/duplicates');
   }
 
   deactivateUser(id: string): Observable<void> {

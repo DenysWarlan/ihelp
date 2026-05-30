@@ -1,5 +1,6 @@
 // Guards
 export { authGuard } from './guard/auth.guard';
+export { roleGuard } from './guard/role.guard';
 
 // Models
 export type {

@@ -83,18 +83,18 @@
     letter-spacing: 0.05em;
     color: var(--ihelp-text-secondary);
     padding: var(--ihelp-space-2) var(--ihelp-space-3);
-    border-bottom: 2px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 2px solid var(--ihelp-border);
   }
 
   td {
     font-size: 14px;
     color: var(--ihelp-text-primary);
     padding: var(--ihelp-space-2) var(--ihelp-space-3);
-    border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 1px solid var(--ihelp-border);
   }
 
   tbody tr:hover {
-    background-color: var(--ihelp-bg-secondary, #f9fafb);
+    background-color: var(--ihelp-bg-secondary);
   }
 }
 

@@ -118,14 +118,14 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: var(--ihelp-space-2) var(--ihelp-space-3);
-    border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 1px solid var(--ihelp-border);
   }
 
   td {
     padding: var(--ihelp-space-3);
     font-size: 14px;
     color: var(--ihelp-text-secondary);
-    border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 1px solid var(--ihelp-border);
   }
 }
 

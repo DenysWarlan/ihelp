@@ -17,7 +17,7 @@
 .dashboard__header-text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--ihelp-space-1);
 }
 
 .dashboard__title {
@@ -59,7 +59,7 @@
 .stat-card {
   background-color: var(--ihelp-surface, #C8DBBC);
   border-radius: 12px;
-  padding: 20px;
+  padding: var(--ihelp-space-5);
   text-align: center;
 }
 
@@ -79,7 +79,7 @@
   display: block;
   font-size: 13px;
   color: var(--ihelp-text-secondary);
-  margin-top: 4px;
+  margin-top: var(--ihelp-space-1);
 }
 
 .dashboard__recent {
@@ -111,7 +111,7 @@
 
   th,
   td {
-    padding: 12px 16px;
+    padding: var(--ihelp-space-3) var(--ihelp-space-4);
     text-align: left;
     font-size: 14px;
   }

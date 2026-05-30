@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
-import { CaseStatus, Prisma, Role } from '@prisma/client';
+import { CaseStatus, Prisma, Role, SlaStatus } from '@prisma/client';
 
 import { AuditService } from '../common/audit/audit.service.js';
 import {
@@ -36,6 +36,115 @@ export class AdminService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
   ) {}
+
+  // ---------------------------------------------------------------------------
+  // Dashboard — aggregated stats, alerts, recent audit
+  // ---------------------------------------------------------------------------
+
+  async getDashboardData() {
+    const [
+      totalUsers,
+      usersByRole,
+      activeCases,
+      pendingInvites,
+      slaBreaches,
+      crisisAlerts,
+      recentAudit,
+    ] = await this.prisma.$transaction([
+      this.prisma.user.count({ where: { isActive: true } }),
+      this.prisma.user.groupBy({
+        by: ['role'],
+        where: { isActive: true },
+        _count: { id: true },
+      }),
+      this.prisma.careCase.count({
+        where: {
+          status: {
+            in: [
+              CaseStatus.NEW,
+              CaseStatus.ASSIGNED,
+              CaseStatus.IN_PROGRESS,
+              CaseStatus.ON_HOLD,
+              CaseStatus.MEETING_SCHEDULED,
+            ],
+          },
+        },
+      }),
+      this.prisma.invite.count({
+        where: { claimedAt: null, expiresAt: { gt: new Date() } },
+      }),
+      this.prisma.slaTimer.count({
+        where: { status: SlaStatus.ESCALATED },
+      }),
+      this.prisma.crisisAlert.count({
+        where: { acknowledgedAt: null },
+      }),
+      this.prisma.auditLog.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 8,
+        select: {
+          id: true,
+          action: true,
+          userId: true,
+          details: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+    // Duplicate suspects: count via raw SQL (not in transaction)
+    const duplicateRows = await this.prisma.$queryRaw<{ cnt: bigint }[]>`
+      SELECT COUNT(DISTINCT u1.id) AS cnt
+      FROM users u1
+      INNER JOIN users u2
+        ON u1.id != u2.id
+        AND u1.is_active = true AND u2.is_active = true
+        AND LOWER(TRIM(u1.name)) = LOWER(TRIM(u2.name))
+        AND LENGTH(TRIM(u1.name)) > 0
+    `.catch(() => [{ cnt: BigInt(0) }]);
+    const duplicateSuspects = Number(duplicateRows[0]?.cnt ?? 0);
+
+    const roleMap: Record<string, number> = {};
+    for (const entry of usersByRole) {
+      roleMap[entry.role.toLowerCase()] = entry._count.id;
+    }
+
+    // Resolve performer names for audit entries
+    const userIds = recentAudit
+      .map((a) => a.userId)
+      .filter((id): id is string => id !== null);
+    const uniqueIds = [...new Set(userIds)];
+
+    const performers =
+      uniqueIds.length > 0
+        ? await this.prisma.user.findMany({
+            where: { id: { in: uniqueIds } },
+            select: { id: true, name: true },
+          })
+        : [];
+
+    const performerMap = new Map(performers.map((p) => [p.id, p.name]));
+
+    return {
+      stats: {
+        totalUsers,
+        usersByRole: roleMap,
+        activeCases,
+        pendingInvites,
+        slaBreaches,
+      },
+      alerts: {
+        crisisAlerts,
+        duplicateSuspects: duplicateSuspects as number,
+      },
+      recentAudit: recentAudit.map((a) => ({
+        id: a.id,
+        action: a.action,
+        performedByName: a.userId ? performerMap.get(a.userId) ?? 'System' : 'System',
+        createdAt: a.createdAt,
+      })),
+    };
+  }
 
   // ---------------------------------------------------------------------------
   // List staff users with filters and pagination

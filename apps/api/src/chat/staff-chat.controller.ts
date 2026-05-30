@@ -5,6 +5,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { IsArray, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { PrismaService } from '@org/prisma-client';
 import { Request } from 'express';
 
@@ -12,8 +14,16 @@ import { JwtPayload } from '../auth/auth.model.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { ChatGateway } from './chat.gateway.js';
 import { MessageService } from './message.service.js';
+import { SendMessageDto } from './chat.model.js';
 import { CASE_ROOM_PREFIX, CHAT_EVENTS } from './chat.const.js';
 import { TelegramAdapter } from './adapters/telegram.adapter.js';
+
+export class MarkAsReadDto {
+  @ApiProperty({ description: 'Array of message IDs to mark as read' })
+  @IsArray()
+  @IsUUID('4', { each: true })
+  messageIds!: string[];
+}
 
 const STAFF_ROLES = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as const;
 
@@ -134,30 +144,29 @@ export class StaffChatController {
   @ApiResponse({ status: 201, description: 'Message sent' })
   async sendMessage(
     @Param('id', ParseUUIDPipe) caseId: string,
-    @Body() body: { content: string },
+    @Body() dto: SendMessageDto,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
 
-    const message = await this.prisma.message.create({
-      data: {
-        careCaseId: caseId,
-        senderId: actor.sub,
-        senderRole: actor.role as any,
-        content: body.content,
-        channel: 'WEB',
-      },
-      include: {
-        sender: { select: { name: true, role: true } },
-        careCase: { select: { personId: true } },
-      },
+    // Delegate to MessageService which handles sanitization, crisis scanning, SAR detection, and SLA hooks
+    const message = await this.messageService.create(caseId, dto, actor);
+
+    // Re-fetch sender info for the response
+    const sender = await this.prisma.user.findUnique({
+      where: { id: actor.sub },
+      select: { name: true },
+    });
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: caseId },
+      select: { personId: true },
     });
 
     const response = {
       id: message.id,
       content: message.content,
       senderId: message.senderId,
-      senderName: message.sender?.name ?? '',
+      senderName: sender?.name ?? '',
       isFromStaff: true,
       isRead: false,
       sentAt: message.createdAt.toISOString(),
@@ -171,15 +180,15 @@ export class StaffChatController {
     });
 
     // Notify the person about the new message
-    if (message.careCase?.personId) {
-      this.chatGateway.notifyUser(message.careCase.personId, {
+    if (careCase?.personId) {
+      this.chatGateway.notifyUser(careCase.personId, {
         caseId,
-        senderName: message.sender?.name ?? '',
-        preview: (body.content ?? '').slice(0, 100),
+        senderName: sender?.name ?? '',
+        preview: (dto.content ?? '').slice(0, 100),
       });
 
       // Deliver to Telegram if person has a linked Telegram account
-      void this.deliverToTelegram(message.careCase.personId, body.content);
+      void this.deliverToTelegram(careCase.personId, dto.content);
     }
 
     return response;
@@ -191,11 +200,11 @@ export class StaffChatController {
   @ApiResponse({ status: 200, description: 'Messages marked as read' })
   async markAsRead(
     @Param('id', ParseUUIDPipe) caseId: string,
-    @Body() body: { messageIds: string[] },
+    @Body() dto: MarkAsReadDto,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
-    const count = await this.messageService.markManyAsRead(body.messageIds, actor);
+    const count = await this.messageService.markManyAsRead(dto.messageIds, actor);
     return { count };
   }
 

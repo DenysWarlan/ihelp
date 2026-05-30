@@ -3,8 +3,11 @@ import { PrismaService } from '@org/prisma-client';
 import { SlaStatus } from '@prisma/client';
 
 import {
+  ESCALATION_LEVELS,
   SLA_COLOR_GREEN_MAX_MS,
   SLA_COLOR_YELLOW_MAX_MS,
+  SLA_OVERVIEW_AT_RISK_MS,
+  SLA_OVERVIEW_BREACH_MS,
 } from './sla.const.js';
 import { CRISIS_LEVEL_PRIORITY } from '../crisis/crisis.const.js';
 import {
@@ -120,17 +123,18 @@ export class SlaDashboardService {
 
     const overviewTimers: SlaOverviewTimer[] = timers.map((timer) => {
       const elapsedMs = this.calculateElapsedMs(timer, now);
-      const color = this.getColor(elapsedMs);
-      const status: SlaOverviewTimer['status'] =
-        color === 'red' ? 'BREACHED' : color === 'yellow' ? 'AT_RISK' : 'ON_TRACK';
 
-      // Estimate deadline based on the next escalation threshold
-      const nextThresholdMs =
-        color === 'green'
-          ? SLA_COLOR_GREEN_MAX_MS
-          : color === 'yellow'
-            ? SLA_COLOR_YELLOW_MAX_MS
-            : SLA_COLOR_YELLOW_MAX_MS; // already breached
+      // Status aligned to actual escalation levels (not dashboard colors)
+      const status: SlaOverviewTimer['status'] =
+        elapsedMs >= SLA_OVERVIEW_BREACH_MS
+          ? 'BREACHED'
+          : elapsedMs >= SLA_OVERVIEW_AT_RISK_MS
+            ? 'AT_RISK'
+            : 'ON_TRACK';
+
+      // Find next escalation level deadline that hasn't passed yet
+      const nextLevel = ESCALATION_LEVELS.find((l) => l.delayMs > elapsedMs);
+      const nextThresholdMs = nextLevel?.delayMs ?? ESCALATION_LEVELS[ESCALATION_LEVELS.length - 1].delayMs;
       const remainingMs = Math.max(0, nextThresholdMs - elapsedMs);
 
       return {
@@ -140,6 +144,7 @@ export class SlaDashboardService {
         type: timer.careCase.topic ?? 'General',
         deadline: new Date(timer.startedAt.getTime() + nextThresholdMs).toISOString(),
         remainingMinutes: Math.round(remainingMs / 60000),
+        elapsedMinutes: Math.round(elapsedMs / 60000),
         status,
       };
     });

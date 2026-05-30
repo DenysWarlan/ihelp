@@ -7,6 +7,7 @@ import type {
   WorkloadEntry,
   AssignmentSuggestion,
   CrisisAlert,
+  ConsultantDetail,
 } from '../model/coordinator.model';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +28,10 @@ export class CoordinatorService {
 
   getCrisisAlerts(): Observable<CrisisAlert[]> {
     return this.http.get<CrisisAlert[]>('/api/crisis/alerts');
+  }
+
+  getConsultantCases(userId: string): Observable<ConsultantDetail> {
+    return this.http.get<ConsultantDetail>(`/api/workload/consultants/${userId}/cases`);
   }
 
   confirmAssignment(caseId: string, consultantId: string): Observable<void> {

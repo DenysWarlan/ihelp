@@ -49,11 +49,11 @@
                 <div class="progress-bar">
                   <div
                     class="progress-bar__fill progress-bar__fill--{{ getStatusVariant(timer.status) }}"
-                    [style.width.%]="getProgressPercent(timer.remainingMinutes)"
+                    [style.width.%]="getProgressPercent(timer)"
                   ></div>
                 </div>
                 <ui-badge [variant]="getStatusVariant(timer.status)" size="sm">
-                  {{ formatRemaining(timer.remainingMinutes) }}
+                  {{ formatTime(timer) }}
                 </ui-badge>
               </div>
             </div>

@@ -13,6 +13,7 @@ import type {
   WorkloadEntry,
   AssignmentSuggestion,
   CrisisAlert,
+  ConsultantDetail,
 } from '../model/coordinator.model';
 import { CoordinatorService } from '../service/coordinator.service';
 
@@ -21,6 +22,7 @@ interface CoordinatorState {
   workload: WorkloadEntry[];
   assignments: AssignmentSuggestion[];
   crisisAlerts: CrisisAlert[];
+  consultantDetail: ConsultantDetail | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -30,6 +32,7 @@ const initialState: CoordinatorState = {
   workload: [],
   assignments: [],
   crisisAlerts: [],
+  consultantDetail: null,
   isLoading: false,
   error: null,
 };
@@ -186,6 +189,28 @@ export const CoordinatorStore = signalStore(
           )
         )
       ),
+
+      loadConsultantCases: rxMethod<string>(
+        pipe(
+          switchMap((userId: string) =>
+            service.getConsultantCases(userId).pipe(
+              tap((consultantDetail: ConsultantDetail) =>
+                patchState(store, { consultantDetail })
+              ),
+              catchError(() => {
+                patchState(store, {
+                  error: 'Failed to load consultant cases',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
+      clearConsultantDetail(): void {
+        patchState(store, { consultantDetail: null });
+      },
     };
   })
 );

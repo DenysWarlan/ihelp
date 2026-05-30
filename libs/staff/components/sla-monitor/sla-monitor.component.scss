@@ -11,7 +11,7 @@
 .sla-monitor__header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--ihelp-space-1);
 }
 
 .sla-monitor__title {
@@ -41,12 +41,12 @@
 
 .stat-card {
   border-radius: 12px;
-  padding: 20px;
+  padding: var(--ihelp-space-5);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--ihelp-space-2);
 }
 
 .stat-card--default {
@@ -102,7 +102,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: var(--ihelp-space-4) 0;
   border-bottom: 1px solid var(--ihelp-border);
   gap: var(--ihelp-space-4);
 
@@ -161,15 +161,15 @@
 }
 
 .progress-bar__fill--success {
-  background-color: var(--ihelp-success, #22C55E);
+  background-color: var(--ihelp-success);
 }
 
 .progress-bar__fill--warning {
-  background-color: var(--ihelp-warning, #F59E0B);
+  background-color: var(--ihelp-warning);
 }
 
 .progress-bar__fill--error {
-  background-color: var(--ihelp-error, #EF4444);
+  background-color: var(--ihelp-error);
 }
 
 .progress-bar__fill--neutral {

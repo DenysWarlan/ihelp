@@ -75,7 +75,7 @@
     align-items: flex-start;
     gap: var(--ihelp-space-3);
     padding: var(--ihelp-space-3) var(--ihelp-space-4);
-    background-color: #fef3c7;
+    background-color: var(--ihelp-warning-light);
     border-radius: var(--ihelp-radius-xl, 12px);
   }
 
@@ -168,7 +168,7 @@
     }
 
     &--primary {
-      color: #fff;
+      color: var(--ihelp-text-inverse);
       background-color: var(--ihelp-accent);
 
       &:hover:not(:disabled) {
@@ -183,7 +183,7 @@
 
       &:hover:not(:disabled) {
         background-color: var(--ihelp-accent);
-        color: #fff;
+        color: var(--ihelp-text-inverse);
       }
     }
   }

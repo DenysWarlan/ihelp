@@ -1,0 +1,128 @@
+<ng-container *transloco="let t">
+  <section class="duplicates-page">
+    <div class="duplicates-page__header">
+      <div class="duplicates-page__header-left">
+        <ui-button variant="secondary" size="sm" (click)="onBackToUsers()">
+          <ui-icon name="ArrowLeft" [size]="16" />
+          {{ t('admin.usersManagement') }}
+        </ui-button>
+        <h1 class="duplicates-page__title">{{ t('admin.duplicatesTitle') }}</h1>
+      </div>
+    </div>
+
+    <div class="duplicates-page__toolbar">
+      <span class="duplicates-page__count">
+        {{ total() }} {{ t('admin.duplicatesTotal') }}
+      </span>
+      <div class="duplicates-page__filters">
+        @for (filter of confidenceFilters; track filter) {
+          <button
+            class="filter-btn"
+            [class.filter-btn--active]="isActiveFilter(filter)"
+            (click)="onConfidenceFilter(filter)"
+          >
+            {{ filter === 'ALL'
+              ? t('admin.duplicateConfidenceAll')
+              : t('admin.duplicateConfidence' + filter.charAt(0) + filter.slice(1).toLowerCase())
+            }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (facade.isLoading()) {
+      <p class="duplicates-page__loading">{{ t('common.loading') }}</p>
+    } @else {
+
+    @if (facade.error(); as errorMsg) {
+      <p class="duplicates-page__error">{{ errorMsg }}</p>
+    }
+
+    <div class="duplicates-page__list">
+      @for (group of groups(); track group.groupId) {
+        <div class="duplicate-card">
+          <div class="duplicate-card__header">
+            <div class="duplicate-card__header-left">
+              <ui-badge
+                [variant]="facade.getConfidenceBadgeVariant(group.confidence)"
+                size="sm"
+              >
+                {{ group.confidence }}
+              </ui-badge>
+              <span class="duplicate-card__users-count">
+                {{ group.users.length }} {{ t('admin.duplicatesUsers') }}
+              </span>
+            </div>
+            <div class="duplicate-card__actions">
+              <ui-button variant="primary" size="sm" (click)="onReviewGroup(group)">
+                <ui-icon name="Eye" [size]="14" />
+                {{ t('admin.duplicateReviewGroup') }}
+              </ui-button>
+              <ui-button variant="secondary" size="sm" (click)="onDismissGroup(group)">
+                {{ t('admin.duplicateDismissGroup') }}
+              </ui-button>
+            </div>
+          </div>
+
+          <div class="duplicate-card__reasons">
+            <span class="duplicate-card__reasons-label">
+              {{ t('admin.duplicateMatchReasons') }}:
+            </span>
+            @for (reason of group.matchReasons; track reason) {
+              <ui-badge variant="neutral" size="sm">
+                {{ facade.getMatchReasonLabel(reason) }}
+              </ui-badge>
+            }
+          </div>
+
+          <div class="duplicate-card__body">
+            <div class="duplicate-card__users">
+              @for (user of group.users; track user.id) {
+                <div
+                  class="duplicate-card__user"
+                  [class.duplicate-card__user--primary]="user.id === group.suggestedPrimaryId"
+                >
+                  <div class="duplicate-card__user-avatar">
+                    {{ user.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="duplicate-card__user-info">
+                    <span class="duplicate-card__user-name">{{ user.name }}</span>
+                    <span class="duplicate-card__user-email">{{ user.email }}</span>
+                  </div>
+                  <div class="duplicate-card__user-meta">
+                    @for (provider of user.providers; track provider) {
+                      <ui-badge variant="info" size="sm">{{ provider }}</ui-badge>
+                    }
+                    <span class="duplicate-card__user-stat">
+                      {{ t('admin.duplicateCases') }}: {{ user.caseCount }}
+                    </span>
+                    <span class="duplicate-card__user-stat">
+                      {{ t('admin.duplicateMessages') }}: {{ user.messageCount }}
+                    </span>
+                  </div>
+                  @if (user.id === group.suggestedPrimaryId) {
+                    <ui-badge variant="success" size="sm">
+                      {{ t('admin.duplicateSuggestedPrimary') }}
+                    </ui-badge>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        @if (!facade.isLoading()) {
+          <div class="duplicates-page__empty">
+            <div class="duplicates-page__empty-icon">
+              <ui-icon name="CheckCircle" [size]="48" />
+            </div>
+            <p class="duplicates-page__empty-title">{{ t('admin.duplicatesEmpty') }}</p>
+            <p class="duplicates-page__empty-text">{{ t('admin.duplicatesEmptyHint') }}</p>
+          </div>
+        }
+      }
+    </div>
+
+    }
+  </section>
+</ng-container>

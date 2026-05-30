@@ -220,6 +220,53 @@ export class WorkloadService {
   }
 
   // ---------------------------------------------------------------------------
+  // Consultant detail (cases list)
+  // ---------------------------------------------------------------------------
+
+  async getConsultantCases(userId: string) {
+    const profile = await this.prisma.consultantProfile.findUnique({
+      where: { userId },
+      include: { user: { select: { name: true } } },
+    });
+
+    if (!profile) {
+      throw new NotFoundException(
+        `Consultant profile not found for userId=${userId}`,
+      );
+    }
+
+    const cases = await this.prisma.careCase.findMany({
+      where: {
+        consultantId: userId,
+        status: { notIn: ['CLOSED'] },
+      },
+      include: {
+        person: { select: { name: true } },
+        slaTimer: { select: { status: true, startedAt: true, currentLevel: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      consultantId: userId,
+      consultantName: profile.user?.name ?? '',
+      specializations: profile.specializations,
+      languages: profile.languages,
+      cases: cases.map((c) => ({
+        id: c.id,
+        personName: c.person?.name ?? 'Unknown',
+        topic: c.topic,
+        status: c.status,
+        priority: c.priority,
+        crisisLevel: c.crisisLevel,
+        createdAt: c.createdAt,
+        slaStatus: c.slaTimer?.status ?? null,
+        slaLevel: c.slaTimer?.currentLevel ?? null,
+      })),
+    };
+  }
+
+  // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
 

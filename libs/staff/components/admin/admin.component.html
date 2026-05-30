@@ -1,79 +1,154 @@
 <ng-container *transloco="let t">
   <section class="admin-dashboard">
-    <h1 class="admin-dashboard__title">{{ t('admin.dashboardTitle') }}</h1>
+    <!-- Header -->
+    <header class="admin-dashboard__header">
+      <h1 class="admin-dashboard__title">{{ t('admin.dashboardTitle') }}</h1>
+      <p class="admin-dashboard__subtitle">{{ t('admin.dashboardSubtitle') }}</p>
+    </header>
 
-    <div class="admin-dashboard__grid">
-      <a routerLink="../users" class="admin-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="Users" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('admin.usersTitle') }}</span>
-              <span class="nav-card__desc">{{ t('admin.usersDesc') }}</span>
+    @if (facade.dashboardLoading()) {
+      <p class="admin-dashboard__loading">{{ t('common.loading') }}</p>
+    } @else {
+      <!-- Alert Banners -->
+      @if (facade.dashboardAlerts(); as alerts) {
+        @if (alerts.crisisAlerts > 0) {
+          <ui-alert-banner variant="crisis">
+            <ui-icon name="AlertTriangle" [size]="18" />
+            <strong>{{ alerts.crisisAlerts }}</strong> {{ t('admin.alertCrisis') }}
+          </ui-alert-banner>
+        }
+        @if (alerts.duplicateSuspects > 0) {
+          <ui-alert-banner variant="warning">
+            <ui-icon name="Users" [size]="18" />
+            <strong>{{ alerts.duplicateSuspects }}</strong> {{ t('admin.alertDuplicates') }}
+            <ui-button variant="secondary" size="sm" routerLink="../duplicates">
+              {{ t('admin.viewAll') }}
+            </ui-button>
+          </ui-alert-banner>
+        }
+      }
+
+      <!-- Stats Row -->
+      @if (facade.dashboardStats(); as stats) {
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card__icon">
+              <ui-icon name="Users" [size]="20" color="var(--ihelp-accent)" />
+            </div>
+            <div class="stat-card__data">
+              <span class="stat-card__value">{{ stats.totalUsers }}</span>
+              <span class="stat-card__label">{{ t('admin.statTotalUsers') }}</span>
             </div>
           </div>
-        </ui-card>
-      </a>
 
-      <a routerLink="../courses" class="admin-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="BookOpen" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('admin.coursesTitle') }}</span>
-              <span class="nav-card__desc">{{ t('admin.coursesDesc') }}</span>
+          <div class="stat-card">
+            <div class="stat-card__icon">
+              <ui-icon name="FolderOpen" [size]="20" color="var(--ihelp-accent)" />
+            </div>
+            <div class="stat-card__data">
+              <span class="stat-card__value">{{ stats.activeCases }}</span>
+              <span class="stat-card__label">{{ t('admin.statActiveCases') }}</span>
             </div>
           </div>
-        </ui-card>
-      </a>
 
-      <a routerLink="../settings" class="admin-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="Settings" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('admin.settingsTitle') }}</span>
-              <span class="nav-card__desc">{{ t('admin.settingsDesc') }}</span>
+          <div class="stat-card">
+            <div class="stat-card__icon">
+              <ui-icon name="Mail" [size]="20" color="var(--ihelp-accent)" />
+            </div>
+            <div class="stat-card__data">
+              <span class="stat-card__value">{{ stats.pendingInvites }}</span>
+              <span class="stat-card__label">{{ t('admin.statPendingInvites') }}</span>
             </div>
           </div>
-        </ui-card>
-      </a>
 
-      <a routerLink="../analytics" class="admin-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="BarChart3" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('admin.analyticsTitle') }}</span>
-              <span class="nav-card__desc">{{ t('admin.analyticsDesc') }}</span>
+          <div class="stat-card" [class.stat-card--danger]="stats.slaBreaches > 0">
+            <div class="stat-card__icon" [class.stat-card__icon--danger]="stats.slaBreaches > 0">
+              <ui-icon name="Timer" [size]="20" [attr.color]="stats.slaBreaches > 0 ? 'var(--ihelp-error)' : 'var(--ihelp-accent)'" />
+            </div>
+            <div class="stat-card__data">
+              <span class="stat-card__value">{{ stats.slaBreaches }}</span>
+              <span class="stat-card__label">{{ t('admin.statSlaBreaches') }}</span>
             </div>
           </div>
-        </ui-card>
-      </a>
+        </div>
+      }
 
-      <a routerLink="../audit" class="admin-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="FileText" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('admin.auditTitle') }}</span>
-              <span class="nav-card__desc">{{ t('admin.auditDesc') }}</span>
-            </div>
+      <!-- Navigation Cards -->
+      <div class="nav-grid">
+        <a routerLink="../users" class="nav-card">
+          <div class="nav-card__icon">
+            <ui-icon name="Users" [size]="24" color="var(--ihelp-accent)" />
           </div>
-        </ui-card>
-      </a>
+          <span class="nav-card__title">{{ t('admin.usersTitle') }}</span>
+          <span class="nav-card__desc">{{ t('admin.usersDesc') }}</span>
+        </a>
 
-      <a routerLink="../gdpr" class="admin-dashboard__link">
-        <ui-card padding="md" [hoverable]="true">
-          <div class="nav-card">
-            <ui-icon name="Shield" [size]="28" color="var(--ihelp-accent)" />
-            <div class="nav-card__content">
-              <span class="nav-card__label">{{ t('admin.gdprTitle') }}</span>
-              <span class="nav-card__desc">{{ t('admin.gdprDesc') }}</span>
-            </div>
+        <a routerLink="../courses" class="nav-card">
+          <div class="nav-card__icon">
+            <ui-icon name="BookOpen" [size]="24" color="var(--ihelp-accent)" />
           </div>
-        </ui-card>
-      </a>
-    </div>
+          <span class="nav-card__title">{{ t('admin.coursesTitle') }}</span>
+          <span class="nav-card__desc">{{ t('admin.coursesDesc') }}</span>
+        </a>
+
+        <a routerLink="../settings" class="nav-card">
+          <div class="nav-card__icon">
+            <ui-icon name="Settings" [size]="24" color="var(--ihelp-accent)" />
+          </div>
+          <span class="nav-card__title">{{ t('admin.settingsTitle') }}</span>
+          <span class="nav-card__desc">{{ t('admin.settingsDesc') }}</span>
+        </a>
+
+        <a routerLink="../analytics" class="nav-card">
+          <div class="nav-card__icon">
+            <ui-icon name="BarChart3" [size]="24" color="var(--ihelp-accent)" />
+          </div>
+          <span class="nav-card__title">{{ t('admin.analyticsTitle') }}</span>
+          <span class="nav-card__desc">{{ t('admin.analyticsDesc') }}</span>
+        </a>
+
+        <a routerLink="../audit" class="nav-card">
+          <div class="nav-card__icon">
+            <ui-icon name="FileText" [size]="24" color="var(--ihelp-accent)" />
+          </div>
+          <span class="nav-card__title">{{ t('admin.auditTitle') }}</span>
+          <span class="nav-card__desc">{{ t('admin.auditDesc') }}</span>
+        </a>
+
+        <a routerLink="../gdpr" class="nav-card">
+          <div class="nav-card__icon">
+            <ui-icon name="Shield" [size]="24" color="var(--ihelp-accent)" />
+          </div>
+          <span class="nav-card__title">{{ t('admin.gdprTitle') }}</span>
+          <span class="nav-card__desc">{{ t('admin.gdprDesc') }}</span>
+        </a>
+      </div>
+
+      <!-- Recent Audit Log -->
+      @if (facade.dashboardAudit().length > 0) {
+        <div class="audit-section">
+          <div class="audit-section__header">
+            <h2 class="audit-section__title">{{ t('admin.recentActivity') }}</h2>
+            <a routerLink="../audit" class="audit-section__link">{{ t('admin.viewAll') }}</a>
+          </div>
+          <div class="audit-list">
+            @for (entry of facade.dashboardAudit(); track entry.id) {
+              <div class="audit-item">
+                <div class="audit-item__avatar">
+                  {{ entry.performedByName.charAt(0) }}
+                </div>
+                <div class="audit-item__content">
+                  <span class="audit-item__action">
+                    <strong>{{ entry.performedByName }}</strong>
+                    {{ entry.action }}
+                  </span>
+                </div>
+                <span class="audit-item__time">{{ entry.createdAt | date: 'dd.MM HH:mm' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
   </section>
 </ng-container>

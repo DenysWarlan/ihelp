@@ -26,7 +26,11 @@ import { ChatFacade, ChatConversation } from '@org/person/data-access';
 export class ChatComponent implements OnInit {
   readonly facade: ChatFacade = inject(ChatFacade);
   readonly activeConversation: Signal<ChatConversation | null> = computed(
-    () => this.facade.conversations()[0] ?? null
+    () => {
+      const selectedId = this.facade.selectedConversationId();
+      const conversations = this.facade.conversations();
+      return conversations.find((c) => c.id === selectedId) ?? conversations[0] ?? null;
+    }
   );
   messageText = '';
 

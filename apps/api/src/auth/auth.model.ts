@@ -62,8 +62,9 @@ export class SetPasswordDto {
   readonly currentPassword?: string;
 }
 
-export interface RefreshTokenDto {
-  readonly refreshToken: string;
+export class RefreshTokenDto {
+  @IsString()
+  readonly refreshToken!: string;
 }
 
 export interface ProviderLinkResponse {

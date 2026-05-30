@@ -307,6 +307,7 @@ model CareCase {
   meetings     Meeting[]
   slaTimer     SlaTimer?
   transfers    CaseTransfer[]
+  crisisAlerts CrisisAlert[]
 
   @@index([status])
   @@index([consultantId])
@@ -683,6 +684,8 @@ model CrisisAlert {
   autoReplySent   Boolean         @default(false) @map("auto_reply_sent")
   createdAt       DateTime        @default(now()) @map("created_at")
 
+  careCase CareCase @relation(fields: [careCaseId], references: [id], onDelete: Cascade)
+
   @@index([careCaseId])
   @@index([riskLevel])
   @@index([acknowledgedAt])
@@ -970,4 +973,43 @@ model AnalyticsSnapshot {
   @@index([metricType, periodStart])
   @@index([metricType, periodEnd])
   @@map("analytics_snapshots")
+}
+
+// ============================================================
+// USER MERGE (S-E13-05 — duplicate account merge audit trail)
+// ============================================================
+
+model UserMerge {
+  id              String    @id @default(uuid()) @db.Uuid
+  primaryUserId   String    @map("primary_user_id") @db.Uuid
+  secondaryUserId String    @map("secondary_user_id") @db.Uuid
+  performedBy     String    @map("performed_by") @db.Uuid
+  mergeDetails    Json      @map("merge_details")
+  isReverted      Boolean   @default(false) @map("is_reverted")
+  revertedAt      DateTime? @map("reverted_at")
+  revertedBy      String?   @map("reverted_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@index([primaryUserId])
+  @@index([secondaryUserId])
+  @@index([performedBy])
+  @@map("user_merges")
+}
+
+// ============================================================
+// DUPLICATE DISMISSAL (S-E13-05 — admin-dismissed duplicate groups)
+// ============================================================
+
+model DuplicateDismissal {
+  id          String   @id @default(uuid()) @db.Uuid
+  userIdA     String   @map("user_id_a") @db.Uuid
+  userIdB     String   @map("user_id_b") @db.Uuid
+  dismissedBy String   @map("dismissed_by") @db.Uuid
+  reason      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([userIdA, userIdB])
+  @@index([userIdA])
+  @@index([userIdB])
+  @@map("duplicate_dismissals")
 }

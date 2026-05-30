@@ -9,34 +9,58 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, pipe, switchMap, tap, catchError } from 'rxjs';
 
 import {
+  AdminDashboardResponse,
+  AdminDashboardStats,
+  AdminDashboardAlerts,
+  AdminDashboardAuditEntry,
   AdminUser,
   AdminInvite,
   AuditLogEntry,
   SystemSetting,
   CreateUserRequest,
   CreateInviteRequest,
+  EditUserFormModel,
+  UsersQueryParams,
+  PaginatedUsersResponse,
+  DuplicatesResponse,
 } from '../model/admin.model';
 import { AdminService } from '../service/admin.service';
 
 interface AdminState {
+  dashboardStats: AdminDashboardStats | null;
+  dashboardAlerts: AdminDashboardAlerts | null;
+  dashboardAudit: AdminDashboardAuditEntry[];
+  dashboardLoading: boolean;
   users: AdminUser[];
   usersTotal: number;
+  usersPage: number;
+  usersPageSize: number;
+  usersTotalPages: number;
   invites: AdminInvite[];
   invitesTotal: number;
   auditLog: AuditLogEntry[];
   auditLogTotal: number;
+  duplicatesCount: number;
   settings: SystemSetting[];
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: AdminState = {
+  dashboardStats: null,
+  dashboardAlerts: null,
+  dashboardAudit: [],
+  dashboardLoading: false,
   users: [],
   usersTotal: 0,
+  usersPage: 1,
+  usersPageSize: 20,
+  usersTotalPages: 0,
   invites: [],
   invitesTotal: 0,
   auditLog: [],
   auditLogTotal: 0,
+  duplicatesCount: 0,
   settings: [],
   isLoading: false,
   error: null,
@@ -49,15 +73,40 @@ export const AdminStore = signalStore(
     const adminService: AdminService = inject(AdminService);
 
     return {
-      loadUsers: rxMethod<void>(
+      loadDashboard: rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { dashboardLoading: true })),
+          switchMap(() =>
+            adminService.getDashboard().pipe(
+              tap((result: AdminDashboardResponse) =>
+                patchState(store, {
+                  dashboardStats: result.stats,
+                  dashboardAlerts: result.alerts,
+                  dashboardAudit: result.recentAudit,
+                  dashboardLoading: false,
+                }),
+              ),
+              catchError(() => {
+                patchState(store, { dashboardLoading: false });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      loadUsers: rxMethod<UsersQueryParams>(
         pipe(
           tap(() => patchState(store, { isLoading: true, error: null })),
-          switchMap(() =>
-            adminService.getUsers().pipe(
-              tap((result: { data: AdminUser[]; total: number }) =>
+          switchMap((query: UsersQueryParams) =>
+            adminService.getUsers(query).pipe(
+              tap((result: PaginatedUsersResponse) =>
                 patchState(store, {
                   users: result.data,
                   usersTotal: result.total,
+                  usersPage: result.page,
+                  usersPageSize: result.pageSize,
+                  usersTotalPages: result.totalPages,
                   isLoading: false,
                 })
               ),
@@ -145,6 +194,56 @@ export const AdminStore = signalStore(
         )
       ),
 
+      updateUser: rxMethod<{ id: string; dto: EditUserFormModel }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(({ id, dto }) =>
+            adminService.updateUser(id, dto).pipe(
+              tap((updated: AdminUser) =>
+                patchState(store, {
+                  users: store.users().map((u: AdminUser) =>
+                    u.id === updated.id ? updated : u,
+                  ),
+                  isLoading: false,
+                }),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to update user',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      toggleUserActive: rxMethod<{ id: string; isActive: boolean }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(({ id, isActive }) =>
+            adminService.updateUser(id, { isActive }).pipe(
+              tap((updated: AdminUser) =>
+                patchState(store, {
+                  users: store.users().map((u: AdminUser) =>
+                    u.id === updated.id ? updated : u,
+                  ),
+                  isLoading: false,
+                }),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to update user status',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
       loadAuditLog: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { isLoading: true, error: null })),
@@ -164,6 +263,19 @@ export const AdminStore = signalStore(
                 });
                 return EMPTY;
               })
+            )
+          )
+        )
+      ),
+
+      loadDuplicates: rxMethod<void>(
+        pipe(
+          switchMap(() =>
+            adminService.getDuplicates().pipe(
+              tap((result: DuplicatesResponse) =>
+                patchState(store, { duplicatesCount: result.total })
+              ),
+              catchError(() => EMPTY)
             )
           )
         )

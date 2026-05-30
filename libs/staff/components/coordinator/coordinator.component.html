@@ -1,87 +1,99 @@
 <ng-container *transloco="let t">
   <section class="coordinator-dashboard">
+    <!-- Header -->
     <header class="coordinator-dashboard__header">
       <div class="coordinator-dashboard__header-text">
         <h1 class="coordinator-dashboard__title">{{ t('coordinator.dashboardTitle') }}</h1>
         <p class="coordinator-dashboard__subtitle">{{ t('coordinator.dashboardSubtitle') }}</p>
       </div>
-      <div class="coordinator-dashboard__avatar">
-        <span class="coordinator-dashboard__avatar-circle">О</span>
-      </div>
     </header>
 
+    @if (isLoading()) {
+      <p class="coordinator-dashboard__loading">{{ t('common.loading') }}</p>
+    } @else {
+    <!-- Stats Row -->
     <div class="coordinator-dashboard__stats">
-      <div class="stat-card stat-card--success">
-        <span class="stat-card__value">{{ slaOverview()?.onTrack ?? 0 }}</span>
-        <span class="stat-card__label">{{ t('coordinator.inProgress') }}</span>
+      <div class="stat-card">
+        <span class="stat-card__value">{{ assignments().length }}</span>
+        <span class="stat-card__label">{{ t('coordinator.statNewRequests') }}</span>
       </div>
-      <div class="stat-card stat-card--success">
+      <div class="stat-card">
         <span class="stat-card__value">{{ slaOverview()?.totalActive ?? 0 }}</span>
-        <span class="stat-card__label">{{ t('coordinator.totalMonth') }}</span>
+        <span class="stat-card__label">{{ t('coordinator.statActiveCases') }}</span>
       </div>
-      <div class="stat-card stat-card--warning">
-        <span class="stat-card__value">{{ slaOverview()?.atRisk ?? 0 }}</span>
-        <span class="stat-card__label">{{ t('coordinator.slaThreat') }}</span>
+      <div class="stat-card">
+        <span class="stat-card__value">{{ slaOverview()?.breached ?? 0 }}</span>
+        <span class="stat-card__label">{{ t('coordinator.statSlaBreaches') }}</span>
       </div>
-      <div class="stat-card stat-card--error">
-        <span class="stat-card__value">{{ unacknowledgedCrisisCount() }}</span>
-        <span class="stat-card__label">{{ t('coordinator.crisisCases') }}</span>
-      </div>
-    </div>
-
-    <div class="coordinator-dashboard__section-header">
-      <h2 class="coordinator-dashboard__section-title">{{ t('coordinator.newRequests') }}</h2>
-      <ui-button variant="primary" size="sm">
-        {{ t('coordinator.assignAll') }}
-      </ui-button>
-    </div>
-
-    <div class="coordinator-dashboard__table-wrapper">
-      <table class="coordinator-dashboard__table">
-        <thead>
-          <tr>
-            <th>{{ t('coordinator.colName') }}</th>
-            <th>{{ t('coordinator.colTopic') }}</th>
-            <th>{{ t('coordinator.colPriority') }}</th>
-            <th>{{ t('coordinator.colWaitTime') }}</th>
-            <th>{{ t('coordinator.colStatus') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (assignment of assignments(); track assignment.caseId) {
-            <tr>
-              <td>{{ assignment.personName }}</td>
-              <td>{{ assignment.topic }}</td>
-              <td>
-                <ui-badge [variant]="getPriorityVariant(assignment.reason)">
-                  {{ assignment.reason }}
-                </ui-badge>
-              </td>
-              <td>{{ assignment.suggestedConsultantName }}</td>
-              <td>
-                <ui-badge variant="info">{{ t('coordinator.assignmentTitle') }}</ui-badge>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="5" class="coordinator-dashboard__empty">
-                {{ t('coordinator.assignmentEmpty') }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    @if (slaOverview()?.atRisk && slaOverview()!.atRisk > 0) {
-      <ui-alert-banner variant="warning">
-        <span class="coordinator-dashboard__alert-content">
-          <span>{{ t('coordinator.waitAlert') }}</span>
-          <ui-button variant="primary" size="sm">
-            {{ t('coordinator.reviewAction') }}
-          </ui-button>
+      <div class="stat-card">
+        <span class="stat-card__value" [class.stat-card__value--danger]="unacknowledgedCrisisCount() > 0">
+          {{ unacknowledgedCrisisCount() }}
         </span>
-      </ui-alert-banner>
+        <span class="stat-card__label">{{ t('coordinator.statCrisisCases') }}</span>
+      </div>
+    </div>
+
+    <!-- New Requests Table -->
+    <div class="coordinator-dashboard__table-section">
+      <div class="coordinator-dashboard__table-header">
+        <h2 class="coordinator-dashboard__section-title">{{ t('coordinator.newRequests') }}</h2>
+        <ui-button variant="secondary" size="sm">
+          {{ t('coordinator.filterBtn') }}
+        </ui-button>
+      </div>
+
+      <div class="coordinator-dashboard__table-card">
+        <table class="coordinator-dashboard__table">
+          <thead>
+            <tr>
+              <th>{{ t('coordinator.colName') }}</th>
+              <th>{{ t('coordinator.colTopic') }}</th>
+              <th class="coordinator-dashboard__col-fixed">{{ t('coordinator.colPriority') }}</th>
+              <th class="coordinator-dashboard__col-fixed">{{ t('coordinator.colWaitTime') }}</th>
+              <th class="coordinator-dashboard__col-fixed">{{ t('coordinator.colStatus') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (assignment of assignments(); track assignment.caseId) {
+              <tr>
+                <td>{{ assignment.personName }}</td>
+                <td class="coordinator-dashboard__topic">{{ assignment.topic }}</td>
+                <td class="coordinator-dashboard__col-fixed">
+                  <ui-badge [variant]="getPriorityVariant(assignment.priority)">
+                    {{ t('coordinator.priority_' + assignment.priority) }}
+                  </ui-badge>
+                </td>
+                <td class="coordinator-dashboard__col-fixed">
+                  <span class="coordinator-dashboard__wait-time" [class.coordinator-dashboard__wait-time--danger]="isUrgentWait(assignment.waitTime)">
+                    {{ assignment.waitTime }}
+                  </span>
+                </td>
+                <td class="coordinator-dashboard__col-fixed">
+                  <span class="coordinator-dashboard__status">{{ t('coordinator.statusNew') }}</span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="coordinator-dashboard__empty">
+                  {{ t('coordinator.assignmentEmpty') }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Wait Alert Banner -->
+    @if (slaOverview()?.atRisk && slaOverview()!.atRisk > 0) {
+      <div class="coordinator-dashboard__alert">
+        <ui-icon name="TriangleAlert" [size]="16" color="var(--ihelp-error)" />
+        <span class="coordinator-dashboard__alert-text">{{ t('coordinator.waitAlert') }}</span>
+        <ui-button variant="secondary" size="sm">
+          {{ t('coordinator.reviewAction') }}
+        </ui-button>
+      </div>
+    }
     }
   </section>
 </ng-container>

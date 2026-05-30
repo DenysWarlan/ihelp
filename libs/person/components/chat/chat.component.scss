@@ -59,7 +59,7 @@
 
   &__consultant-status {
     font-size: 12px;
-    color: var(--ihelp-success, #22c55e);
+    color: var(--ihelp-success);
   }
 
   &__messages {
@@ -69,7 +69,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--ihelp-space-3);
-    background-color: var(--ihelp-bg-secondary, #f9fafb);
+    background-color: var(--ihelp-bg-secondary);
   }
 
   &__message {
@@ -87,7 +87,7 @@
   &__message-bubble {
     padding: var(--ihelp-space-2) var(--ihelp-space-3);
     border-radius: 12px;
-    background-color: var(--ihelp-bg-primary, #fff);
+    background-color: var(--ihelp-white);
     border: 1px solid var(--ihelp-border, #e5e7eb);
 
     .chat__message--own & {
@@ -135,7 +135,7 @@
     }
 
     &--error {
-      color: var(--ihelp-error, #ef4444);
+      color: var(--ihelp-error);
     }
   }
 
@@ -152,7 +152,7 @@
     gap: var(--ihelp-space-2);
     padding: var(--ihelp-space-3) var(--ihelp-space-4);
     border-top: 1px solid var(--ihelp-border);
-    background: var(--ihelp-bg-primary, #fff);
+    background: var(--ihelp-white);
   }
 
   &__input {
@@ -185,7 +185,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.15s;
+    transition: opacity var(--ihelp-transition-fast);
 
     &:hover {
       opacity: 0.9;

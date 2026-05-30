@@ -2,18 +2,31 @@
   @if (label()) {
     <label class="input-field__label" [attr.for]="inputId">{{ label() }}</label>
   }
-  <input
-    [id]="inputId"
-    class="input-field__control"
-    [type]="type()"
-    [placeholder]="placeholder()"
-    [value]="value()"
-    [disabled]="isDisabled()"
-    [attr.aria-label]="label() || placeholder()"
-    [attr.aria-invalid]="!!errorMessage()"
-    (input)="onInput($any($event))"
-    (blur)="onBlur()"
-  />
+  <div class="input-field__wrapper" [class.input-field__wrapper--has-toggle]="type() === 'password'">
+    <input
+      [id]="inputId"
+      class="input-field__control"
+      [type]="resolvedType()"
+      [placeholder]="placeholder()"
+      [value]="value()"
+      [disabled]="isDisabled()"
+      [attr.aria-label]="label() || placeholder()"
+      [attr.aria-invalid]="!!errorMessage()"
+      (input)="onInput($any($event))"
+      (blur)="onBlur()"
+    />
+    @if (type() === 'password') {
+      <button
+        type="button"
+        class="input-field__toggle"
+        (click)="togglePasswordVisibility()"
+        [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+        tabindex="-1"
+      >
+        <ui-icon [name]="passwordVisible() ? 'EyeOff' : 'Eye'" [size]="18" />
+      </button>
+    }
+  </div>
   @if (errorMessage()) {
     <span class="input-field__error" role="alert">{{ errorMessage() }}</span>
   }

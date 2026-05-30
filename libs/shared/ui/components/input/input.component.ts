@@ -1,16 +1,19 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   forwardRef,
   input,
   signal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { IconComponent } from '../icon/icon.component';
+
 @Component({
   selector: 'ui-input',
   standalone: true,
-  imports: [],
+  imports: [IconComponent],
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +35,10 @@ export class InputComponent implements ControlValueAccessor {
 
   readonly value = signal('');
   readonly isDisabled = signal(false);
+  readonly passwordVisible = signal(false);
+  readonly resolvedType = computed(() =>
+    this.type() === 'password' && this.passwordVisible() ? 'text' : this.type()
+  );
 
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
@@ -60,5 +67,9 @@ export class InputComponent implements ControlValueAccessor {
 
   onBlur(): void {
     this.onTouched();
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible.update((v) => !v);
   }
 }

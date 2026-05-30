@@ -63,11 +63,11 @@
     color: var(--ihelp-text-inverse);
 
     &:hover:not(:disabled) {
-      background-color: #a71d2a;
+      background-color: var(--ihelp-error-dark);
     }
 
     &:active:not(:disabled) {
-      background-color: #a71d2a;
+      background-color: var(--ihelp-error-dark);
     }
   }
 

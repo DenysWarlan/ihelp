@@ -148,11 +148,11 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Lesson updated' })
   @ApiNotFoundResponse({ description: 'Lesson not found' })
   async updateLesson(
-    @Param('id', ParseUUIDPipe) _courseId: string,
+    @Param('id', ParseUUIDPipe) courseId: string,
     @Param('lessonId', ParseUUIDPipe) lessonId: string,
     @Body() dto: UpdateLessonDto,
   ) {
-    return this.lessonsService.update(lessonId, dto);
+    return this.lessonsService.update(lessonId, dto, courseId);
   }
 
   @Delete(':id/lessons/:lessonId')
@@ -160,10 +160,10 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Lesson deleted' })
   @ApiNotFoundResponse({ description: 'Lesson not found' })
   async deleteLesson(
-    @Param('id', ParseUUIDPipe) _courseId: string,
+    @Param('id', ParseUUIDPipe) courseId: string,
     @Param('lessonId', ParseUUIDPipe) lessonId: string,
   ) {
-    return this.lessonsService.delete(lessonId);
+    return this.lessonsService.delete(lessonId, courseId);
   }
 
   @Patch(':id/lessons/reorder')

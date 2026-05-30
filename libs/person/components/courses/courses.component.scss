@@ -108,7 +108,7 @@
   }
 
   &__visual {
-    background: linear-gradient(135deg, #c8dbbc 0%, #e2edd9 100%);
+    background: linear-gradient(135deg, var(--ihelp-surface) 0%, var(--ihelp-accent-light) 100%);
     padding: var(--ihelp-space-8) var(--ihelp-space-6);
     display: flex;
     align-items: center;
@@ -209,7 +209,7 @@
   justify-content: space-between;
   padding: var(--ihelp-space-5) var(--ihelp-space-6);
   border-radius: 16px;
-  background: linear-gradient(135deg, #4a7c3f 0%, #6ba35e 100%);
+  background: linear-gradient(135deg, var(--ihelp-accent) 0%, var(--ihelp-accent) 100%);
   margin-top: var(--ihelp-space-8);
 
   &__content {

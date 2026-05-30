@@ -91,6 +91,10 @@ export const SLA_LOCK_BASE_DELAY_MS = 50;
 export const SLA_COLOR_GREEN_MAX_MS = 4 * 3600 * 1000; // < 4 h
 export const SLA_COLOR_YELLOW_MAX_MS = 12 * 3600 * 1000; // < 12 h
 
+/** Elapsed time thresholds (ms) for SLA overview status (aligned to escalation levels). */
+export const SLA_OVERVIEW_AT_RISK_MS = 4 * 3600 * 1000; // 4h — L1 notification sent
+export const SLA_OVERVIEW_BREACH_MS = 24 * 3600 * 1000; // 24h — L3 reassignment triggered
+
 /** Socket.io event names for SLA. */
 export const SLA_EVENTS = {
   SLA_UPDATE: 'sla:update',

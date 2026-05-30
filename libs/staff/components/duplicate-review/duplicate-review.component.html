@@ -1,0 +1,227 @@
+<ng-container *transloco="let t">
+  <section class="review-page">
+    <div class="review-page__header">
+      <ui-button variant="secondary" size="sm" (click)="onBackToList()">
+        <ui-icon name="ArrowLeft" [size]="16" />
+        {{ t('admin.duplicateBackToList') }}
+      </ui-button>
+      <h1 class="review-page__title">{{ t('admin.duplicatesTitle') }}</h1>
+    </div>
+
+    @if (facade.isLoading()) {
+      <p class="review-page__loading">{{ t('common.loading') }}</p>
+    } @else if (mergeResult(); as result) {
+      <ui-card class="review-page__success">
+        <div class="merge-success">
+          <div class="merge-success__icon">
+            <ui-icon name="CheckCircle" [size]="48" />
+          </div>
+          <h2>{{ t('admin.duplicateMergeSuccess') }}</h2>
+          <p>Merge ID: {{ result.mergeId }}</p>
+          <div class="merge-success__stats">
+            <div class="merge-success__stat">
+              <span class="merge-success__stat-value">{{ result.preview.casesReassigned }}</span>
+              <span class="merge-success__stat-label">{{ t('admin.duplicateCases') }}</span>
+            </div>
+            <div class="merge-success__stat">
+              <span class="merge-success__stat-value">{{ result.preview.messagesReattributed }}</span>
+              <span class="merge-success__stat-label">{{ t('admin.duplicateMessages') }}</span>
+            </div>
+            <div class="merge-success__stat">
+              <span class="merge-success__stat-value">{{ result.preview.enrollmentsMerged }}</span>
+              <span class="merge-success__stat-label">{{ t('admin.duplicateEnrollments') }}</span>
+            </div>
+            <div class="merge-success__stat">
+              <span class="merge-success__stat-value">{{ result.preview.meetingsReassigned }}</span>
+              <span class="merge-success__stat-label">{{ t('admin.duplicateMeetings') }}</span>
+            </div>
+          </div>
+          <ui-button variant="primary" (click)="onBackToList()">
+            {{ t('admin.duplicateBackToList') }}
+          </ui-button>
+        </div>
+      </ui-card>
+    } @else if (group(); as g) {
+
+    <div class="review-page__meta">
+      <div class="review-page__badges">
+        <ui-badge
+          [variant]="facade.getConfidenceBadgeVariant(g.confidence)"
+          size="sm"
+        >
+          {{ t('admin.duplicateConfidence') }}: {{ g.confidence }}
+        </ui-badge>
+        @for (reason of g.matchReasons; track reason) {
+          <ui-badge variant="neutral" size="sm">
+            {{ facade.getMatchReasonLabel(reason) }}
+          </ui-badge>
+        }
+      </div>
+      <div class="review-page__actions">
+        <ui-button variant="danger" (click)="onOpenMerge()">
+          <ui-icon name="Merge" [size]="16" />
+          {{ t('admin.duplicateMergeUsers') }}
+        </ui-button>
+        <ui-button variant="secondary" (click)="onDismiss()">
+          {{ t('admin.duplicateDismissGroup') }}
+        </ui-button>
+      </div>
+    </div>
+
+    <div class="review-page__comparison">
+      @for (user of g.users; track user.id; let i = $index) {
+        <div
+          class="user-card"
+          [class.user-card--primary]="user.id === g.suggestedPrimaryId"
+          [class.user-card--secondary]="user.id !== g.suggestedPrimaryId"
+        >
+          <div class="user-card__header">
+            <div class="user-card__role-line">
+              @if (user.id === g.suggestedPrimaryId) {
+                <ui-badge variant="success" size="sm">
+                  {{ t('admin.duplicatePrimaryUser') }}
+                </ui-badge>
+              } @else {
+                <ui-badge variant="warning" size="sm">
+                  {{ t('admin.duplicateSecondaryUser') }}
+                </ui-badge>
+              }
+              <ui-badge
+                [variant]="user.isActive ? 'success' : 'neutral'"
+                size="sm"
+              >
+                {{ user.isActive ? t('admin.active') : t('admin.inactive') }}
+              </ui-badge>
+            </div>
+            <div class="user-card__avatar">
+              {{ user.name.charAt(0).toUpperCase() }}
+            </div>
+            <h3 class="user-card__name">{{ user.name }}</h3>
+            <p class="user-card__email">{{ user.email }}</p>
+          </div>
+
+          <div class="user-card__details">
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.colRole') }}</span>
+              <ui-badge
+                [variant]="user.role === 'ADMIN' ? 'error' : user.role === 'CONSULTANT' ? 'success' : 'info'"
+                size="sm"
+              >
+                {{ user.role }}
+              </ui-badge>
+            </div>
+
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.duplicateProviders') }}</span>
+              <div class="user-card__providers">
+                @for (provider of user.providers; track provider) {
+                  <ui-badge variant="info" size="sm">{{ provider }}</ui-badge>
+                } @empty {
+                  <span class="user-card__empty-value">—</span>
+                }
+                @if (user.hasPassword) {
+                  <ui-badge variant="neutral" size="sm">password</ui-badge>
+                }
+              </div>
+            </div>
+
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.duplicateCases') }}</span>
+              <span class="user-card__value">{{ user.caseCount }}</span>
+            </div>
+
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.duplicateEnrollments') }}</span>
+              <span class="user-card__value">{{ user.enrollmentCount }}</span>
+            </div>
+
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.duplicateMessages') }}</span>
+              <span class="user-card__value">{{ user.messageCount }}</span>
+            </div>
+
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.duplicateMeetings') }}</span>
+              <span class="user-card__value">{{ user.meetingCount }}</span>
+            </div>
+
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.duplicateScore') }}</span>
+              <span class="user-card__value user-card__value--score">{{ user.score }}</span>
+            </div>
+
+            <div class="user-card__row">
+              <span class="user-card__label">{{ t('admin.duplicateCreatedAt') }}</span>
+              <span class="user-card__value">{{ user.createdAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merge direction arrow between cards -->
+        @if (i === 0 && g.users.length === 2) {
+          <div class="review-page__merge-arrow">
+            <ui-icon name="ArrowRight" [size]="24" />
+            <span class="review-page__merge-arrow-label">merge</span>
+          </div>
+        }
+      }
+    </div>
+
+    }
+  </section>
+
+  <!-- Merge Confirmation Modal -->
+  <ui-modal
+    [isOpen]="facade.showMergeConfirmModal()"
+    [title]="t('admin.duplicateMergeConfirmTitle')"
+    (closed)="onCloseMerge()"
+  >
+    <div class="merge-confirm">
+      <p class="merge-confirm__warning">
+        {{ t('admin.duplicateMergeConfirmMessage') }}
+      </p>
+
+      <div class="merge-confirm__flow">
+        <div class="merge-confirm__user merge-confirm__user--secondary">
+          <span class="merge-confirm__label">{{ t('admin.duplicateSecondaryUser') }}</span>
+          @if (getSecondaryUser(); as secondary) {
+            <span class="merge-confirm__name">{{ secondary.name }}</span>
+            <span class="merge-confirm__email">{{ secondary.email }}</span>
+          }
+        </div>
+
+        <div class="merge-confirm__arrow">
+          <ui-icon name="ArrowRight" [size]="20" />
+          <span class="merge-confirm__arrow-label">merge into</span>
+        </div>
+
+        <div class="merge-confirm__user merge-confirm__user--primary">
+          <span class="merge-confirm__label">{{ t('admin.duplicatePrimaryUser') }}</span>
+          @if (getPrimaryUser(); as primary) {
+            <span class="merge-confirm__name">{{ primary.name }}</span>
+            <span class="merge-confirm__email">{{ primary.email }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="merge-confirm__swap">
+        <ui-button variant="secondary" size="sm" (click)="onSwap()">
+          <ui-icon name="ArrowLeftRight" [size]="14" />
+          {{ t('admin.duplicateSwapUsers') }}
+        </ui-button>
+      </div>
+    </div>
+
+    <ui-button modal-footer variant="secondary" (click)="onCloseMerge()">
+      {{ t('admin.duplicateMergeCancel') }}
+    </ui-button>
+    <ui-button
+      modal-footer
+      variant="danger"
+      (click)="onConfirmMerge()"
+      [loading]="facade.isMerging()"
+    >
+      {{ t('admin.duplicateMergeConfirm') }}
+    </ui-button>
+  </ui-modal>
+</ng-container>

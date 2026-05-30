@@ -12,14 +12,14 @@
 
   &__title {
     font-family: var(--ihelp-font-heading);
-    font-size: 22px;
-    font-weight: 700;
+    font-size: var(--ihelp-text-xl);
+    font-weight: var(--ihelp-font-bold);
     color: var(--ihelp-text-primary);
     margin: 0 0 4px;
   }
 
   &__subtitle {
-    font-size: 14px;
+    font-size: var(--ihelp-text-sm);
     color: var(--ihelp-text-muted);
     margin: 0;
   }
@@ -56,16 +56,16 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background-color: #2D5E3A;
+    background-color: var(--ihelp-accent);
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   &__initials {
-    color: #fff;
-    font-size: 24px;
-    font-weight: 700;
+    color: var(--ihelp-text-inverse);
+    font-size: var(--ihelp-text-2xl);
+    font-weight: var(--ihelp-font-bold);
   }
 
   &__info {
@@ -76,7 +76,7 @@
 
   &__name {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: var(--ihelp-font-semibold);
     color: var(--ihelp-text-primary);
     margin: 0;
   }
@@ -89,17 +89,17 @@
 }
 
 .profile-card {
-  background-color: #fff;
+  background-color: var(--ihelp-white);
   border-radius: 16px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--ihelp-shadow-sm);
 
   &__title {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--ihelp-text-sm);
+    font-weight: var(--ihelp-font-semibold);
     color: var(--ihelp-text-primary);
   }
 
@@ -119,10 +119,10 @@
   &__account-status {
     flex: 1;
     font-size: 12px;
-    color: #4A6B52;
+    color: var(--ihelp-text-secondary);
 
     &--unlinked {
-      color: #7A9A80;
+      color: var(--ihelp-text-muted);
     }
   }
 
@@ -135,13 +135,13 @@
     cursor: pointer;
 
     &--muted {
-      background-color: #F5F3EE;
-      color: #4A6B52;
+      background-color: var(--ihelp-bg);
+      color: var(--ihelp-text-secondary);
     }
 
     &--primary {
-      background-color: #E8F0E4;
-      color: #2D5E3A;
+      background-color: var(--ihelp-accent-light);
+      color: var(--ihelp-accent);
     }
   }
 }
@@ -165,20 +165,20 @@
 
   &__input {
     padding: 10px 14px;
-    border: 1px solid #D4DFD0;
+    border: 1px solid var(--ihelp-border);
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--ihelp-text-sm);
     color: var(--ihelp-text-primary);
-    background-color: #fff;
+    background-color: var(--ihelp-white);
     outline: none;
     transition: border-color 0.15s ease;
 
     &:focus {
-      border-color: #2D5E3A;
+      border-color: var(--ihelp-accent);
     }
 
     &--disabled {
-      background-color: #F5F3EE;
+      background-color: var(--ihelp-bg);
       color: var(--ihelp-text-muted);
       cursor: not-allowed;
     }
@@ -186,16 +186,16 @@
 
   &__select {
     padding: 10px 14px;
-    border: 1px solid #D4DFD0;
+    border: 1px solid var(--ihelp-border);
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--ihelp-text-sm);
     color: var(--ihelp-text-primary);
-    background-color: #fff;
+    background-color: var(--ihelp-white);
     outline: none;
     cursor: pointer;
 
     &:focus {
-      border-color: #2D5E3A;
+      border-color: var(--ihelp-accent);
     }
   }
 
@@ -207,12 +207,12 @@
 
   &__save-btn {
     padding: 10px 24px;
-    background-color: #2D5E3A;
-    color: #fff;
+    background-color: var(--ihelp-accent);
+    color: var(--ihelp-text-inverse);
     border: none;
     border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--ihelp-text-sm);
+    font-weight: var(--ihelp-font-semibold);
     cursor: pointer;
 
     &:hover {
@@ -238,23 +238,23 @@
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background-color: #F5F3EE;
-  border: 1px solid #D4DFD0;
+  background-color: var(--ihelp-bg);
+  border: 1px solid var(--ihelp-border);
   border-radius: 8px;
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: #EDE9E0;
+    background-color: var(--ihelp-bg-secondary);
   }
 
   &--green {
-    background-color: #E8F0E4;
+    background-color: var(--ihelp-accent-light);
     border-color: transparent;
 
     &:hover {
-      background-color: #DBE8D4;
+      background-color: var(--ihelp-accent-light);
     }
   }
 
@@ -271,12 +271,12 @@
     color: var(--ihelp-text-primary);
 
     &--danger {
-      color: #DC3545;
+      color: var(--ihelp-error);
     }
   }
 
   &__desc {
     font-size: 11px;
-    color: #7A9A80;
+    color: var(--ihelp-text-muted);
   }
 }

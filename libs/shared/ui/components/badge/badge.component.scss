@@ -25,18 +25,18 @@
 }
 
 .badge--warning {
-  background-color: #fef3c7;
+  background-color: var(--ihelp-warning-light);
   color: var(--ihelp-warning);
 }
 
 .badge--error {
-  background-color: #fde8ea;
+  background-color: var(--ihelp-error-light);
   color: var(--ihelp-error);
 }
 
 .badge--info {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  background-color: var(--ihelp-info-light);
+  color: var(--ihelp-info);
 }
 
 .badge--neutral {

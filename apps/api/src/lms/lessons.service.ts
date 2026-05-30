@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
 import { CourseStatus } from '@prisma/client';
 import { CreateLessonDto } from './dto/create-lesson.dto.js';
@@ -43,8 +43,11 @@ export class LessonsService {
     return lesson;
   }
 
-  async update(lessonId: string, dto: UpdateLessonDto) {
-    await this.assertLessonExists(lessonId);
+  async update(lessonId: string, dto: UpdateLessonDto, courseId?: string) {
+    const lesson = await this.assertLessonExists(lessonId);
+    if (courseId && lesson.courseId !== courseId) {
+      throw new BadRequestException('Lesson does not belong to the specified course');
+    }
 
     return this.prisma.lesson.update({
       where: { id: lessonId },
@@ -60,8 +63,11 @@ export class LessonsService {
     });
   }
 
-  async delete(lessonId: string) {
+  async delete(lessonId: string, courseId?: string) {
     const lesson = await this.assertLessonExists(lessonId);
+    if (courseId && lesson.courseId !== courseId) {
+      throw new BadRequestException('Lesson does not belong to the specified course');
+    }
 
     // Check if the course is published (need to recalculate progress)
     const course = await this.prisma.course.findUnique({

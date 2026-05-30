@@ -34,7 +34,7 @@
 .crisis-history__filter-btn {
   padding: 6px 16px;
   border-radius: 20px;
-  border: 1px solid var(--ihelp-border, #e5e7eb);
+  border: 1px solid var(--ihelp-border);
   background-color: transparent;
   color: var(--ihelp-text-secondary);
   font-size: 14px;
@@ -47,12 +47,12 @@
   }
 
   &--active {
-    background-color: var(--ihelp-accent, #4caf50);
+    background-color: var(--ihelp-accent);
     color: #fff;
-    border-color: var(--ihelp-accent, #4caf50);
+    border-color: var(--ihelp-accent);
 
     &:hover {
-      background-color: var(--ihelp-accent, #4caf50);
+      background-color: var(--ihelp-accent);
     }
   }
 }
@@ -77,14 +77,14 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: var(--ihelp-space-2) var(--ihelp-space-3);
-    border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 1px solid var(--ihelp-border);
   }
 
   td {
     padding: var(--ihelp-space-3);
     font-size: 14px;
     color: var(--ihelp-text-secondary);
-    border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 1px solid var(--ihelp-border);
   }
 }
 

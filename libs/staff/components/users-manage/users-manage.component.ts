@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
@@ -9,8 +10,10 @@ import {
   IconComponent,
   InputComponent,
   ModalComponent,
+  PaginationComponent,
   SelectComponent,
 } from '@org/shared/ui';
+import type { PageChangeEvent } from '@org/shared/ui';
 import { AdminFacade, AdminUser } from '@org/staff/data-access';
 
 @Component({
@@ -25,6 +28,7 @@ import { AdminFacade, AdminUser } from '@org/staff/data-access';
     IconComponent,
     InputComponent,
     ModalComponent,
+    PaginationComponent,
     SelectComponent,
   ],
   templateUrl: './users-manage.component.html',
@@ -33,36 +37,32 @@ import { AdminFacade, AdminUser } from '@org/staff/data-access';
 })
 export class UsersManageComponent implements OnInit {
   protected readonly facade: AdminFacade = inject(AdminFacade);
+  private readonly router: Router = inject(Router);
 
   protected readonly searchQuery: WritableSignal<string> = signal('');
   protected readonly selectedRole: WritableSignal<string> = signal('ALL');
-  protected readonly roleFilters: readonly string[] = ['ALL', 'Consultant', 'Supervisor', 'Coordinator', 'Admin'] as const;
+  protected readonly roleFilters: readonly string[] = ['ALL', 'PERSON', 'CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as const;
 
-  protected readonly filteredUsers: Signal<AdminUser[]> = computed(() => {
-    const users: AdminUser[] = this.facade.users();
-    const query: string = this.searchQuery().toLowerCase();
-    const role: string = this.selectedRole();
-
-    return users.filter((user: AdminUser) => {
-      const matchesSearch: boolean = !query
-        || user.name.toLowerCase().includes(query)
-        || user.email.toLowerCase().includes(query);
-      const matchesRole: boolean = role === 'ALL' || user.role === role;
-      return matchesSearch && matchesRole;
-    });
-  });
+  protected readonly users: Signal<AdminUser[]> = this.facade.users;
 
   ngOnInit(): void {
-    this.facade.loadUsers();
+    this.facade.loadUsers({ page: 1 });
     this.facade.loadInvites();
+    this.facade.loadDuplicates();
   }
 
   protected onSearchChange(value: string): void {
     this.searchQuery.set(value);
+    this.loadWithFilters(1);
   }
 
   protected onRoleFilterChange(role: string): void {
     this.selectedRole.set(role);
+    this.loadWithFilters(1);
+  }
+
+  protected onPageChange(event: PageChangeEvent): void {
+    this.loadWithFilters(event.page);
   }
 
   protected onCreateUser(): void {
@@ -95,5 +95,38 @@ export class UsersManageComponent implements OnInit {
 
   protected onInviteFieldChange(field: 'email' | 'role', value: string): void {
     this.facade.updateCreateInviteField(field, value);
+  }
+
+  protected onEditUser(user: AdminUser): void {
+    this.facade.openEditUserModal(user);
+  }
+
+  protected onCloseEditUser(): void {
+    this.facade.closeEditUserModal();
+  }
+
+  protected onSubmitEditUser(): void {
+    this.facade.submitEditUser();
+  }
+
+  protected onEditUserFieldChange(field: 'name' | 'role', value: string): void {
+    this.facade.updateEditUserField(field, value);
+  }
+
+  protected onToggleActive(user: AdminUser): void {
+    this.facade.toggleUserActive(user);
+  }
+
+  protected onReviewDuplicates(): void {
+    this.router.navigate(['/staff/duplicates']);
+  }
+
+  private loadWithFilters(page: number): void {
+    const role: string = this.selectedRole();
+    this.facade.loadUsers({
+      page,
+      search: this.searchQuery() || undefined,
+      role: role === 'ALL' ? undefined : role,
+    });
   }
 }

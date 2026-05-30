@@ -2,7 +2,7 @@
   position: fixed;
   top: 16px;
   right: 16px;
-  z-index: 10000;
+  z-index: var(--ihelp-z-toast);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -46,10 +46,10 @@
   }
 
   &--error {
-    border-left: 3px solid var(--ihelp-error, #ef4444);
+    border-left: 3px solid var(--ihelp-error);
 
     ui-icon {
-      color: var(--ihelp-error, #ef4444);
+      color: var(--ihelp-error);
     }
   }
 

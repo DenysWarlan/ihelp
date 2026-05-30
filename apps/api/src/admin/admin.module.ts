@@ -6,6 +6,8 @@ import { AdminDutyService } from './admin-duty.service.js';
 import { AdminInviteService } from './admin-invite.service.js';
 import { AdminController } from './admin.controller.js';
 import { AdminService } from './admin.service.js';
+import { DuplicateDetectionService } from './duplicate-detection.service.js';
+import { UserMergeService } from './user-merge.service.js';
 
 @Module({
   controllers: [AdminController],
@@ -15,6 +17,8 @@ import { AdminService } from './admin.service.js';
     AdminConfigService,
     AdminAuditService,
     AdminDutyService,
+    DuplicateDetectionService,
+    UserMergeService,
   ],
   exports: [AdminService],
 })

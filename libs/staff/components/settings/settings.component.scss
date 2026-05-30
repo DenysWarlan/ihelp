@@ -26,7 +26,7 @@
   flex-direction: column;
   gap: var(--ihelp-space-3);
   padding-bottom: var(--ihelp-space-4);
-  border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
+  border-bottom: 1px solid var(--ihelp-border);
 }
 
 .settings-section__title {
@@ -66,15 +66,15 @@
   padding: 8px 12px;
   font-size: 14px;
   color: var(--ihelp-text-primary);
-  background-color: var(--ihelp-bg-primary, #fff);
-  border: 1px solid var(--ihelp-border, #e5e7eb);
+  background-color: var(--ihelp-bg-primary);
+  border: 1px solid var(--ihelp-border);
   border-radius: var(--ihelp-radius-md, 8px);
   outline: none;
   transition: border-color 0.2s ease;
 
   &:focus {
     border-color: var(--ihelp-brand);
-    box-shadow: 0 0 0 2px rgba(var(--ihelp-brand-rgb, 99, 102, 241), 0.15);
+    box-shadow: 0 0 0 2px rgba(45, 94, 58, 0.15);
   }
 
   &::-webkit-inner-spin-button,
@@ -100,8 +100,8 @@
   font-size: 14px;
   font-family: inherit;
   color: var(--ihelp-text-primary);
-  background-color: var(--ihelp-bg-primary, #fff);
-  border: 1px solid var(--ihelp-border, #e5e7eb);
+  background-color: var(--ihelp-bg-primary);
+  border: 1px solid var(--ihelp-border);
   border-radius: var(--ihelp-radius-md, 8px);
   outline: none;
   resize: vertical;
@@ -109,7 +109,7 @@
 
   &:focus {
     border-color: var(--ihelp-brand);
-    box-shadow: 0 0 0 2px rgba(var(--ihelp-brand-rgb, 99, 102, 241), 0.15);
+    box-shadow: 0 0 0 2px rgba(45, 94, 58, 0.15);
   }
 }
 
@@ -124,17 +124,17 @@
     font-weight: 600;
     color: var(--ihelp-text-secondary);
     padding: var(--ihelp-space-2) var(--ihelp-space-3);
-    border-bottom: 2px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 2px solid var(--ihelp-border);
   }
 
   td {
     font-size: 14px;
     color: var(--ihelp-text-primary);
     padding: var(--ihelp-space-2) var(--ihelp-space-3);
-    border-bottom: 1px solid var(--ihelp-border, #e5e7eb);
+    border-bottom: 1px solid var(--ihelp-border);
   }
 
   tbody tr:hover {
-    background-color: var(--ihelp-bg-secondary, #f9fafb);
+    background-color: var(--ihelp-bg-secondary);
   }
 }

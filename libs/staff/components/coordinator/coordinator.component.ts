@@ -9,9 +9,9 @@ import {
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
-  AlertBannerComponent,
   BadgeComponent,
   ButtonComponent,
+  IconComponent,
 } from '@org/shared/ui';
 import { CoordinatorFacadeService } from '@org/staff/data-access';
 import type {
@@ -24,9 +24,9 @@ import type {
   standalone: true,
   imports: [
     TranslocoDirective,
-    AlertBannerComponent,
     BadgeComponent,
     ButtonComponent,
+    IconComponent,
   ],
   templateUrl: './coordinator.component.html',
   styleUrl: './coordinator.component.scss',
@@ -67,5 +67,18 @@ export class CoordinatorComponent implements OnInit {
       return 'info';
     }
     return 'neutral';
+  }
+
+  isUrgentWait(waitTime: string): boolean {
+    const match = waitTime.match(/(\d+)/);
+    if (!match) return false;
+    const value = parseInt(match[1], 10);
+    if (waitTime.includes('год') || waitTime.includes('hour') || waitTime.includes('h')) {
+      return value >= 2;
+    }
+    if (waitTime.includes('дн') || waitTime.includes('day') || waitTime.includes('d')) {
+      return true;
+    }
+    return false;
   }
 }

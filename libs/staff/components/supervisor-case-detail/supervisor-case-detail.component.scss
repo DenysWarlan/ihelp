@@ -19,7 +19,7 @@ $b: sv-case-detail;
   flex-direction: column;
   border: 1px solid var(--ihelp-border);
   border-radius: 12px;
-  background: var(--ihelp-bg-primary);
+  background: var(--ihelp-bg);
   overflow: hidden;
 }
 
@@ -61,8 +61,8 @@ $b: sv-case-detail;
   .#{$b}__msg-meta { text-align: right; }
 }
 
-.#{$b}__message--consultant .#{$b}__msg-bubble { background: var(--ihelp-accent-light, #c8dbbc); }
-.#{$b}__message--supervisor .#{$b}__msg-bubble { background: var(--ihelp-brand-light, #dbeafe); }
+.#{$b}__message--consultant .#{$b}__msg-bubble { background: var(--ihelp-accent-light); }
+.#{$b}__message--supervisor .#{$b}__msg-bubble { background: var(--ihelp-accent-light); }
 
 .#{$b}__msg-bubble { padding: var(--ihelp-space-2) var(--ihelp-space-3); }
 .#{$b}__msg-text { font-size: 14px; line-height: 1.5; color: var(--ihelp-text-primary); margin: 0; word-wrap: break-word; }
@@ -85,7 +85,7 @@ $b: sv-case-detail;
   border: 1px solid var(--ihelp-border);
   border-radius: 12px;
   padding: var(--ihelp-space-4);
-  background: var(--ihelp-bg-primary);
+  background: var(--ihelp-bg);
 }
 
 .#{$b}__section-title {
@@ -101,7 +101,7 @@ $b: sv-case-detail;
   align-items: center;
   justify-content: space-between;
   padding: var(--ihelp-space-1) 0;
-  & + & { border-top: 1px solid var(--ihelp-border-light, #f3f4f6); }
+  & + & { border-top: 1px solid var(--ihelp-border); }
 }
 
 .#{$b}__detail-label { font-size: 13px; color: var(--ihelp-text-muted); }
@@ -109,7 +109,7 @@ $b: sv-case-detail;
 
 .#{$b}__note {
   padding: var(--ihelp-space-2) 0;
-  & + & { border-top: 1px solid var(--ihelp-border-light, #f3f4f6); }
+  & + & { border-top: 1px solid var(--ihelp-border); }
 }
 
 .#{$b}__note-text { font-size: 13px; color: var(--ihelp-text-secondary); line-height: 1.5; margin: 0; }
@@ -119,16 +119,16 @@ $b: sv-case-detail;
 .#{$b}__comment-input {
   width: 100%;
   padding: var(--ihelp-space-2) var(--ihelp-space-3);
-  border: 1px solid var(--ihelp-border-input);
+  border: 1px solid var(--ihelp-border);
   border-radius: 8px;
   font-size: 13px;
   font-family: inherit;
   color: var(--ihelp-text-primary);
-  background: var(--ihelp-bg-primary);
+  background: var(--ihelp-bg);
   resize: vertical;
   margin-bottom: var(--ihelp-space-2);
   box-sizing: border-box;
-  &:focus { outline: none; border-color: var(--ihelp-brand); }
+  &:focus { outline: none; border-color: var(--ihelp-accent); }
   &::placeholder { color: var(--ihelp-text-muted); }
 }
 

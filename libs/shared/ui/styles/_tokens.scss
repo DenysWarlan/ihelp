@@ -29,9 +29,19 @@
 
   // Status
   --ihelp-success: #2D5E3A;
+  --ihelp-success-light: rgba(45, 94, 58, 0.08);
   --ihelp-warning: #B45309;
+  --ihelp-warning-light: #FEF3C7;
   --ihelp-error: #C82333;
+  --ihelp-error-light: #FDE8EA;
+  --ihelp-error-dark: #A71D2A;
   --ihelp-crisis: #C82333;
+  --ihelp-info: #1D4ED8;
+  --ihelp-info-light: #DBEAFE;
+
+  // Semantic backgrounds
+  --ihelp-bg-secondary: #F0EDE7;
+  --ihelp-overlay: rgba(0, 0, 0, 0.4);
 
   // ---------------------------------------------------------------------------
   // Typography

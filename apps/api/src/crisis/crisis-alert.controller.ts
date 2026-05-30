@@ -38,12 +38,32 @@ export class CrisisAlertController {
 
   @Get()
   @Roles('COORDINATOR', 'ADMIN', 'SUPERVISOR')
-  @ApiOperation({ summary: 'List unacknowledged crisis alerts' })
-  @ApiOkResponse({ description: 'List of unacknowledged alerts' })
-  async listUnacknowledged(): Promise<CrisisAlertResponse[]> {
-    return this.prisma.crisisAlert.findMany({
-      where: { acknowledgedAt: null },
+  @ApiOperation({ summary: 'List crisis alerts' })
+  @ApiOkResponse({ description: 'List of crisis alerts' })
+  async listAlerts() {
+    const alerts = await this.prisma.crisisAlert.findMany({
       orderBy: { createdAt: 'desc' },
+      include: {
+        careCase: {
+          select: { name: true, person: { select: { name: true } } },
+        },
+      },
+      take: 50,
+    });
+
+    return alerts.map((alert) => {
+      const personName =
+        alert.careCase.name ?? alert.careCase.person.name ?? '—';
+
+      return {
+        id: alert.id,
+        caseId: alert.careCaseId,
+        personName,
+        keyword: alert.matchedKeywords.join(', ') || '—',
+        severity: alert.riskLevel as 'HIGH' | 'CRITICAL',
+        detectedAt: alert.createdAt.toISOString(),
+        isAcknowledged: alert.acknowledgedAt !== null,
+      };
     });
   }
 

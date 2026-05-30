@@ -154,11 +154,11 @@
   gap: var(--ihelp-space-1);
 
   &--green {
-    background-color: #c8dbbc;
+    background-color: var(--ihelp-surface);
   }
 
   &--pink {
-    background-color: #fde8e8;
+    background-color: var(--ihelp-error-light);
   }
 }
 

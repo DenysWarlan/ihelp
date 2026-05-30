@@ -67,6 +67,20 @@ export class WorkloadController {
     return this.workloadService.getDashboard();
   }
 
+  @Get('consultants/:userId/cases')
+  @Roles(...WORKLOAD_DASHBOARD_ROLES)
+  @ApiOperation({
+    summary: 'Get cases assigned to a consultant',
+    description: 'Returns consultant profile info and their active cases.',
+  })
+  @ApiResponse({ status: 200, description: 'Consultant cases' })
+  @ApiNotFoundResponse({ description: 'Consultant profile not found' })
+  async getConsultantCases(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ) {
+    return this.workloadService.getConsultantCases(userId);
+  }
+
   @Patch('consultants/:userId/limits')
   @Roles(...WORKLOAD_ADMIN_ROLES)
   @ApiOperation({

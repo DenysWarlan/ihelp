@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -42,7 +42,7 @@ export class SupervisorController {
   @ApiResponse({ status: 403, description: 'Forbidden — SUPERVISOR role required' })
   @ApiResponse({ status: 404, description: 'Case not found' })
   async getCaseDetail(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SupervisorCaseDetail> {
     return this.supervisorService.getCaseDetail(id);
   }
