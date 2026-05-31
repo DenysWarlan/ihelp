@@ -14,6 +14,11 @@ export const staffRoutes: Routes = [
       import('./staff-login/staff-login.component').then((m) => m.StaffLoginComponent),
   },
   {
+    path: 'invite',
+    loadComponent: () =>
+      import('./invite-claim/invite-claim.component').then((m) => m.InviteClaimComponent),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     component: AuthenticatedLayoutComponent,

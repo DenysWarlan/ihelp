@@ -29,6 +29,7 @@ import { ConsentModule } from '../auth/consent/consent.module.js';
 import { MfaModule } from '../auth/mfa/mfa.module.js';
 import { BreakGlassModule } from '../auth/break-glass/break-glass.module.js';
 import { AuditModule } from '../common/audit/audit.module.js';
+import { MailModule } from '../common/mail/mail.module.js';
 import { CasesModule } from '../cases/cases.module.js';
 import { ChatModule } from '../chat/chat.module.js';
 import { LmsModule } from '../lms/lms.module.js';
@@ -107,6 +108,7 @@ import { SupervisorModule } from '../supervisor/supervisor.module.js';
 
     // Global modules
     AuditModule,
+    MailModule,
 
     // Feature modules
     HealthModule,

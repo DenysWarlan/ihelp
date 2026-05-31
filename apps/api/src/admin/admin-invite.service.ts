@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '@org/prisma-client';
 import * as crypto from 'node:crypto';
 
+import { MailService } from '../common/mail/mail.service.js';
 import { INVITE_EXPIRY_HOURS } from '../auth/invite/invite.const.js';
 import { DEFAULT_PAGE_SIZE } from './admin.const.js';
 import {
@@ -20,7 +21,10 @@ import {
 export class AdminInviteService {
   private readonly logger = new Logger(AdminInviteService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Create invite
@@ -63,9 +67,7 @@ export class AdminInviteService {
       `Invite created for ${dto.email} by admin ${inviterId}, expires ${expiresAt.toISOString()}`,
     );
 
-    this.logger.warn(
-      `[MVP NOTIFICATION] Staff invite sent to ${dto.email} with role ${dto.role}`,
-    );
+    await this.mail.sendInvite(dto.email, dto.role, token, expiresAt);
 
     return this.toInviteResponse(invite);
   }

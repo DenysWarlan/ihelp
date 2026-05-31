@@ -10,6 +10,7 @@ import { PrismaService } from '@org/prisma-client';
 import * as bcrypt from 'bcrypt';
 import { Invite, User } from '@prisma/client';
 
+import { MailService } from '../../common/mail/mail.service.js';
 import { BCRYPT_SALT_ROUNDS, INVITE_EXPIRY_HOURS } from './invite.const.js';
 import { ClaimInviteDto, CreateInviteDto } from './invite.model.js';
 
@@ -17,7 +18,10 @@ import { ClaimInviteDto, CreateInviteDto } from './invite.model.js';
 export class InviteService {
   private readonly logger = new Logger(InviteService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
+  ) {}
 
   /**
    * Create a new invite for a staff member.
@@ -41,6 +45,9 @@ export class InviteService {
     this.logger.log(
       `Invite created for ${dto.email} by ${inviterId}, expires ${expiresAt.toISOString()}`,
     );
+
+    await this.mail.sendInvite(dto.email, dto.role, token, expiresAt);
+
     return invite;
   }
 

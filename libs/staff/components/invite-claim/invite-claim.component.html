@@ -1,0 +1,65 @@
+<div class="invite-page">
+  <div class="invite-card">
+    <h1 class="invite-card__title">Створення акаунту</h1>
+
+    @if (success()) {
+      <div class="invite-card__success">
+        <p>Акаунт успішно створено!</p>
+        <ui-button variant="primary" (click)="goToLogin()">
+          Увійти
+        </ui-button>
+      </div>
+    } @else {
+      <p class="invite-card__subtitle">
+        Заповніть форму, щоб активувати запрошення
+      </p>
+
+      @if (error(); as err) {
+        <p class="invite-card__error">{{ err }}</p>
+      }
+
+      <form (submit)="onSubmit()" class="invite-form">
+        <div class="invite-form__field">
+          <label class="invite-form__label">Ім'я</label>
+          <ui-input
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            name="name"
+            placeholder="Ваше ім'я"
+          />
+        </div>
+
+        <div class="invite-form__field">
+          <label class="invite-form__label">Пароль</label>
+          <ui-input
+            type="password"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            name="password"
+            placeholder="Мінімум 12 символів"
+          />
+        </div>
+
+        <div class="invite-form__field">
+          <label class="invite-form__label">Підтвердіть пароль</label>
+          <ui-input
+            type="password"
+            [ngModel]="confirmPassword()"
+            (ngModelChange)="confirmPassword.set($event)"
+            name="confirmPassword"
+            placeholder="Повторіть пароль"
+          />
+        </div>
+
+        <ui-button
+          type="submit"
+          variant="primary"
+          [disabled]="isLoading()"
+          class="invite-form__submit"
+        >
+          {{ isLoading() ? 'Створення...' : 'Створити акаунт' }}
+        </ui-button>
+      </form>
+    }
+  </div>
+</div>
