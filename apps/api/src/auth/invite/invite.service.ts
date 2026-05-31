@@ -32,6 +32,9 @@ export class InviteService {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + INVITE_EXPIRY_HOURS);
 
+    // Send email first — only create DB record if email succeeds
+    await this.mail.sendInvite(dto.email, dto.role, token, expiresAt);
+
     const invite = await this.prisma.invite.create({
       data: {
         email: dto.email,
@@ -45,12 +48,6 @@ export class InviteService {
     this.logger.log(
       `Invite created for ${dto.email} by ${inviterId}, expires ${expiresAt.toISOString()}`,
     );
-
-    this.mail
-      .sendInvite(dto.email, dto.role, token, expiresAt)
-      .catch((err) =>
-        this.logger.error(`Failed to send invite email to ${dto.email}: ${err.message}`),
-      );
 
     return invite;
   }
