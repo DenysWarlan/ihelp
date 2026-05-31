@@ -31,6 +31,9 @@ export class MailService {
         user: this.config.get<string>('SMTP_USER', ''),
         pass: this.config.get<string>('SMTP_PASS', ''),
       },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
     });
 
     this.logger.log(`Mail transport configured: ${host}`);
