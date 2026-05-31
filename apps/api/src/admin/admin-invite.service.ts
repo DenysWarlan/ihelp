@@ -53,6 +53,8 @@ export class AdminInviteService {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + INVITE_EXPIRY_HOURS);
 
+    await this.mail.sendInvite(dto.email, dto.role, token, expiresAt);
+
     const invite = await this.prisma.invite.create({
       data: {
         email: dto.email,
@@ -66,8 +68,6 @@ export class AdminInviteService {
     this.logger.log(
       `Invite created for ${dto.email} by admin ${inviterId}, expires ${expiresAt.toISOString()}`,
     );
-
-    await this.mail.sendInvite(dto.email, dto.role, token, expiresAt);
 
     return this.toInviteResponse(invite);
   }

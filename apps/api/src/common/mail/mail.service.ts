@@ -12,7 +12,8 @@ export class MailService {
   private readonly from: string;
 
   constructor(private readonly config: ConfigService) {
-    this.from = this.config.get<string>('MAIL_FROM', DEFAULT_MAIL_FROM);
+    this.from = this.config.get<string>('SMTP_FROM',
+      this.config.get<string>('MAIL_FROM', DEFAULT_MAIL_FROM));
 
     const host = this.config.get<string>('SMTP_HOST');
     if (!host) {
