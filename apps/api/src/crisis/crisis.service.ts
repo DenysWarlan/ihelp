@@ -203,45 +203,53 @@ export class CrisisService implements OnModuleInit {
   // ---------------------------------------------------------------------------
 
   async sendAutoReply(context: AutoReplyContext): Promise<string | null> {
-    // Fetch the active auto-reply template for the given language
-    const template = await this.prisma.crisisAutoReply.findFirst({
-      where: {
-        language: context.language,
-        isActive: true,
-      },
-    });
+    try {
+      // Fetch the active auto-reply template for the given language
+      const template = await this.prisma.crisisAutoReply.findFirst({
+        where: {
+          language: context.language,
+          isActive: true,
+        },
+      });
 
-    const replyText = template?.template ?? DEFAULT_AUTO_REPLY_TEMPLATE;
+      const replyText = template?.template ?? DEFAULT_AUTO_REPLY_TEMPLATE;
 
-    // Create a system message in the same case
-    const autoReplyMessage = await this.prisma.message.create({
-      data: {
-        careCaseId: context.caseId,
-        senderId: SYSTEM_SENDER_ID,
-        senderRole: Role.CONSULTANT,
-        channel: context.channel,
-        content: replyText,
-      },
-    });
+      // Create a system message in the same case
+      const autoReplyMessage = await this.prisma.message.create({
+        data: {
+          careCaseId: context.caseId,
+          senderId: SYSTEM_SENDER_ID,
+          senderRole: Role.CONSULTANT,
+          channel: context.channel,
+          content: replyText,
+        },
+      });
 
-    this.logger.warn(
-      `${MVP_NOTIFICATION_PREFIX} Auto-reply sent in case ${context.caseId}: ` +
-        `message ${autoReplyMessage.id} via ${context.channel}`,
-    );
+      this.logger.warn(
+        `${MVP_NOTIFICATION_PREFIX} Auto-reply sent in case ${context.caseId}: ` +
+          `message ${autoReplyMessage.id} via ${context.channel}`,
+      );
 
-    // Update the CrisisAlert to mark auto-reply as sent
-    await this.prisma.crisisAlert.updateMany({
-      where: {
-        careCaseId: context.caseId,
-        messageId: context.messageId,
-        autoReplySent: false,
-      },
-      data: {
-        autoReplySent: true,
-      },
-    });
+      // Update the CrisisAlert to mark auto-reply as sent
+      await this.prisma.crisisAlert.updateMany({
+        where: {
+          careCaseId: context.caseId,
+          messageId: context.messageId,
+          autoReplySent: false,
+        },
+        data: {
+          autoReplySent: true,
+        },
+      });
 
-    return autoReplyMessage.id;
+      return autoReplyMessage.id;
+    } catch (error) {
+      this.logger.error(
+        `Failed to send crisis auto-reply for case ${context.caseId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
   }
 
   // ---------------------------------------------------------------------------

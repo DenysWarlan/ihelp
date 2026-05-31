@@ -11,6 +11,23 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('Seeding database...');
 
+  // --- System User (used by crisis auto-reply, SYSTEM_SENDER_ID) ---
+
+  const systemUser = await prisma.user.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000000' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000000',
+      email: 'system@ihelp.ua',
+      name: 'System',
+      role: Role.ADMIN,
+      timezone: 'UTC',
+      isActive: true,
+    },
+  });
+
+  console.log(`Created system user: ${systemUser.email} (${systemUser.id})`);
+
   // --- Users ---
 
   const admin = await prisma.user.upsert({

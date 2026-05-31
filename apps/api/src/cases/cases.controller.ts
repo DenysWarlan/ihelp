@@ -85,6 +85,7 @@ export class CasesController {
   }
 
   @Patch(':id/status')
+  @Roles('CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN')
   @ApiOperation({ summary: 'Change case status (state machine)' })
   @ApiResponse({ status: 200, description: 'Status updated' })
   @ApiResponse({ status: 400, description: 'Invalid transition' })

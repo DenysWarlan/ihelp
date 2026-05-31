@@ -50,9 +50,12 @@ export class RequestHelpComponent implements OnInit {
     return !this.loading();
   });
 
+  private hasRedirected = false;
+
   constructor() {
     effect(() => {
-      if (this.hasConsultant()) {
+      if (this.hasConsultant() && !this.hasRedirected) {
+        this.hasRedirected = true;
         this.router.navigate(['/person/chat']);
       }
     });

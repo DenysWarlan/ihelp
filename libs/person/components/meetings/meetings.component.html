@@ -29,7 +29,7 @@
               </div>
               <div class="meeting-entry__time">
                 <ui-icon name="Clock" [size]="14" color="var(--ihelp-text-muted)" />
-                <span>{{ meeting.scheduledAt }} · {{ meeting.durationMinutes }} {{ t('personMeetings.minutes') }}</span>
+                <span>{{ meeting.scheduledAt | date:'medium' }} · {{ meeting.durationMinutes }} {{ t('personMeetings.minutes') }}</span>
               </div>
               @if (meeting.meetingUrl && meeting.status === 'SCHEDULED') {
                 <a [href]="meeting.meetingUrl" target="_blank" rel="noopener noreferrer">

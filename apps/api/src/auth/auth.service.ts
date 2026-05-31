@@ -427,6 +427,21 @@ export class AuthService {
   async getUserFromToken(payload: JwtPayload) {
     return this.prisma.user.findUnique({
       where: { id: payload.sub },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        avatarUrl: true,
+        isActive: true,
+        mfaEnabled: true,
+        timezone: true,
+        isBreakGlass: true,
+        dataConsentAt: true,
+        sensitiveDataConsentAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 

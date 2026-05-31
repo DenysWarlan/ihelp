@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
@@ -18,13 +18,15 @@ import { StaffFacade } from '@org/staff/data-access';
 export class DashboardComponent implements OnInit {
   private readonly facade: StaffFacade = inject(StaffFacade);
   private readonly router: Router = inject(Router);
+  private readonly document = inject(DOCUMENT);
 
   readonly dashboard = this.facade.dashboard;
   readonly cases = this.facade.cases;
   readonly isLoading = this.facade.isLoading;
 
   ngOnInit(): void {
-    const role = localStorage.getItem('ihelp_user_role');
+    const win = this.document.defaultView;
+    const role = win?.localStorage.getItem('ihelp_user_role');
     if (role === 'admin') {
       this.router.navigate(['/staff/admin']);
       return;

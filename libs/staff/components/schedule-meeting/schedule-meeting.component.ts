@@ -93,7 +93,6 @@ export class ScheduleMeetingComponent implements OnInit {
         platform: form.platform,
         notes: form.notes,
       });
-      this.router.navigate(['/staff/cases', this.caseId()]);
     }
   }
 

@@ -449,6 +449,10 @@ export class AssignmentService {
       throw new NotFoundException('Case not found');
     }
 
+    if (['COMPLETED', 'CLOSED'].includes(careCase.status)) {
+      throw new BadRequestException('Cannot assign a consultant to a completed or closed case');
+    }
+
     if (careCase.consultantId) {
       throw new BadRequestException(
         'Case is already assigned. Use reassign endpoint instead.',
@@ -573,6 +577,10 @@ export class AssignmentService {
 
     if (!careCase) {
       throw new NotFoundException('Case not found');
+    }
+
+    if (['COMPLETED', 'CLOSED'].includes(careCase.status)) {
+      throw new BadRequestException('Cannot reassign a case that is already completed or closed');
     }
 
     const previousConsultantUserId = careCase.consultantId;

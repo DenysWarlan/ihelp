@@ -118,7 +118,7 @@ export class SupervisorService {
       messages: careCase.messages.map((m) => ({
         id: m.id,
         content: m.content,
-        authorName: m.sender.name,
+        authorName: m.sender?.name ?? 'System',
         authorRole: m.senderRole,
         createdAt: m.createdAt,
       })),
@@ -224,7 +224,7 @@ export class SupervisorService {
       return {
         id: alert.id,
         detectedAt: alert.createdAt,
-        authorName: relatedMessage?.sender.name ?? 'Unknown',
+        authorName: relatedMessage?.sender?.name ?? 'Unknown',
         consultantName: relatedCase?.consultant?.name ?? null,
         clientName: relatedCase?.person.name ?? 'Unknown',
         severity: alert.riskLevel,

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
@@ -18,6 +19,7 @@ import type { BadgeVariant } from '@org/shared/ui';
     ButtonComponent,
     IconComponent,
     BadgeComponent,
+    DatePipe,
   ],
   templateUrl: './meetings.component.html',
   styleUrl: './meetings.component.scss',

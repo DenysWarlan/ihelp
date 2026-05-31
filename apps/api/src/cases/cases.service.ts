@@ -277,7 +277,7 @@ export class CasesService {
   ): Promise<CaseResponse> {
     const careCase = await this.prisma.careCase.findUnique({
       where: { id },
-      select: { id: true, status: true, version: true },
+      select: { id: true, status: true, version: true, consultantId: true, crisisLevel: true },
     });
 
     if (!careCase) {
@@ -323,6 +323,24 @@ export class CasesService {
       include: CASE_INCLUDE,
     });
 
+    // Decrement consultant counters on terminal status
+    if (['COMPLETED', 'CLOSED'].includes(targetStatus) && careCase.consultantId) {
+      await this.prisma.$executeRaw`
+        UPDATE consultant_profiles
+        SET current_cases = GREATEST(current_cases - 1, 0),
+            updated_at = NOW()
+        WHERE user_id = ${careCase.consultantId}::uuid
+      `;
+      if (careCase.crisisLevel !== 'NONE') {
+        await this.prisma.$executeRaw`
+          UPDATE consultant_profiles
+          SET current_crisis = GREATEST(current_crisis - 1, 0),
+              updated_at = NOW()
+          WHERE user_id = ${careCase.consultantId}::uuid
+        `;
+      }
+    }
+
     // Audit: status change
     await this.createAuditEntry(id, actor.sub, AUDIT_ACTION_STATUS_CHANGE, {
       from: currentStatus,
@@ -343,7 +361,7 @@ export class CasesService {
   ): Promise<CaseResponse> {
     const careCase = await this.prisma.careCase.findUnique({
       where: { id },
-      select: { id: true, status: true, version: true },
+      select: { id: true, status: true, version: true, crisisLevel: true },
     });
 
     if (!careCase) {
@@ -382,6 +400,22 @@ export class CasesService {
       },
       include: CASE_INCLUDE,
     });
+
+    // Increment consultant case counter
+    await this.prisma.$executeRaw`
+      UPDATE consultant_profiles
+      SET current_cases = current_cases + 1,
+          updated_at = NOW()
+      WHERE user_id = ${dto.consultantId}::uuid
+    `;
+    if (careCase.crisisLevel !== 'NONE') {
+      await this.prisma.$executeRaw`
+        UPDATE consultant_profiles
+        SET current_crisis = current_crisis + 1,
+            updated_at = NOW()
+        WHERE user_id = ${dto.consultantId}::uuid
+      `;
+    }
 
     // Audit: assignment
     await this.createAuditEntry(id, actor.sub, AUDIT_ACTION_ASSIGNMENT, {

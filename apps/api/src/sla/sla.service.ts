@@ -419,7 +419,7 @@ export class SlaService {
     if (!timer) return { exists: false, isPaused: false };
 
     return {
-      exists: timer.status === SlaStatus.ACTIVE || timer.status === SlaStatus.PAUSED || timer.status === SlaStatus.ESCALATED,
+      exists: timer.status === SlaStatus.ACTIVE || timer.status === SlaStatus.PAUSED,
       isPaused: timer.status === SlaStatus.PAUSED,
     };
   }

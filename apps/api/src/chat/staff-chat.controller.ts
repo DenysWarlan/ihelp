@@ -118,6 +118,9 @@ export class StaffChatController {
   ) {
     const actor = req.user as JwtPayload;
 
+    // TODO: Add case-level access control — currently any staff member can read
+    // messages from any case. Should verify that the requesting user is the
+    // assigned consultant, or has a SUPERVISOR/COORDINATOR/ADMIN role.
     const messages = await this.prisma.message.findMany({
       where: { careCaseId: caseId, isDeleted: false },
       include: {

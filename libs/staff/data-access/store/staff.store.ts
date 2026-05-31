@@ -1,4 +1,5 @@
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   patchState,
   signalStore,
@@ -41,6 +42,7 @@ export const StaffStore = signalStore(
   withState(initialState),
   withMethods((store) => {
     const staffService = inject(StaffService);
+    const router = inject(Router);
 
     return {
       loadDashboard: rxMethod<void>(
@@ -175,12 +177,13 @@ export const StaffStore = signalStore(
           tap(() => patchState(store, { isLoading: true, error: null })),
           switchMap((data: ScheduleMeetingRequest) =>
             staffService.scheduleMeeting(data).pipe(
-              tap((meeting: StaffMeeting) =>
+              tap((meeting: StaffMeeting) => {
                 patchState(store, {
                   meetings: [...store.meetings(), meeting],
                   isLoading: false,
-                })
-              ),
+                });
+                router.navigate(['/staff/cases', data.caseId]);
+              }),
               catchError(() => {
                 patchState(store, {
                   isLoading: false,
