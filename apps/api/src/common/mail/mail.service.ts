@@ -1,64 +1,52 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 
 import { DEFAULT_MAIL_FROM } from './mail.const.js';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: Transporter | null = null;
+  private resend: Resend | null = null;
   private readonly from: string;
 
   constructor(private readonly config: ConfigService) {
     this.from = this.config.get<string>('SMTP_FROM',
       this.config.get<string>('MAIL_FROM', DEFAULT_MAIL_FROM));
 
-    const host = this.config.get<string>('SMTP_HOST');
-    if (!host) {
+    const apiKey = this.config.get<string>('RESEND_API_KEY');
+    if (!apiKey) {
       this.logger.warn(
-        'SMTP_HOST not configured — emails will be logged only',
+        'RESEND_API_KEY not configured — emails will be logged only',
       );
       return;
     }
 
-    this.transporter = nodemailer.createTransport({
-      host,
-      port: this.config.get<number>('SMTP_PORT', 587),
-      secure: this.config.get<string>('SMTP_SECURE', 'false') === 'true',
-      auth: {
-        user: this.config.get<string>('SMTP_USER', ''),
-        pass: this.config.get<string>('SMTP_PASS', ''),
-      },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 15_000,
-    });
-
-    this.logger.log(`Mail transport configured: ${host}`);
+    this.resend = new Resend(apiKey);
+    this.logger.log('Resend email transport configured');
   }
 
   async send(to: string, subject: string, html: string): Promise<void> {
-    if (!this.transporter) {
+    if (!this.resend) {
       this.logger.warn(
-        `[MAIL STUB] To: ${to} | Subject: ${subject}\n${html}`,
+        `[MAIL STUB] To: ${to} | Subject: ${subject}`,
       );
       return;
     }
 
-    try {
-      await this.transporter.sendMail({
-        from: this.from,
-        to,
-        subject,
-        html,
-      });
-      this.logger.log(`Email sent to ${to}: "${subject}"`);
-    } catch (error) {
-      this.logger.error(`Failed to send email to ${to}: ${error}`);
-      throw error;
+    const { error } = await this.resend.emails.send({
+      from: this.from,
+      to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      this.logger.error(`Failed to send email to ${to}: ${error.message}`);
+      throw new Error(error.message);
     }
+
+    this.logger.log(`Email sent to ${to}: "${subject}"`);
   }
 
   /**
