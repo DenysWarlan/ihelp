@@ -17,6 +17,7 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
   testDir: './src/e2e',
+  globalSetup: './src/fixtures/global-setup.ts',
   timeout: 30_000,
   retries: process.env['CI'] ? 2 : 0,
   reporter: process.env['CI'] ? 'html' : 'list',
@@ -26,13 +27,23 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npx nx run web:serve',
-    url: 'http://localhost:4200',
-    reuseExistingServer: true,
-    cwd: workspaceRoot
-  },
+  /* Run local servers before starting the tests */
+  webServer: [
+    {
+      command: 'npx nx run api:serve',
+      url: 'http://localhost:8888/health',
+      reuseExistingServer: true,
+      cwd: workspaceRoot,
+      timeout: 60_000,
+      env: { PORT: '8888' },
+    },
+    {
+      command: 'npx nx run web:serve',
+      url: 'http://localhost:4200',
+      reuseExistingServer: true,
+      cwd: workspaceRoot,
+    },
+  ],
   projects: [
     {
       name: "chromium",

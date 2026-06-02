@@ -99,4 +99,8 @@ export const ROUTES = {
   // Coordinator & Admin
   coordinatorDashboard: '/staff/coordinator',
   adminDashboard: '/staff/admin',
+  adminCases: '/staff/admin/cases',
+
+  // Consultant
+  consultantDashboard: '/staff/consultant',
 } as const;

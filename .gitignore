@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# E2E test artifacts
+.auth-tokens.json
+
 # Build output
 dist/
 .nx/cache
