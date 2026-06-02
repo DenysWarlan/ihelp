@@ -2,6 +2,7 @@ import * as crypto from 'node:crypto';
 
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -21,9 +22,21 @@ import { MfaSetupResponse } from './mfa.model.js';
 /** Bcrypt rounds for backup code hashing (lower than password — these are one-time use). */
 const BACKUP_HASH_ROUNDS = 10;
 
+/** Max failed MFA attempts before lockout. */
+const MFA_MAX_ATTEMPTS = 5;
+
+/** Lockout duration in milliseconds (15 minutes). */
+const MFA_LOCKOUT_MS = 15 * 60 * 1000;
+
+interface MfaAttemptRecord {
+  count: number;
+  firstAttemptAt: number;
+}
+
 @Injectable()
 export class MfaService {
   private readonly logger = new Logger(MfaService.name);
+  private readonly attempts = new Map<string, MfaAttemptRecord>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -119,8 +132,11 @@ export class MfaService {
 
   /**
    * Verify a TOTP token during login.
+   * Tracks failed attempts per user and locks out after MFA_MAX_ATTEMPTS.
    */
   async verifyMfa(userId: string, token: string): Promise<boolean> {
+    this.checkLockout(userId);
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { mfaSecret: true, mfaEnabled: true },
@@ -130,7 +146,53 @@ export class MfaService {
       throw new BadRequestException('MFA is not enabled for this user');
     }
 
-    return authenticator.verify({ token, secret: user.mfaSecret });
+    const isValid = authenticator.verify({ token, secret: user.mfaSecret });
+
+    if (isValid) {
+      this.attempts.delete(userId);
+      return true;
+    }
+
+    this.recordFailedAttempt(userId);
+    return false;
+  }
+
+  private checkLockout(userId: string): void {
+    const record = this.attempts.get(userId);
+    if (!record) return;
+
+    const elapsed = Date.now() - record.firstAttemptAt;
+
+    if (elapsed > MFA_LOCKOUT_MS) {
+      this.attempts.delete(userId);
+      return;
+    }
+
+    if (record.count >= MFA_MAX_ATTEMPTS) {
+      const remainingMs = MFA_LOCKOUT_MS - elapsed;
+      const remainingMin = Math.ceil(remainingMs / 60_000);
+      this.logger.warn(`MFA locked out for user ${userId} — ${remainingMin} min remaining`);
+      throw new ForbiddenException(
+        `Too many failed MFA attempts. Try again in ${remainingMin} minutes.`,
+      );
+    }
+  }
+
+  private recordFailedAttempt(userId: string): void {
+    const record = this.attempts.get(userId);
+
+    if (record) {
+      record.count++;
+    } else {
+      this.attempts.set(userId, { count: 1, firstAttemptAt: Date.now() });
+    }
+
+    const current = this.attempts.get(userId);
+    if (current && current.count >= MFA_MAX_ATTEMPTS) {
+      this.logger.warn(
+        `User ${userId} locked out after ${MFA_MAX_ATTEMPTS} failed MFA attempts`,
+      );
+    }
   }
 
   /**

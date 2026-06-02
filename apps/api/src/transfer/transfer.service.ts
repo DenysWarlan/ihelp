@@ -92,13 +92,6 @@ export class TransferService {
       );
     }
 
-    // Find all active cases for this consultant
-    const activeCases = await this.findActiveCases(dto.consultantUserId);
-
-    if (activeCases.length === 0) {
-      throw new BadRequestException(ERROR_NO_ACTIVE_CASES);
-    }
-
     const vacationStart = new Date(dto.vacationStart);
     const vacationEnd = new Date(dto.vacationEnd);
 
@@ -107,6 +100,27 @@ export class TransferService {
     let unmatchedCases = 0;
 
     await this.prisma.$transaction(async (tx) => {
+      // Prevent duplicate vacation transfers (inside transaction to avoid TOCTOU race)
+      const existingVacationTransfer = await tx.caseTransfer.findFirst({
+        where: {
+          fromConsultantId: dto.consultantUserId,
+          transferType: TransferType.VACATION,
+          status: { in: [TransferStatus.PENDING] },
+        },
+      });
+
+      if (existingVacationTransfer) {
+        throw new ConflictException(
+          'Consultant already has an active or pending vacation transfer. Complete or cancel the existing transfer first.',
+        );
+      }
+
+      // Find all active cases for this consultant
+      const activeCases = await this.findActiveCases(dto.consultantUserId);
+
+      if (activeCases.length === 0) {
+        throw new BadRequestException(ERROR_NO_ACTIVE_CASES);
+      }
       for (const careCase of activeCases) {
         // Auto-match replacement (S-E10-03)
         const match = await this.findBestReplacement(careCase);
@@ -901,6 +915,18 @@ export class TransferService {
         const isCrisis = CRISIS_LEVELS.includes(transfer.careCase.crisisLevel);
 
         await this.prisma.$transaction(async (tx) => {
+          // Verify the case is still owned by the temporary consultant
+          const currentCase = await tx.careCase.findUnique({
+            where: { id: transfer.careCaseId },
+            select: { consultantId: true },
+          });
+
+          const actualHolder = currentCase?.consultantId;
+          const expectedHolder = transfer.toConsultantId;
+
+          // If case was manually reassigned to a third consultant, skip decrement for toConsultant
+          const caseStillWithTemp = actualHolder === expectedHolder;
+
           // Return case to original consultant
           await tx.careCase.update({
             where: {
@@ -937,8 +963,8 @@ export class TransferService {
             `;
           }
 
-          // Decrement temporary consultant's counters
-          if (transfer.toConsultantId) {
+          // Decrement temporary consultant's counters only if they still hold the case
+          if (transfer.toConsultantId && caseStillWithTemp) {
             if (isCrisis) {
               await tx.$executeRaw`
                 UPDATE consultant_profiles
@@ -955,6 +981,30 @@ export class TransferService {
                 WHERE user_id = ${transfer.toConsultantId}::uuid
               `;
             }
+          } else if (transfer.toConsultantId && !caseStillWithTemp) {
+            // Case was reassigned to someone else during vacation — decrement actual holder
+            if (actualHolder) {
+              if (isCrisis) {
+                await tx.$executeRaw`
+                  UPDATE consultant_profiles
+                  SET current_cases = GREATEST(current_cases - 1, 0),
+                      current_crisis = GREATEST(current_crisis - 1, 0),
+                      updated_at = NOW()
+                  WHERE user_id = ${actualHolder}::uuid
+                `;
+              } else {
+                await tx.$executeRaw`
+                  UPDATE consultant_profiles
+                  SET current_cases = GREATEST(current_cases - 1, 0),
+                      updated_at = NOW()
+                  WHERE user_id = ${actualHolder}::uuid
+                `;
+              }
+            }
+            this.logger.warn(
+              `Transfer ${transfer.id}: case ${transfer.careCaseId} was reassigned from ` +
+                `${expectedHolder} to ${actualHolder} during vacation — adjusted counters`,
+            );
           }
 
           // Audit entry

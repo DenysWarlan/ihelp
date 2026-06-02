@@ -548,6 +548,21 @@ export class GdprService {
         return;
       }
 
+      // GDPR Art.7: Verify consent is still active before exporting personal data
+      if (!user.dataConsentAt) {
+        await this.prisma.dataExportRequest.update({
+          where: { id: exportRequestId },
+          data: {
+            status: ExportStatus.FAILED,
+            errorMessage: 'Data consent has been withdrawn — export cancelled',
+          },
+        });
+        this.logger.warn(
+          `Export ${exportRequestId} cancelled: user ${userId} consent withdrawn before export execution`,
+        );
+        return;
+      }
+
       // Chat history (messages where user is sender or in user's cases)
       const userCases = await this.prisma.careCase.findMany({
         where: { personId: userId },

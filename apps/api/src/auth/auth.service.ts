@@ -270,11 +270,23 @@ export class AuthService {
       }
     }
 
-    // Revoke current session
-    await this.prisma.session.update({
-      where: { id: session.id },
+    // Atomic revocation: prevents concurrent refresh race condition.
+    // If updateMany returns count=0, another request already revoked this token.
+    const { count } = await this.prisma.session.updateMany({
+      where: { id: session.id, isRevoked: false },
       data: { isRevoked: true },
     });
+
+    if (count === 0) {
+      // Another concurrent request already consumed this token — treat as replay
+      if (session.tokenFamily) {
+        await this.revokeTokenFamily(session.tokenFamily);
+      }
+      this.logger.warn(
+        `Concurrent refresh race detected for user ${session.userId}, token family ${session.tokenFamily}`,
+      );
+      throw new UnauthorizedException('Token reuse detected. All sessions revoked.');
+    }
 
     // Create new session with same token family
     return this.createTokenPair(
@@ -411,13 +423,19 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash },
-    });
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      }),
+      this.prisma.session.updateMany({
+        where: { userId, isRevoked: false },
+        data: { isRevoked: true },
+      }),
+    ]);
 
-    this.logger.log(`User ${userId} password updated`);
-    return { message: 'Password updated successfully' };
+    this.logger.log(`User ${userId} password updated, all sessions revoked`);
+    return { message: 'Password updated successfully. Please log in again.' };
   }
 
   // ---------------------------------------------------------------------------

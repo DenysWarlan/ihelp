@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@org/prisma-client';
 import * as bcrypt from 'bcrypt';
-import { Invite, User } from '@prisma/client';
+import { Invite, Role, User } from '@prisma/client';
 
 import { MailService } from '../../common/mail/mail.service.js';
 import { BCRYPT_SALT_ROUNDS, INVITE_EXPIRY_HOURS } from './invite.const.js';
@@ -54,47 +54,63 @@ export class InviteService {
 
   /**
    * Claim an invite: validate token, create user with hashed password atomically.
-   * Uses Prisma interactive transaction to prevent race conditions.
+   * Uses Prisma interactive transaction with row-level locking to prevent race conditions.
    */
   async claimInvite(dto: ClaimInviteDto): Promise<User> {
-    const invite = await this.prisma.invite.findUnique({
-      where: { token: dto.token },
-    });
-
-    if (!invite) {
-      throw new NotFoundException('Invite not found or invalid token');
-    }
-
-    if (invite.claimedAt) {
-      throw new ConflictException('Invite has already been claimed');
-    }
-
-    if (new Date() > invite.expiresAt) {
-      throw new NotFoundException('Invite has expired');
-    }
-
     const passwordHash = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
 
     const user = await this.prisma.$transaction(async (tx) => {
+      // Lock the invite row to prevent concurrent claims
+      const [invite] = await tx.$queryRaw<Array<{
+        id: string;
+        email: string;
+        role: string;
+        claimed_at: Date | null;
+        expires_at: Date;
+      }>>`
+        SELECT id, email, role, claimed_at, expires_at
+        FROM invites
+        WHERE token = ${dto.token}
+        FOR UPDATE
+      `;
+
+      if (!invite) {
+        throw new NotFoundException('Invite not found or invalid token');
+      }
+
+      if (invite.claimed_at) {
+        throw new ConflictException('Invite has already been claimed');
+      }
+
+      if (new Date() > invite.expires_at) {
+        throw new NotFoundException('Invite has expired');
+      }
+
       // Mark invite as claimed
       await tx.invite.update({
         where: { id: invite.id },
         data: { claimedAt: new Date() },
       });
 
+      // Validate role from raw query against Prisma enum
+      const validRoles: string[] = Object.values(Role);
+      if (!validRoles.includes(invite.role)) {
+        throw new BadRequestException(`Invalid role in invite: ${invite.role}`);
+      }
+
       // Create the staff user
       return tx.user.create({
         data: {
           email: invite.email,
           name: dto.name,
-          role: invite.role,
+          role: invite.role as Role,
           passwordHash,
         },
       });
     });
 
     this.logger.log(
-      `Invite claimed: user ${user.id} created for ${invite.email}`,
+      `Invite claimed: user ${user.id} created for ${dto.token.substring(0, 8)}...`,
     );
     return user;
   }

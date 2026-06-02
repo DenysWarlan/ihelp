@@ -4,7 +4,9 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 
 import { JwtPayload } from '../auth.model.js';
@@ -29,9 +31,11 @@ export class MfaController {
 
   @Post('enable')
   @ApiBearerAuth()
+  @Throttle([{ ttl: 300_000, limit: 5 }])
   @ApiOperation({ summary: 'Enable MFA — verifies TOTP token and returns backup codes' })
   @ApiResponse({ status: 201, description: 'MFA enabled, backup codes returned' })
   @ApiResponse({ status: 400, description: 'Invalid token or MFA not set up' })
+  @ApiTooManyRequestsResponse({ description: 'Too many attempts — try again later' })
   async enableMfa(@Body() dto: MfaTokenDto, @Req() req: Request) {
     const user = req.user as JwtPayload;
     const backupCodes = await this.mfaService.enableMfa(user.sub, dto.token);
@@ -40,9 +44,12 @@ export class MfaController {
 
   @Post('verify')
   @Public()
+  @Throttle([{ ttl: 300_000, limit: 5 }])
   @ApiOperation({ summary: 'Verify TOTP token during login flow' })
   @ApiResponse({ status: 201, description: 'Verification result' })
   @ApiResponse({ status: 400, description: 'MFA not enabled' })
+  @ApiResponse({ status: 403, description: 'Account locked due to too many failed attempts' })
+  @ApiTooManyRequestsResponse({ description: 'Too many attempts — try again later' })
   async verifyMfa(@Body() dto: MfaTokenDto & { userId: string }) {
     const isValid = await this.mfaService.verifyMfa(dto.userId, dto.token);
     return { valid: isValid };
