@@ -195,6 +195,48 @@ export const StaffStore = signalStore(
           )
         )
       ),
+
+      completeCase: rxMethod<{ caseId: string; version: number }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(({ caseId, version }) =>
+            staffService.updateCaseStatus(caseId, 'COMPLETED', version).pipe(
+              switchMap(() => staffService.getCaseDetail(caseId)),
+              tap((caseDetail: CaseDetail) =>
+                patchState(store, { selectedCase: caseDetail, isLoading: false }),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to complete case',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      reassignCase: rxMethod<{ caseId: string; consultantUserId: string }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(({ caseId, consultantUserId }) =>
+            staffService.reassignCase(caseId, consultantUserId).pipe(
+              switchMap(() => staffService.getCaseDetail(caseId)),
+              tap((caseDetail: CaseDetail) =>
+                patchState(store, { selectedCase: caseDetail, isLoading: false })
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to reassign case',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
     };
   })
 );

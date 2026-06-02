@@ -101,6 +101,10 @@ export class LessonDetailComponent {
     this.facade.navigateToCourse(this.courseId());
   }
 
+  onBackToCourses(): void {
+    this.facade.navigateToCourses();
+  }
+
   onCompleteLesson(): void {
     const lesson = this.facade.selectedLesson();
     const courseId = this.courseId();

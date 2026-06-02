@@ -4,7 +4,8 @@
     "signOut": "Вийти",
     "home": "Головна",
     "comingSoon": "Незабаром",
-    "loading": "Завантаження..."
+    "loading": "Завантаження...",
+    "cancel": "Скасувати"
   },
   "nav": {
     "courses": "Курси",
@@ -171,6 +172,7 @@
     "slaPlaceholder": "SLA моніторинг незабаром.",
     "assignment": "Призначення",
     "assignmentPlaceholder": "Призначення незабаром.",
+    "courses": "Курси",
     "workload": "Навантаження",
     "workloadPlaceholder": "Моніторинг навантаження незабаром.",
     "crisis": "Кризові ситуації",
@@ -183,6 +185,9 @@
     "auditLogPlaceholder": "Журнал аудиту незабаром.",
     "gdpr": "GDPR",
     "gdprPlaceholder": "GDPR інструменти незабаром."
+  },
+  "consultant": {
+    "coursesDesc": "Перегляд доступних курсів та навчальних матеріалів"
   },
   "staffLogin": {
     "title": "Вхід для співробітників",
@@ -235,6 +240,7 @@
     "settings": "Налаштування",
     "notLinked": "Не прив'язано",
     "startConversation": "Почати спілкування",
+    "waitingForConsultant": "Зачекайте, будь ласка, ваш консультант скоро з вами зв'яжеться",
     "viewAll": "Переглянути всі"
   },
   "requestHelp": {
@@ -286,6 +292,19 @@
     "colDate": "Дата",
     "viewAll": "Переглянути всі"
   },
+  "adminCases": {
+    "title": "Усі справи",
+    "subtitle": "Перегляд усіх активних справ у системі",
+    "navTitle": "Справи",
+    "navDesc": "Перегляд усіх справ та їх статусів",
+    "searchPlaceholder": "Пошук за іменем, консультантом або темою…",
+    "colConsultant": "Консультант",
+    "unassigned": "Не призначено",
+    "statTotal": "Усього",
+    "statWaiting": "Очікують",
+    "statInProgress": "У роботі",
+    "statResolved": "Вирішені"
+  },
   "staffCases": {
     "empty": "Поки немає призначених справ",
     "assigned": "Призначено",
@@ -300,15 +319,15 @@
     "colLastActivity": "Остання активність",
     "filter": "Фільтр",
     "status": {
-      "NEW": "Новий",
-      "ASSIGNED": "Призначено",
-      "OPEN": "Відкритий",
-      "IN_PROGRESS": "В роботі",
-      "MEETING_SCHEDULED": "Зустріч заплановано",
-      "ON_HOLD": "На паузі",
+      "NEW": "Нова",
+      "ASSIGNED": "Очікує призначення",
+      "OPEN": "Відкрита",
+      "IN_PROGRESS": "У роботі",
+      "MEETING_SCHEDULED": "Активний супровід",
+      "ON_HOLD": "Очікує завершення",
       "WAITING": "Очікування",
       "TRANSFERRED": "Передано",
-      "COMPLETED": "Завершено",
+      "COMPLETED": "Завершена",
       "RESOLVED": "Вирішена",
       "CLOSED": "Закрита"
     },
@@ -335,10 +354,18 @@
     "noMessages": "Немає повідомлень",
     "messagePlaceholder": "Написати...",
     "scheduleMeeting": "Запланувати зустріч",
-    "internal": "Внутрішня"
+    "reassign": "Перепризначити",
+    "internal": "Внутрішня",
+    "progressTitle": "Прогрес",
+    "messages": "повідомлень",
+    "completeCase": "Завершити кейс",
+    "confirmCompleteTitle": "Завершити кейс?",
+    "confirmCompleteText": "Ви впевнені, що хочете завершити цей кейс? Статус буде змінено на «Завершена».",
+    "confirmComplete": "Так, завершити"
   },
   "staffMeetings": {
     "empty": "Немає запланованих зустрічей",
+    "scheduleMeeting": "Запланувати зустріч",
     "minutes": "хв",
     "join": "Приєднатися",
     "backToCase": "Назад до кейсу",
@@ -706,6 +733,20 @@
     "escalationRate": "Ескалація",
     "avgResponseTimeCrisis": "Сер. час реакції"
   },
+  "consultantProfile": {
+    "backToTeam": "Назад до команди",
+    "caseLoad": "Навантаження",
+    "crisisLoad": "Кризові",
+    "resolvedMonth": "Вирішено/міс",
+    "avgResponse": "Сер. відповідь",
+    "specializations": "Спеціалізації",
+    "languages": "Мови",
+    "activeCases": "Активні справи",
+    "completedCases": "Завершені справи",
+    "noActiveCases": "Немає активних справ",
+    "noCompletedCases": "Немає завершених справ",
+    "notFound": "Профіль консультанта не знайдено"
+  },
   "layout": {
     "appName": "Є турбота",
     "expandSidebar": "Розгорнути бічну панель",
@@ -778,6 +819,7 @@
     "triggerWarning": "Цей урок може містити чутливий контент. Будь ласка, зверніться до свого консультанта, якщо потрібна підтримка.",
     "videoNotSupported": "Ваш браузер не підтримує відтворення відео.",
     "notFound": "Урок не знайдено.",
-    "nextLesson": "Наступний урок"
+    "nextLesson": "Наступний урок",
+    "backToCourses": "Повернутися до курсів"
   }
 }

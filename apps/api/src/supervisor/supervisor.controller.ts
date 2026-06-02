@@ -25,11 +25,11 @@ export class SupervisorController {
   constructor(private readonly supervisorService: SupervisorService) {}
 
   @Get('cases')
-  @Roles('SUPERVISOR')
+  @Roles('SUPERVISOR', 'ADMIN')
   @ApiOperation({ summary: 'List all cases with consultant names' })
   @ApiResponse({ status: 200, description: 'List of cases' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden — SUPERVISOR role required' })
+  @ApiResponse({ status: 403, description: 'Forbidden — SUPERVISOR or ADMIN role required' })
   async getCases(): Promise<CaseListItem[]> {
     return this.supervisorService.getCases();
   }

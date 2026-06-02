@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, Signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import { BadgeComponent, IconComponent } from '@org/shared/ui';
@@ -15,11 +16,16 @@ import type { TeamMember } from '@org/staff/data-access';
 })
 export class TeamComponent implements OnInit {
   private readonly facade: SupervisorFacadeService = inject(SupervisorFacadeService);
+  private readonly router: Router = inject(Router);
 
   readonly teamMembers: Signal<TeamMember[]> = this.facade.teamMembers;
   readonly isLoading: Signal<boolean> = this.facade.isLoading;
 
   ngOnInit(): void {
     this.facade.loadTeamMembers();
+  }
+
+  onMemberClick(member: TeamMember): void {
+    this.router.navigate(['/staff/team', member.id]);
   }
 }

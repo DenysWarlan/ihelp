@@ -113,6 +113,13 @@
               <span>{{ t('lessonDetail.nextLesson') }}</span>
               <ui-icon name="ArrowRight" [size]="18" />
             </button>
+          } @else if (lesson.isCompleted) {
+            <button
+              class="lesson-page__btn lesson-page__btn--primary lesson-page__btn--large"
+              (click)="onBackToCourses()">
+              <ui-icon name="ArrowLeft" [size]="18" color="#fff" />
+              <span>{{ t('lessonDetail.backToCourses') }}</span>
+            </button>
           }
         </div>
       } @else {

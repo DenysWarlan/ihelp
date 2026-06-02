@@ -45,12 +45,21 @@ export class DashboardComponent implements OnInit {
 
   getStatusVariant(status: string): BadgeVariant {
     switch (status) {
-      case 'OPEN': return 'info';
-      case 'IN_PROGRESS': return 'warning';
-      case 'WAITING': return 'neutral';
-      case 'RESOLVED': return 'success';
-      case 'CLOSED': return 'neutral';
-      default: return 'neutral';
+      case 'NEW':
+      case 'ASSIGNED':
+        return 'info';
+      case 'IN_PROGRESS':
+      case 'MEETING_SCHEDULED':
+        return 'warning';
+      case 'ON_HOLD':
+      case 'TRANSFERRED':
+        return 'neutral';
+      case 'COMPLETED':
+        return 'success';
+      case 'CLOSED':
+        return 'neutral';
+      default:
+        return 'neutral';
     }
   }
 

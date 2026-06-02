@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import type { CaseListItem } from '../model/staff.model';
 import type {
+  ConsultantProfile,
   CrisisHistoryItem,
   TeamAnalytics,
   TeamMember,
@@ -37,6 +38,10 @@ export class SupervisorService {
       `/api/supervisor/cases/${caseId}/comment`,
       { comment }
     );
+  }
+
+  getConsultantProfile(userId: string): Observable<ConsultantProfile> {
+    return this.http.get<ConsultantProfile>(`/api/consultant-profiles/${userId}`);
   }
 
   getCrisisHistory(): Observable<CrisisHistoryItem[]> {

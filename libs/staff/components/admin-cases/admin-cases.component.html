@@ -1,0 +1,95 @@
+<ng-container *transloco="let t">
+  <section class="admin-cases">
+    <div class="admin-cases__header">
+      <h1 class="admin-cases__title">{{ t('adminCases.title') }}</h1>
+      <p class="admin-cases__subtitle">{{ t('adminCases.subtitle') }}</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="admin-cases__stats">
+      <button
+        class="admin-cases__stat-card"
+        [class.admin-cases__stat-card--active]="statusFilter() === ''"
+        (click)="onFilterStatus('')">
+        <span class="admin-cases__stat-number">{{ totalCases() }}</span>
+        <span class="admin-cases__stat-label">{{ t('adminCases.statTotal') }}</span>
+      </button>
+      <button
+        class="admin-cases__stat-card"
+        [class.admin-cases__stat-card--active]="statusFilter() === 'WAITING'"
+        (click)="onFilterStatus('WAITING')">
+        <span class="admin-cases__stat-number">{{ waitingCases() }}</span>
+        <span class="admin-cases__stat-label">{{ t('adminCases.statWaiting') }}</span>
+      </button>
+      <button
+        class="admin-cases__stat-card"
+        [class.admin-cases__stat-card--active]="statusFilter() === 'ACTIVE'"
+        (click)="onFilterStatus('ACTIVE')">
+        <span class="admin-cases__stat-number">{{ inProgressCases() }}</span>
+        <span class="admin-cases__stat-label">{{ t('adminCases.statInProgress') }}</span>
+      </button>
+      <button
+        class="admin-cases__stat-card"
+        [class.admin-cases__stat-card--active]="statusFilter() === 'DONE'"
+        (click)="onFilterStatus('DONE')">
+        <span class="admin-cases__stat-number">{{ resolvedCases() }}</span>
+        <span class="admin-cases__stat-label">{{ t('adminCases.statResolved') }}</span>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="admin-cases__toolbar">
+      <div class="admin-cases__search">
+        <ui-icon name="Search" [size]="16" color="var(--ihelp-text-muted)" />
+        <input
+          type="text"
+          class="admin-cases__search-input"
+          [placeholder]="t('adminCases.searchPlaceholder')"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <p class="admin-cases__loading">{{ t('common.loading') }}</p>
+    } @else if (filteredCases().length === 0) {
+      <p class="admin-cases__empty">{{ t('staffCases.empty') }}</p>
+    } @else {
+      <table class="admin-cases__table">
+        <thead>
+          <tr>
+            <th>{{ t('staffCases.colName') }}</th>
+            <th>{{ t('adminCases.colConsultant') }}</th>
+            <th>{{ t('staffCases.colTopic') }}</th>
+            <th>{{ t('staffCases.colStatus') }}</th>
+            <th>{{ t('staffCases.colPriority') }}</th>
+            <th>{{ t('staffCases.colLastActivity') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (caseItem of filteredCases(); track caseItem.id) {
+            <tr class="admin-cases__row" (click)="onCaseClick(caseItem.id)">
+              <td class="admin-cases__cell-name">{{ caseItem.personName }}</td>
+              <td>{{ caseItem.consultantName || t('adminCases.unassigned') }}</td>
+              <td>{{ caseItem.topic }}</td>
+              <td>
+                <ui-badge [variant]="getStatusVariant(caseItem.status)" size="sm">
+                  {{ t('staffCases.status.' + caseItem.status) }}
+                </ui-badge>
+              </td>
+              <td>
+                <ui-badge [variant]="getPriorityVariant(caseItem.priority)" size="sm">
+                  {{ t('staffCases.priority.' + caseItem.priority) }}
+                </ui-badge>
+              </td>
+              <td class="admin-cases__cell-date">
+                {{ caseItem.lastMessageAt ? (caseItem.lastMessageAt | date:'mediumDate') : (caseItem.assignedAt | date:'mediumDate') }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</ng-container>

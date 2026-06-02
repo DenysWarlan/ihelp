@@ -192,6 +192,22 @@
     font-size: 13px;
     margin: 0;
   }
+
+  &__waiting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ihelp-space-3);
+    padding: var(--ihelp-space-4) 0;
+    text-align: center;
+  }
+
+  &__waiting-text {
+    color: var(--ihelp-text-secondary, var(--ihelp-text-muted));
+    font-size: var(--ihelp-text-sm);
+    line-height: 1.5;
+    margin: 0;
+  }
 }
 
 // Meeting card content

@@ -24,6 +24,7 @@ import {
   PaginatedUsersResponse,
   DuplicatesResponse,
 } from '../model/admin.model';
+import type { CaseListItem } from '../model/staff.model';
 import { AdminService } from '../service/admin.service';
 
 interface AdminState {
@@ -31,6 +32,8 @@ interface AdminState {
   dashboardAlerts: AdminDashboardAlerts | null;
   dashboardAudit: AdminDashboardAuditEntry[];
   dashboardLoading: boolean;
+  cases: CaseListItem[];
+  casesLoading: boolean;
   users: AdminUser[];
   usersTotal: number;
   usersPage: number;
@@ -51,6 +54,8 @@ const initialState: AdminState = {
   dashboardAlerts: null,
   dashboardAudit: [],
   dashboardLoading: false,
+  cases: [],
+  casesLoading: false,
   users: [],
   usersTotal: 0,
   usersPage: 1,
@@ -73,6 +78,23 @@ export const AdminStore = signalStore(
     const adminService: AdminService = inject(AdminService);
 
     return {
+      loadCases: rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { casesLoading: true, error: null })),
+          switchMap(() =>
+            adminService.getCases().pipe(
+              tap((cases: CaseListItem[]) =>
+                patchState(store, { cases, casesLoading: false }),
+              ),
+              catchError(() => {
+                patchState(store, { casesLoading: false, error: 'Failed to load cases' });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
       loadDashboard: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { dashboardLoading: true })),

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import type { CaseListItem } from '../model/staff.model';
 import type {
+  ConsultantProfile,
   CrisisHistoryItem,
   TeamAnalytics,
   TeamMember,
@@ -21,6 +22,7 @@ export class SupervisorFacadeService {
   readonly allCases: Signal<CaseListItem[]> = this.store.allCases;
   readonly supervisorCaseDetail: Signal<SupervisorCaseDetail | null> =
     this.store.supervisorCaseDetail;
+  readonly consultantProfile: Signal<ConsultantProfile | null> = this.store.consultantProfile;
   readonly crisisHistory: Signal<CrisisHistoryItem[]> = this.store.crisisHistory;
   readonly isLoading: Signal<boolean> = this.store.isLoading;
   readonly error: Signal<string | null> = this.store.error;
@@ -35,6 +37,10 @@ export class SupervisorFacadeService {
 
   loadAllCases(): void {
     this.store.loadAllCases();
+  }
+
+  loadConsultantProfile(userId: string): void {
+    this.store.loadConsultantProfile(userId);
   }
 
   loadCrisisHistory(): void {

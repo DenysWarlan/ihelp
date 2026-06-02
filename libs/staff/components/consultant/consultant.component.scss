@@ -15,10 +15,15 @@
   color: var(--ihelp-text-primary);
 }
 
+.consultant-dashboard__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--ihelp-space-4);
+}
+
 .consultant-dashboard__link {
   text-decoration: none;
   color: inherit;
-  max-width: 400px;
 }
 
 .nav-card {

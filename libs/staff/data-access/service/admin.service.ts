@@ -14,6 +14,7 @@ import {
   PaginatedUsersResponse,
   DuplicatesResponse,
 } from '../model/admin.model';
+import type { CaseListItem } from '../model/staff.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -21,6 +22,10 @@ export class AdminService {
 
   getDashboard(): Observable<AdminDashboardResponse> {
     return this.http.get<AdminDashboardResponse>('/api/admin/dashboard');
+  }
+
+  getCases(): Observable<CaseListItem[]> {
+    return this.http.get<CaseListItem[]>('/api/supervisor/cases');
   }
 
   getUsers(query: UsersQueryParams): Observable<PaginatedUsersResponse> {

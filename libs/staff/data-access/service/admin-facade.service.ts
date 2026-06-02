@@ -14,6 +14,7 @@ import {
   EditUserFormModel,
   UsersQueryParams,
 } from '../model/admin.model';
+import type { CaseListItem } from '../model/staff.model';
 import type { SelectOption } from '@org/shared/ui';
 
 @Injectable({ providedIn: 'root' })
@@ -24,6 +25,9 @@ export class AdminFacade {
   readonly dashboardAlerts: Signal<AdminDashboardAlerts | null> = this.store.dashboardAlerts;
   readonly dashboardAudit: Signal<AdminDashboardAuditEntry[]> = this.store.dashboardAudit;
   readonly dashboardLoading: Signal<boolean> = this.store.dashboardLoading;
+
+  readonly cases: Signal<CaseListItem[]> = this.store.cases;
+  readonly casesLoading: Signal<boolean> = this.store.casesLoading;
 
   readonly users: Signal<AdminUser[]> = this.store.users;
   readonly usersTotal: Signal<number> = this.store.usersTotal;
@@ -70,6 +74,10 @@ export class AdminFacade {
 
   loadDashboard(): void {
     this.store.loadDashboard();
+  }
+
+  loadCases(): void {
+    this.store.loadCases();
   }
 
   loadUsers(params?: Partial<UsersQueryParams>): void {

@@ -186,6 +186,11 @@
         color: var(--ihelp-text-inverse);
       }
     }
+
+    &--large {
+      padding: var(--ihelp-space-4) var(--ihelp-space-8);
+      font-size: var(--ihelp-text-lg, 18px);
+    }
   }
 
   &__completed-msg {

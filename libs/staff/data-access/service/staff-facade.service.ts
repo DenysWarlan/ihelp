@@ -50,6 +50,14 @@ export class StaffFacade {
     this.store.scheduleMeeting(data);
   }
 
+  completeCase(caseId: string, version: number): void {
+    this.store.completeCase({ caseId, version });
+  }
+
+  reassignCase(caseId: string, consultantUserId: string): void {
+    this.store.reassignCase({ caseId, consultantUserId });
+  }
+
   navigateToCase(id: string): void {
     this.router.navigate(['/staff/cases', id]);
   }

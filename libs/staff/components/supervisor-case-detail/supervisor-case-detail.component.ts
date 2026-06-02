@@ -60,13 +60,16 @@ export class SupervisorCaseDetailComponent implements OnInit {
 
   getStatusVariant(status: string): BadgeVariant {
     switch (status) {
-      case 'OPEN':
+      case 'NEW':
+      case 'ASSIGNED':
         return 'info';
       case 'IN_PROGRESS':
+      case 'MEETING_SCHEDULED':
         return 'warning';
-      case 'WAITING':
+      case 'ON_HOLD':
+      case 'TRANSFERRED':
         return 'neutral';
-      case 'RESOLVED':
+      case 'COMPLETED':
         return 'success';
       case 'CLOSED':
         return 'neutral';

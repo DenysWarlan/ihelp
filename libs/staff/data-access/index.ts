@@ -64,6 +64,7 @@ export { CoordinatorStore } from './store/coordinator.store';
 
 // Supervisor Models
 export type {
+  ConsultantProfile,
   CrisisHistoryItem,
   TeamMember,
   TeamAnalytics,

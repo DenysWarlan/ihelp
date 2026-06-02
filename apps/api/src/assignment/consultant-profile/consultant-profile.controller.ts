@@ -33,7 +33,7 @@ export class ConsultantProfileController {
   ) {}
 
   @Get()
-  @Roles('COORDINATOR', 'ADMIN')
+  @Roles('COORDINATOR', 'ADMIN', 'SUPERVISOR')
   @ApiOperation({ summary: 'List all consultant profiles' })
   @ApiResponse({ status: 200, description: 'List of consultant profiles' })
   async findAll(): Promise<ConsultantProfileResponse[]> {
@@ -41,7 +41,7 @@ export class ConsultantProfileController {
   }
 
   @Get(':userId')
-  @Roles('COORDINATOR', 'ADMIN')
+  @Roles('COORDINATOR', 'ADMIN', 'SUPERVISOR')
   @ApiOperation({ summary: 'Get consultant profile by user ID' })
   @ApiResponse({ status: 200, description: 'Consultant profile' })
   @ApiNotFoundResponse({ description: 'Profile not found' })

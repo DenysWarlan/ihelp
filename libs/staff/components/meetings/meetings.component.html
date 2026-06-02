@@ -5,7 +5,12 @@
     @if (isLoading()) {
       <p class="meetings__loading">{{ t('common.loading') }}</p>
     } @else if (meetings().length === 0) {
-      <p class="meetings__empty">{{ t('staffMeetings.empty') }}</p>
+      <div class="meetings__empty-state">
+        <p class="meetings__empty">{{ t('staffMeetings.empty') }}</p>
+        <button class="meetings__schedule-btn" (click)="onScheduleMeeting()">
+          {{ t('staffMeetings.scheduleMeeting') }}
+        </button>
+      </div>
     } @else {
       <div class="meetings__grid">
         @for (meeting of meetings(); track meeting.id) {

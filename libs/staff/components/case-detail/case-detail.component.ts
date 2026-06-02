@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,7 +24,22 @@ export class CaseDetailComponent implements OnInit {
 
   readonly selectedCase: Signal<CaseDetail | null> = this.facade.selectedCase;
   readonly isLoading: Signal<boolean> = this.facade.isLoading;
+  readonly error: Signal<string | null> = this.facade.error;
   readonly messageInput: WritableSignal<string> = signal('');
+  readonly showCompleteConfirm: WritableSignal<boolean> = signal(false);
+
+  readonly messagesCount: Signal<number> = computed(
+    () => this.selectedCase()?.messages.length ?? 0,
+  );
+
+  readonly notesCount: Signal<number> = computed(
+    () => this.selectedCase()?.notes.length ?? 0,
+  );
+
+  readonly canComplete: Signal<boolean> = computed(() => {
+    const c: CaseDetail | null = this.selectedCase();
+    return !!c && (c.status === 'IN_PROGRESS' || c.status === 'MEETING_SCHEDULED');
+  });
 
   ngOnInit(): void {
     const id: string = this.route.snapshot.params['id'];
@@ -49,15 +64,38 @@ export class CaseDetailComponent implements OnInit {
     }
   }
 
+  onReassign(): void {
+    this.router.navigate(['/staff/assignment']);
+  }
+
+  onCompleteCase(): void {
+    this.showCompleteConfirm.set(true);
+  }
+
+  onConfirmComplete(): void {
+    const c: CaseDetail | null = this.selectedCase();
+    if (c) {
+      this.facade.completeCase(c.id, c.version);
+      this.showCompleteConfirm.set(false);
+    }
+  }
+
+  onCancelComplete(): void {
+    this.showCompleteConfirm.set(false);
+  }
+
   getStatusVariant(status: string): BadgeVariant {
     switch (status) {
-      case 'OPEN':
+      case 'NEW':
+      case 'ASSIGNED':
         return 'info';
       case 'IN_PROGRESS':
+      case 'MEETING_SCHEDULED':
         return 'warning';
-      case 'WAITING':
+      case 'ON_HOLD':
+      case 'TRANSFERRED':
         return 'neutral';
-      case 'RESOLVED':
+      case 'COMPLETED':
         return 'success';
       case 'CLOSED':
         return 'neutral';

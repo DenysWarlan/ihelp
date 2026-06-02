@@ -10,6 +10,7 @@ import { EMPTY, pipe, switchMap, tap, catchError } from 'rxjs';
 
 import type { CaseListItem } from '../model/staff.model';
 import type {
+  ConsultantProfile,
   CrisisHistoryItem,
   TeamAnalytics,
   TeamMember,
@@ -22,6 +23,7 @@ interface SupervisorState {
   teamMembers: TeamMember[];
   allCases: CaseListItem[];
   supervisorCaseDetail: SupervisorCaseDetail | null;
+  consultantProfile: ConsultantProfile | null;
   crisisHistory: CrisisHistoryItem[];
   isLoading: boolean;
   error: string | null;
@@ -32,6 +34,7 @@ const initialState: SupervisorState = {
   teamMembers: [],
   allCases: [],
   supervisorCaseDetail: null,
+  consultantProfile: null,
   crisisHistory: [],
   isLoading: false,
   error: null,
@@ -127,6 +130,26 @@ export const SupervisorStore = signalStore(
             )
           )
         )
+      ),
+
+      loadConsultantProfile: rxMethod<string>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap((userId: string) =>
+            service.getConsultantProfile(userId).pipe(
+              tap((consultantProfile: ConsultantProfile) =>
+                patchState(store, { consultantProfile, isLoading: false }),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to load consultant profile',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
       ),
 
       loadCrisisHistory: rxMethod<void>(

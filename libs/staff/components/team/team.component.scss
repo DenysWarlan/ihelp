@@ -55,6 +55,16 @@
   flex-direction: column;
   gap: var(--ihelp-space-4);
   box-shadow: var(--ihelp-shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: var(--ihelp-shadow-md, 0 4px 12px rgba(0, 0, 0, 0.1));
+      transform: translateY(-2px);
+    }
+  }
 
   &__header {
     display: flex;

@@ -79,6 +79,8 @@ export class PersonService {
         recentActivity: [],
         consultantName: res.careCase?.consultantName ?? null,
         consultantSpecialty: null,
+        caseStatus: res.careCase?.status ?? null,
+        caseTopic: res.careCase?.topic ?? null,
       })),
     );
   }

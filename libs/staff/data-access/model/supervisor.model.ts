@@ -38,6 +38,18 @@ export interface CaseMessage {
   readonly createdAt: string;
 }
 
+export interface ConsultantProfile {
+  readonly id: string;
+  readonly userId: string;
+  readonly specializations: string[];
+  readonly languages: string[];
+  readonly maxCases: number;
+  readonly currentCases: number;
+  readonly maxCrisisCases: number;
+  readonly currentCrisis: number;
+  readonly status: string;
+}
+
 export interface SupervisorCaseDetail {
   readonly id: string;
   readonly personName: string;

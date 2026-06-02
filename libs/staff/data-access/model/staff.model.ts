@@ -2,12 +2,13 @@ export interface CaseListItem {
   readonly id: string;
   readonly personName: string;
   readonly topic: string;
-  readonly status: 'OPEN' | 'IN_PROGRESS' | 'WAITING' | 'RESOLVED' | 'CLOSED';
+  readonly status: 'NEW' | 'ASSIGNED' | 'IN_PROGRESS' | 'MEETING_SCHEDULED' | 'ON_HOLD' | 'TRANSFERRED' | 'COMPLETED' | 'CLOSED';
   readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
   readonly assignedAt: string;
   readonly lastMessageAt: string | null;
   readonly slaDeadline: string | null;
   readonly consultantName?: string;
+  readonly consultantUserId?: string;
 }
 
 export interface CaseDetail {
@@ -16,7 +17,7 @@ export interface CaseDetail {
   readonly personEmail: string;
   readonly consultantName?: string;
   readonly topic: string;
-  readonly status: 'OPEN' | 'IN_PROGRESS' | 'WAITING' | 'RESOLVED' | 'CLOSED';
+  readonly status: 'NEW' | 'ASSIGNED' | 'IN_PROGRESS' | 'MEETING_SCHEDULED' | 'ON_HOLD' | 'TRANSFERRED' | 'COMPLETED' | 'CLOSED';
   readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
   readonly description: string;
   readonly notes: CaseNote[];
@@ -24,6 +25,7 @@ export interface CaseDetail {
   readonly assignedAt: string;
   readonly createdAt: string;
   readonly slaDeadline: string | null;
+  readonly version: number;
 }
 
 export interface StaffCaseMessage {

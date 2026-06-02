@@ -42,8 +42,8 @@ export class StaffService {
     return this.http.post<void>(`/api/cases/${caseId}/messages`, { content });
   }
 
-  updateCaseStatus(id: string, status: string): Observable<void> {
-    return this.http.patch<void>(`/api/cases/${id}/status`, { status });
+  updateCaseStatus(id: string, status: string, version: number): Observable<void> {
+    return this.http.patch<void>(`/api/cases/${id}/status`, { status, version });
   }
 
   getMeetings(): Observable<StaffMeeting[]> {
@@ -55,5 +55,9 @@ export class StaffService {
       `/api/cases/${data.caseId}/meetings`,
       data
     );
+  }
+
+  reassignCase(caseId: string, consultantUserId: string): Observable<void> {
+    return this.http.post<void>(`/api/assignment/${caseId}/reassign`, { consultantUserId });
   }
 }

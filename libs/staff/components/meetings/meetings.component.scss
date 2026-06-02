@@ -21,6 +21,29 @@
   color: var(--ihelp-text-muted);
 }
 
+.meetings__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ihelp-space-4);
+  padding: var(--ihelp-space-6) 0;
+}
+
+.meetings__schedule-btn {
+  padding: 10px 24px;
+  background-color: var(--ihelp-accent);
+  color: var(--ihelp-text-inverse);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
 .meetings__grid {
   display: flex;
   flex-direction: column;

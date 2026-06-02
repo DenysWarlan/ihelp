@@ -1,0 +1,153 @@
+<ng-container *transloco="let t">
+  <section class="consultant-profile">
+    <!-- Back button -->
+    <button class="consultant-profile__back" (click)="onBack()">
+      <ui-icon name="ArrowLeft" [size]="18" />
+      <span>{{ t('consultantProfile.backToTeam') }}</span>
+    </button>
+
+    @if (isLoading()) {
+      <p class="consultant-profile__loading">{{ t('common.loading') }}</p>
+    } @else if (member(); as m) {
+      <!-- Header -->
+      <div class="consultant-profile__header">
+        <div class="consultant-profile__avatar">
+          <ui-icon name="User" [size]="28" />
+        </div>
+        <div class="consultant-profile__info">
+          <h1 class="consultant-profile__name">{{ m.name }}</h1>
+          <span class="consultant-profile__email">{{ m.email }}</span>
+        </div>
+        <ui-badge variant="info" size="sm">{{ m.role }}</ui-badge>
+      </div>
+
+      <!-- Profile Stats -->
+      @if (profile(); as p) {
+        <div class="consultant-profile__stats">
+          <div class="consultant-profile__stat">
+            <span class="consultant-profile__stat-value">{{ p.currentCases }}/{{ p.maxCases }}</span>
+            <span class="consultant-profile__stat-label">{{ t('consultantProfile.caseLoad') }}</span>
+          </div>
+          <div class="consultant-profile__stat">
+            <span class="consultant-profile__stat-value">{{ p.currentCrisis }}/{{ p.maxCrisisCases }}</span>
+            <span class="consultant-profile__stat-label">{{ t('consultantProfile.crisisLoad') }}</span>
+          </div>
+          <div class="consultant-profile__stat">
+            <span class="consultant-profile__stat-value">{{ m.resolvedThisMonth }}</span>
+            <span class="consultant-profile__stat-label">{{ t('consultantProfile.resolvedMonth') }}</span>
+          </div>
+          <div class="consultant-profile__stat">
+            <span class="consultant-profile__stat-value">{{ m.avgResponseHours }}{{ t('supervisor.hours') }}</span>
+            <span class="consultant-profile__stat-label">{{ t('consultantProfile.avgResponse') }}</span>
+          </div>
+        </div>
+
+        <!-- Specializations & Languages -->
+        <div class="consultant-profile__tags">
+          @if (p.specializations.length > 0) {
+            <div class="consultant-profile__tag-group">
+              <span class="consultant-profile__tag-title">{{ t('consultantProfile.specializations') }}</span>
+              <div class="consultant-profile__tag-list">
+                @for (spec of p.specializations; track spec) {
+                  <ui-badge variant="neutral" size="sm">{{ spec }}</ui-badge>
+                }
+              </div>
+            </div>
+          }
+          @if (p.languages.length > 0) {
+            <div class="consultant-profile__tag-group">
+              <span class="consultant-profile__tag-title">{{ t('consultantProfile.languages') }}</span>
+              <div class="consultant-profile__tag-list">
+                @for (lang of p.languages; track lang) {
+                  <ui-badge variant="info" size="sm">{{ lang }}</ui-badge>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Active Cases -->
+      <div class="consultant-profile__section">
+        <h2 class="consultant-profile__section-title">
+          {{ t('consultantProfile.activeCases') }} ({{ activeCases().length }})
+        </h2>
+        @if (activeCases().length === 0) {
+          <p class="consultant-profile__empty">{{ t('consultantProfile.noActiveCases') }}</p>
+        } @else {
+          <table class="consultant-profile__table">
+            <thead>
+              <tr>
+                <th>{{ t('staffCases.colName') }}</th>
+                <th>{{ t('staffCases.colTopic') }}</th>
+                <th>{{ t('staffCases.colStatus') }}</th>
+                <th>{{ t('staffCases.colPriority') }}</th>
+                <th>{{ t('staffCases.colLastActivity') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (caseItem of activeCases(); track caseItem.id) {
+                <tr class="consultant-profile__row" (click)="onCaseClick(caseItem.id)">
+                  <td class="consultant-profile__cell-name">{{ caseItem.personName }}</td>
+                  <td>{{ caseItem.topic }}</td>
+                  <td>
+                    <ui-badge [variant]="getStatusVariant(caseItem.status)" size="sm">
+                      {{ t('staffCases.status.' + caseItem.status) }}
+                    </ui-badge>
+                  </td>
+                  <td>
+                    <ui-badge [variant]="getPriorityVariant(caseItem.priority)" size="sm">
+                      {{ t('staffCases.priority.' + caseItem.priority) }}
+                    </ui-badge>
+                  </td>
+                  <td class="consultant-profile__cell-date">
+                    {{ caseItem.lastMessageAt ? (caseItem.lastMessageAt | date:'mediumDate') : (caseItem.assignedAt | date:'mediumDate') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <!-- Completed Cases -->
+      <div class="consultant-profile__section">
+        <h2 class="consultant-profile__section-title">
+          {{ t('consultantProfile.completedCases') }} ({{ completedCases().length }})
+        </h2>
+        @if (completedCases().length === 0) {
+          <p class="consultant-profile__empty">{{ t('consultantProfile.noCompletedCases') }}</p>
+        } @else {
+          <table class="consultant-profile__table">
+            <thead>
+              <tr>
+                <th>{{ t('staffCases.colName') }}</th>
+                <th>{{ t('staffCases.colTopic') }}</th>
+                <th>{{ t('staffCases.colStatus') }}</th>
+                <th>{{ t('staffCases.colLastActivity') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (caseItem of completedCases(); track caseItem.id) {
+                <tr class="consultant-profile__row" (click)="onCaseClick(caseItem.id)">
+                  <td class="consultant-profile__cell-name">{{ caseItem.personName }}</td>
+                  <td>{{ caseItem.topic }}</td>
+                  <td>
+                    <ui-badge [variant]="getStatusVariant(caseItem.status)" size="sm">
+                      {{ t('staffCases.status.' + caseItem.status) }}
+                    </ui-badge>
+                  </td>
+                  <td class="consultant-profile__cell-date">
+                    {{ caseItem.lastMessageAt ? (caseItem.lastMessageAt | date:'mediumDate') : (caseItem.assignedAt | date:'mediumDate') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    } @else {
+      <p class="consultant-profile__empty">{{ t('consultantProfile.notFound') }}</p>
+    }
+  </section>
+</ng-container>

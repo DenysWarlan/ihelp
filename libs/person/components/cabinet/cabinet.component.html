@@ -34,6 +34,11 @@
               </div>
             </div>
             <button class="cabinet__green-btn" (click)="onWriteConsultant()">{{ t('cabinet.write') }}</button>
+          } @else if (facade.dashboard()?.caseStatus) {
+            <div class="consultant-card__waiting">
+              <ui-icon name="Clock" [size]="24" color="var(--sai-brand)" />
+              <p class="consultant-card__waiting-text">{{ t('cabinet.waitingForConsultant') }}</p>
+            </div>
           } @else {
             <p class="consultant-card__empty">{{ t('cabinet.noConsultant') }}</p>
             <button class="cabinet__green-btn" (click)="onStartConversation()">{{ t('cabinet.startConversation') }}</button>

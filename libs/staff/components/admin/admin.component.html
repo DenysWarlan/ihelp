@@ -75,6 +75,14 @@
 
       <!-- Navigation Cards -->
       <div class="nav-grid">
+        <a routerLink="../admin/cases" class="nav-card">
+          <div class="nav-card__icon">
+            <ui-icon name="FolderOpen" [size]="24" color="var(--ihelp-accent)" />
+          </div>
+          <span class="nav-card__title">{{ t('adminCases.navTitle') }}</span>
+          <span class="nav-card__desc">{{ t('adminCases.navDesc') }}</span>
+        </a>
+
         <a routerLink="../users" class="nav-card">
           <div class="nav-card__icon">
             <ui-icon name="Users" [size]="24" color="var(--ihelp-accent)" />

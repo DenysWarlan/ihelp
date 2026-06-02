@@ -75,6 +75,23 @@
             }
           </div>
 
+          <!-- Progress Section -->
+          <div class="case-detail__progress-section">
+            <h3 class="case-detail__section-title">{{ t('staffCaseDetail.progressTitle') }}</h3>
+            <div class="case-detail__progress-stats">
+              <div class="case-detail__progress-stat">
+                <ui-icon name="MessageCircle" [size]="16" color="var(--ihelp-accent)" />
+                <span class="case-detail__progress-value">{{ messagesCount() }}</span>
+                <span class="case-detail__progress-label">{{ t('staffCaseDetail.messages') }}</span>
+              </div>
+              <div class="case-detail__progress-stat">
+                <ui-icon name="FileText" [size]="16" color="var(--ihelp-accent)" />
+                <span class="case-detail__progress-value">{{ notesCount() }}</span>
+                <span class="case-detail__progress-label">{{ t('staffCaseDetail.notes') }}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="case-detail__notes-section">
             <h3 class="case-detail__section-title">{{ t('staffCaseDetail.privateNotes') }}</h3>
             @for (note of c.notes; track note.id) {
@@ -87,10 +104,49 @@
             }
           </div>
 
-          <ui-button variant="primary" (click)="onScheduleMeeting()">
-            <ui-icon name="Calendar" [size]="16" />
-            {{ t('staffCaseDetail.scheduleMeeting') }}
-          </ui-button>
+          @if (error()) {
+            <div class="case-detail__error">
+              <ui-icon name="AlertTriangle" [size]="16" />
+              <span>{{ error() }}</span>
+            </div>
+          }
+
+          <div class="case-detail__sidebar-actions">
+            <ui-button variant="primary" (click)="onScheduleMeeting()">
+              <ui-icon name="Calendar" [size]="16" />
+              {{ t('staffCaseDetail.scheduleMeeting') }}
+            </ui-button>
+            @if (c.consultantName) {
+              <ui-button variant="secondary" (click)="onReassign()">
+                <ui-icon name="UserSwitch" [size]="16" />
+                {{ t('staffCaseDetail.reassign') }}
+              </ui-button>
+            }
+            @if (canComplete()) {
+              <ui-button variant="secondary" (click)="onCompleteCase()">
+                <ui-icon name="CheckCircle" [size]="16" />
+                {{ t('staffCaseDetail.completeCase') }}
+              </ui-button>
+            }
+          </div>
+
+          <!-- Complete confirmation -->
+          @if (showCompleteConfirm()) {
+            <div class="case-detail__confirm-overlay">
+              <div class="case-detail__confirm-dialog">
+                <h3 class="case-detail__confirm-title">{{ t('staffCaseDetail.confirmCompleteTitle') }}</h3>
+                <p class="case-detail__confirm-text">{{ t('staffCaseDetail.confirmCompleteText') }}</p>
+                <div class="case-detail__confirm-actions">
+                  <ui-button variant="secondary" size="sm" (click)="onCancelComplete()">
+                    {{ t('common.cancel') }}
+                  </ui-button>
+                  <ui-button variant="primary" size="sm" (click)="onConfirmComplete()">
+                    {{ t('staffCaseDetail.confirmComplete') }}
+                  </ui-button>
+                </div>
+              </div>
+            </div>
+          }
         </div>
       </div>
     } @else {

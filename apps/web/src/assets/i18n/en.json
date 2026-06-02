@@ -4,7 +4,8 @@
     "signOut": "Sign out",
     "home": "Home",
     "comingSoon": "Coming soon",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "cancel": "Cancel"
   },
   "nav": {
     "courses": "Courses",
@@ -171,6 +172,7 @@
     "slaPlaceholder": "SLA monitoring coming soon.",
     "assignment": "Assignment",
     "assignmentPlaceholder": "Assignment coming soon.",
+    "courses": "Courses",
     "workload": "Workload",
     "workloadPlaceholder": "Workload monitoring coming soon.",
     "crisis": "Crisis",
@@ -183,6 +185,9 @@
     "auditLogPlaceholder": "Audit log coming soon.",
     "gdpr": "GDPR",
     "gdprPlaceholder": "GDPR tools coming soon."
+  },
+  "consultant": {
+    "coursesDesc": "Browse available courses and learning materials"
   },
   "staffLogin": {
     "title": "Staff Sign In",
@@ -235,6 +240,7 @@
     "settings": "Settings",
     "notLinked": "Not linked",
     "startConversation": "Start conversation",
+    "waitingForConsultant": "Please wait, your consultant will contact you soon",
     "viewAll": "View all"
   },
   "requestHelp": {
@@ -286,6 +292,19 @@
     "colDate": "Date",
     "viewAll": "View all"
   },
+  "adminCases": {
+    "title": "All Cases",
+    "subtitle": "Overview of all active cases in the system",
+    "navTitle": "Cases",
+    "navDesc": "View all cases and their statuses",
+    "searchPlaceholder": "Search by name, consultant or topic…",
+    "colConsultant": "Consultant",
+    "unassigned": "Unassigned",
+    "statTotal": "Total",
+    "statWaiting": "Waiting",
+    "statInProgress": "In Progress",
+    "statResolved": "Resolved"
+  },
   "staffCases": {
     "empty": "No cases assigned yet",
     "assigned": "Assigned",
@@ -335,10 +354,18 @@
     "noMessages": "No messages",
     "messagePlaceholder": "Type a message...",
     "scheduleMeeting": "Schedule Meeting",
-    "internal": "Internal"
+    "reassign": "Reassign",
+    "internal": "Internal",
+    "progressTitle": "Progress",
+    "messages": "messages",
+    "completeCase": "Complete Case",
+    "confirmCompleteTitle": "Complete this case?",
+    "confirmCompleteText": "Are you sure you want to complete this case? The status will be changed to Completed.",
+    "confirmComplete": "Yes, complete"
   },
   "staffMeetings": {
     "empty": "No meetings scheduled",
+    "scheduleMeeting": "Schedule a meeting",
     "minutes": "min",
     "join": "Join",
     "backToCase": "Back to case",
@@ -706,6 +733,20 @@
     "escalationRate": "Escalation Rate",
     "avgResponseTimeCrisis": "Avg Response Time"
   },
+  "consultantProfile": {
+    "backToTeam": "Back to team",
+    "caseLoad": "Case Load",
+    "crisisLoad": "Crisis",
+    "resolvedMonth": "Resolved/mo",
+    "avgResponse": "Avg Response",
+    "specializations": "Specializations",
+    "languages": "Languages",
+    "activeCases": "Active Cases",
+    "completedCases": "Completed Cases",
+    "noActiveCases": "No active cases",
+    "noCompletedCases": "No completed cases",
+    "notFound": "Consultant profile not found"
+  },
   "layout": {
     "appName": "iHelp",
     "expandSidebar": "Expand sidebar",
@@ -778,6 +819,7 @@
     "triggerWarning": "This lesson may contain sensitive content. Please reach out to your consultant if you need support.",
     "videoNotSupported": "Your browser does not support video playback.",
     "notFound": "Lesson not found.",
-    "nextLesson": "Next lesson"
+    "nextLesson": "Next lesson",
+    "backToCourses": "Back to courses"
   }
 }

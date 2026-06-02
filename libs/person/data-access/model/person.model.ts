@@ -6,6 +6,8 @@ export interface PersonDashboard {
   readonly recentActivity: PersonActivity[];
   readonly consultantName: string | null;
   readonly consultantSpecialty: string | null;
+  readonly caseStatus: string | null;
+  readonly caseTopic: string | null;
 }
 
 export interface PersonActivity {

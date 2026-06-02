@@ -127,6 +127,12 @@
   gap: var(--ihelp-space-4);
 }
 
+.case-detail__sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
 .case-detail__section-title {
   font-size: 16px;
   font-weight: 600;
@@ -179,9 +185,100 @@
   color: var(--ihelp-text-muted);
 }
 
+// Progress section
+.case-detail__progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+  padding-bottom: var(--ihelp-space-3);
+  border-bottom: 1px solid var(--ihelp-border);
+}
+
+.case-detail__progress-stats {
+  display: flex;
+  gap: var(--ihelp-space-3);
+}
+
+.case-detail__progress-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-1);
+  padding: var(--ihelp-space-2);
+  border-radius: 8px;
+  background-color: var(--ihelp-bg-secondary, #f9fafb);
+  flex: 1;
+}
+
+.case-detail__progress-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+}
+
+.case-detail__progress-label {
+  font-size: 12px;
+  color: var(--ihelp-text-muted);
+}
+
 .case-detail__no-notes {
   font-size: 14px;
   color: var(--ihelp-text-muted);
+}
+
+// Error banner
+.case-detail__error {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2, 8px);
+  padding: var(--ihelp-space-2, 8px) var(--ihelp-space-3, 12px);
+  background-color: var(--ihelp-error-bg, #fef2f2);
+  color: var(--ihelp-error, #dc2626);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+// Confirmation dialog
+.case-detail__confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.case-detail__confirm-dialog {
+  background-color: var(--ihelp-bg-primary, #fff);
+  border-radius: 12px;
+  padding: var(--ihelp-space-5, 24px);
+  max-width: 400px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.case-detail__confirm-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.case-detail__confirm-text {
+  font-size: 14px;
+  color: var(--ihelp-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.case-detail__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ihelp-space-2);
 }
 
 @media (max-width: 900px) {

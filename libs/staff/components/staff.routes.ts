@@ -58,6 +58,12 @@ export const staffRoutes: Routes = [
           import('./admin/admin.component').then((m) => m.AdminComponent),
       },
       {
+        path: 'admin/cases',
+        canActivate: [roleGuard(...ADMIN_ONLY)],
+        loadComponent: () =>
+          import('./admin-cases/admin-cases.component').then((m) => m.AdminCasesComponent),
+      },
+      {
         path: 'supervisor/cases',
         canActivate: [roleGuard(...SUPER_ONLY)],
         loadComponent: () =>
@@ -129,6 +135,14 @@ export const staffRoutes: Routes = [
         loadComponent: () =>
           import('./team/team.component').then(
             (m) => m.TeamComponent,
+          ),
+      },
+      {
+        path: 'team/:userId',
+        canActivate: [roleGuard(...SUPER_ONLY)],
+        loadComponent: () =>
+          import('./consultant-profile/consultant-profile.component').then(
+            (m) => m.ConsultantProfileComponent,
           ),
       },
       {
