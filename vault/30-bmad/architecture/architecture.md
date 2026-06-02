@@ -1,6 +1,6 @@
 # "Є турбота" — Технічна архітектура
 
-> Care Coordination Platform | Angular 19 + NestJS + PostgreSQL + Socket.io + Prisma
+> Care Coordination Platform | Angular 21 + NestJS 11 + PostgreSQL + Socket.io + Prisma 7
 
 ---
 
@@ -713,7 +713,7 @@ model QualityMetric {
 
 ### Ендпоінти по модулях
 
-#### AuthModule
+#### AuthModule (6 контролерів)
 
 ```
 // --- Person (social login) ---
@@ -721,23 +721,44 @@ GET    /api/v1/auth/google             -- redirect на Google OAuth
 GET    /api/v1/auth/google/callback    -- Google callback → JWT
 GET    /api/v1/auth/facebook           -- redirect на Facebook OAuth
 GET    /api/v1/auth/facebook/callback  -- Facebook callback → JWT
-POST   /api/v1/auth/telegram           -- Telegram Login Widget payload → JWT
+GET    /api/v1/auth/telegram           -- redirect Telegram Login Widget
+GET    /api/v1/auth/telegram/callback  -- Telegram callback → JWT
 
 // --- Staff (email + password) ---
-POST   /api/v1/auth/login             -- вхід для staff (email + password)
-POST   /api/v1/auth/forgot-password   -- запит на відновлення паролю (staff)
-POST   /api/v1/auth/reset-password    -- встановлення нового паролю (staff)
+POST   /api/v1/auth/staff/login       -- вхід для staff (email + password)
+POST   /api/v1/auth/person/login      -- вхід для person (email + password, якщо є)
+POST   /api/v1/auth/set-password      -- встановлення паролю (staff invite claim)
+
+// --- Provider linking ---
+POST   /api/v1/auth/link/:provider           -- прив'язати додатковий провайдер
+GET    /api/v1/auth/link/:provider/callback  -- callback після прив'язки
+DELETE /api/v1/auth/providers/:linkId        -- відв'язати провайдер
+GET    /api/v1/auth/providers               -- список прив'язаних провайдерів
+// EDGE CASE #14: Провайдер вже прив'язаний до іншого акаунту → Catch P2002 unique violation, повернути 409 Conflict
+// EDGE CASE: Person відв'язує єдиний auth provider → Перевірити, що залишається хоча б один інший метод автентифікації
 
 // --- Спільні ---
-POST   /api/v1/auth/refresh           -- оновлення токена
-POST   /api/v1/auth/logout            -- вихід
-GET    /api/v1/auth/me                -- поточний користувач
-POST   /api/v1/auth/link-provider     -- прив'язати додатковий провайдер до існуючого акаунту
-// EDGE CASE #14: Провайдер вже прив'язаний до іншого акаунту → Catch P2002 unique violation на @@unique([provider, providerId]), повернути 409 Conflict з інструкціями для merge акаунтів
-DELETE /api/v1/auth/unlink-provider/:provider -- відв'язати провайдер
-// EDGE CASE: Person відв'язує єдиний auth provider → Перевірити, що залишається хоча б один інший метод автентифікації
-// (passwordHash != null АБО інші AuthProvider записи). Якщо це останній метод — повернути 409 Conflict з повідомленням
-// "Неможливо відв'язати останній метод автентифікації. Спочатку додайте інший провайдер або встановіть пароль."
+POST   /api/v1/auth/refresh           -- оновлення токена (token family rotation)
+POST   /api/v1/auth/logout            -- вихід (revoke session)
+GET    /api/v1/auth/me                -- поточний користувач + роль
+
+// --- MFA ---
+POST   /api/v1/auth/mfa/setup         -- отримати QR код для TOTP
+POST   /api/v1/auth/mfa/enable        -- підтвердити код і активувати MFA
+POST   /api/v1/auth/mfa/verify        -- верифікація OTP при вході (публічний)
+
+// --- Break-glass (аварійний доступ) ---
+POST   /api/v1/auth/break-glass       -- екстрений вхід адміна (логується в AuditLog)
+
+// --- Invite ---
+POST   /api/v1/auth/invite            -- створити запрошення (email відправляється через Resend)
+POST   /api/v1/auth/invite/claim      -- прийняти запрошення (встановити пароль)
+POST   /api/v1/auth/invite/:id/resend -- повторно надіслати email
+
+// --- GDPR Consent ---
+POST   /api/v1/consent/grant          -- надати згоду
+POST   /api/v1/consent/withdraw-sensitive -- відкликати
+GET    /api/v1/consent/status         -- поточний статус
 ```
 
 #### UsersModule
@@ -858,6 +879,162 @@ GET    /api/v1/channels/instagram/webhook      -- Instagram verification
 POST   /api/v1/channels/facebook/webhook      -- Facebook webhook
 GET    /api/v1/channels/facebook/webhook       -- Facebook verification
 POST   /api/v1/channels/viber/webhook         -- Viber webhook
+```
+
+#### InviteModule (частина AuthModule)
+
+```
+POST   /api/v1/auth/invite              -- створити запрошення для staff (admin/coordinator)
+POST   /api/v1/auth/invite/claim        -- прийняти запрошення (публічний, з token)
+POST   /api/v1/auth/invite/:id/resend   -- повторно надіслати email запрошення
+```
+
+#### MfaModule (частина AuthModule)
+
+```
+POST   /api/v1/auth/mfa/setup           -- початок налаштування MFA (отримання QR)
+POST   /api/v1/auth/mfa/enable          -- підтвердження та активація MFA
+POST   /api/v1/auth/mfa/verify          -- верифікація OTP при вході (публічний)
+```
+
+#### ConsentModule
+
+```
+POST   /api/v1/consent/grant            -- надати згоду (GENERAL_DATA або SENSITIVE_DATA)
+POST   /api/v1/consent/withdraw-sensitive -- відкликати згоду на чутливі дані
+GET    /api/v1/consent/status           -- поточний статус згод
+```
+
+#### TransferModule
+
+```
+POST   /api/v1/transfers/vacation       -- створити трансфер на час відпустки
+POST   /api/v1/transfers/permanent      -- створити постійний трансфер
+POST   /api/v1/transfers/:id/accept     -- прийняти трансфер (новий консультант)
+GET    /api/v1/transfers/consultant/:userId/pending -- очікуючі трансфери
+GET    /api/v1/transfers/case/:caseId/history      -- історія трансферів кейсу
+GET    /api/v1/transfers/consultant/:userId/validate-deactivation -- перевірка перед деактивацією
+```
+
+#### WorkloadModule
+
+```
+GET    /api/v1/workload                 -- список навантаження консультантів
+GET    /api/v1/workload/dashboard       -- дашборд навантаження (координатор)
+GET    /api/v1/workload/consultants/:userId/cases -- кейси конкретного консультанта
+PATCH  /api/v1/workload/consultants/:userId/limits -- зміна лімітів (maxCases, maxCrisis)
+```
+
+#### GdprModule
+
+```
+POST   /api/v1/gdpr/deletion-request    -- запит на видалення даних (Person)
+GET    /api/v1/gdpr/deletion-request    -- статус запиту
+DELETE /api/v1/gdpr/deletion-request    -- скасування запиту
+POST   /api/v1/gdpr/export-request      -- запит на експорт даних (Person)
+// Admin endpoints for audit and four-eyes approval
+```
+
+#### AdminModule
+
+```
+GET    /api/v1/admin/dashboard          -- загальна статистика платформи
+GET    /api/v1/admin/users              -- список користувачів з фільтрами
+POST   /api/v1/admin/users              -- створити користувача
+GET    /api/v1/admin/users/:id          -- деталі користувача
+PATCH  /api/v1/admin/users/:id          -- редагування користувача
+DELETE /api/v1/admin/users/:id          -- деактивація
+GET    /api/v1/admin/duplicates         -- виявлені дублікати
+GET    /api/v1/admin/duplicates/history -- історія об'єднань
+GET    /api/v1/admin/duplicates/:groupId -- деталі групи дублікатів
+POST   /api/v1/admin/duplicates/:groupId/dismiss -- відхилити як не-дублікат
+POST   /api/v1/admin/duplicates/:groupId/merge   -- об'єднати акаунти
+POST   /api/v1/admin/invites            -- створити запрошення
+GET    /api/v1/admin/invites            -- список запрошень
+DELETE /api/v1/admin/invites/:id        -- скасувати запрошення
+GET    /api/v1/admin/settings/:category -- налаштування по категорії
+PATCH  /api/v1/admin/settings/:category -- оновити налаштування
+GET    /api/v1/admin/integrations       -- список інтеграцій
+PATCH  /api/v1/admin/integrations/:key  -- оновити інтеграцію
+POST   /api/v1/admin/integrations/:key/test -- тестувати інтеграцію
+GET    /api/v1/admin/duty/weekly-schedule   -- тижневий графік чергувань
+GET    /api/v1/admin/audit-log          -- журнал аудиту
+```
+
+#### SupervisorModule
+
+```
+GET    /api/v1/supervisor/cases         -- кейси для перевірки (read-only)
+GET    /api/v1/supervisor/cases/:id     -- деталі кейсу для супервізора
+POST   /api/v1/supervisor/cases/:id/comment -- коментар супервізора
+GET    /api/v1/supervisor/crisis-history    -- історія кризових інцидентів
+```
+
+#### CrisisModule (Admin)
+
+```
+GET    /api/v1/crisis/admin/keywords    -- список ключових слів
+POST   /api/v1/crisis/admin/keywords    -- додати ключове слово
+PATCH  /api/v1/crisis/admin/keywords/:id -- оновити
+DELETE /api/v1/crisis/admin/keywords/:id -- видалити
+GET    /api/v1/crisis/admin/auto-replies    -- шаблони авто-відповідей
+POST   /api/v1/crisis/admin/auto-replies    -- додати шаблон
+PATCH  /api/v1/crisis/admin/auto-replies/:id -- оновити
+DELETE /api/v1/crisis/admin/auto-replies/:id -- видалити
+GET    /api/v1/crisis/alerts            -- список кризових алертів
+POST   /api/v1/crisis/alerts/:alertId/acknowledge -- підтвердити обробку
+GET    /api/v1/crisis/duty/schedules    -- графіки чергувань
+GET    /api/v1/crisis/duty/schedules/current -- поточне чергування
+POST   /api/v1/crisis/duty/schedules    -- створити запис
+PATCH  /api/v1/crisis/duty/schedules/:id -- оновити
+DELETE /api/v1/crisis/duty/schedules/:id -- видалити
+GET    /api/v1/crisis/duty/gaps         -- прогалини в графіку
+```
+
+#### SlaModule
+
+```
+GET    /api/v1/cases/:caseId/sla        -- SLA таймер для кейсу
+GET    /api/v1/sla/dashboard            -- SLA дашборд (всі активні таймери)
+GET    /api/v1/sla/overview             -- загальний огляд SLA метрик
+```
+
+#### StorageModule
+
+```
+POST   /api/v1/storage/upload           -- завантаження файлу
+GET    /api/v1/storage/:key/url         -- presigned URL для доступу
+DELETE /api/v1/storage/:key             -- видалення файлу
+```
+
+#### StaffChatModule (частина ChatModule)
+
+```
+GET    /api/v1/chat/staff/conversations              -- список бесід staff
+GET    /api/v1/chat/staff/conversations/:id/messages -- повідомлення бесіди
+POST   /api/v1/chat/staff/conversations/:id/messages -- надіслати повідомлення
+PUT    /api/v1/chat/staff/conversations/:id/read     -- позначити прочитаним
+```
+
+#### LMS (Admin courses)
+
+```
+POST   /api/v1/admin/courses            -- створити курс
+GET    /api/v1/admin/courses            -- список курсів (всі статуси)
+GET    /api/v1/admin/courses/:id        -- деталі курсу
+PATCH  /api/v1/admin/courses/:id        -- оновити курс
+DELETE /api/v1/admin/courses/:id        -- видалити курс
+POST   /api/v1/admin/courses/:id/status -- змінити статус (publish/hide/archive)
+POST   /api/v1/admin/courses/:id/lessons -- додати урок
+GET    /api/v1/admin/courses/:id/lessons -- список уроків
+PATCH  /api/v1/admin/courses/:id/lessons/:lessonId -- оновити урок
+DELETE /api/v1/admin/courses/:id/lessons/:lessonId -- видалити урок
+PATCH  /api/v1/admin/courses/:id/lessons/reorder   -- змінити порядок уроків
+POST   /api/v1/admin/courses/:id/publish           -- опублікувати з версіюванням
+GET    /api/v1/admin/courses/:id/versions          -- історія версій
+POST   /api/v1/admin/courses/import     -- імпорт курсу
+GET    /api/v1/admin/courses/:id/export -- експорт курсу
+POST   /api/v1/admin/courses/:id/force-update-enrollments -- оновити enrollments до нової версії
 ```
 
 ---
@@ -2376,82 +2553,145 @@ CMD ["node", "dist/main.js"]
 
 ## 12. Структура модулів NestJS
 
-### Дерево проекту
+### Дерево проекту (актуальний стан — 2026-05-31)
 
 ```
 src/
 +-- main.ts
 +-- app.module.ts
 +-- common/
-|   +-- decorators/        -- @Roles, @CurrentUser
-|   +-- filters/           -- GlobalExceptionFilter (stack trace в лог, маскування у відповіді — секція 13.5)
-|   +-- guards/            -- JwtAuthGuard, RolesGuard
-|   +-- interceptors/      -- LoggingInterceptor (PII scrubbing — секція 13.5), TransformInterceptor
+|   +-- decorators/        -- @Roles, @CurrentUser, @Public
+|   +-- filters/           -- GlobalExceptionFilter (stack trace в лог, маскування у відповіді)
+|   +-- guards/            -- JwtAuthGuard, RolesGuard, CaseAccessGuard
+|   +-- interceptors/      -- LoggingInterceptor (PII scrubbing), TransformInterceptor
 |   +-- pipes/             -- ValidationPipe
 |   +-- dto/               -- PaginationDto, SortDto
 |   +-- interfaces/        -- BaseService, PagedResult
+|   +-- config/            -- конфігурація (rate limits, CORS, etc.)
+|   +-- logging/           -- Pino structured logging з correlation IDs
+|   +-- mail/              -- MailService (Resend API)
+|   +-- middleware/        -- Request correlation, security headers
+|   +-- security/          -- Helmet, CORS, rate limiting
 |
-+-- auth/
++-- auth/                  -- 6 контролерів
 |   +-- auth.module.ts
-|   +-- auth.controller.ts
+|   +-- auth.controller.ts       -- OAuth (Google/Facebook/Telegram/GitLab/Bitbucket), staff/person login, refresh, logout, link/unlink provider, /me
+|   +-- invite.controller.ts     -- POST create, POST claim, POST /:id/resend
+|   +-- mfa.controller.ts        -- POST /setup, POST /enable, POST /verify
+|   +-- break-glass.controller.ts -- POST (emergency admin login)
+|   +-- consent.controller.ts    -- POST /grant, POST /withdraw-sensitive, GET /status
+|   +-- telegram-redirect.controller.ts -- GET / (hash fragment handler)
 |   +-- auth.service.ts
-|   +-- strategies/        -- JwtStrategy, LocalStrategy
+|   +-- invite.service.ts
+|   +-- mfa.service.ts
+|   +-- strategies/        -- JwtStrategy, GoogleStrategy, FacebookStrategy, TelegramStrategy, GitLabStrategy, BitbucketStrategy
 |   +-- guards/            -- JwtAuthGuard, RefreshTokenGuard
-|   +-- dto/               -- LoginDto, RegisterDto
+|   +-- dto/
 |
 +-- users/
 |   +-- users.module.ts
-|   +-- users.controller.ts
 |   +-- users.service.ts
-|   +-- persons/
-|   |   +-- persons.controller.ts
-|   |   +-- persons.service.ts
-|   +-- consultants/
-|   |   +-- consultants.controller.ts
-|   |   +-- consultants.service.ts
 |   +-- dto/
 |
-+-- cases/
++-- cases/                 -- 5 контролерів
 |   +-- cases.module.ts
-|   +-- cases.controller.ts
+|   +-- cases.controller.ts      -- CRUD, dashboard, status change, assign
+|   +-- case-audit.controller.ts -- GET audit entries (supervisor+)
+|   +-- feedback.controller.ts   -- POST submit, GET view
+|   +-- tags.controller.ts       -- CRUD tags, add/remove from case
+|   +-- notes.controller.ts      -- CRUD notes (author-only edit)
 |   +-- cases.service.ts
-|   +-- notes/
-|   |   +-- notes.controller.ts
-|   |   +-- notes.service.ts
 |   +-- guards/            -- CaseAccessGuard
 |   +-- dto/
 |
-+-- chat/
++-- chat/                  -- 3 контролери + gateway
 |   +-- chat.module.ts
-|   +-- chat.gateway.ts       -- Socket.io Gateway
-|   +-- messages.controller.ts
+|   +-- chat.gateway.ts          -- Socket.io Gateway (/chat namespace)
+|   +-- message.controller.ts    -- REST fallback
+|   +-- staff-chat.controller.ts -- GET conversations, messages, POST send, PUT read
+|   +-- telegram-webhook.controller.ts -- POST webhook (validates secret token)
 |   +-- messages.service.ts
+|   +-- staff-chat.service.ts
 |   +-- dto/
 |
-+-- courses/
-|   +-- courses.module.ts
-|   +-- courses.controller.ts
++-- lms/                   -- 4 контролери (courses + progress)
+|   +-- lms.module.ts
+|   +-- courses.controller.ts    -- GET list (public), GET my-enrollments, GET /:id, POST enroll
+|   +-- progress.controller.ts   -- complete/skip lesson, GET progress, reset, drop, struggling
+|   +-- person-progress.controller.ts -- GET /cases/:caseId/person-progress (consultant view)
+|   +-- admin-courses.controller.ts  -- Full CRUD, publish, versioning, import/export, lesson management
 |   +-- courses.service.ts
-|   +-- lessons/
-|   |   +-- lessons.controller.ts
-|   |   +-- lessons.service.ts
-|   +-- enrollments/
-|   |   +-- enrollments.controller.ts
-|   |   +-- enrollments.service.ts
+|   +-- progress.service.ts
 |   +-- dto/
 |
 +-- meetings/
 |   +-- meetings.module.ts
-|   +-- meetings.controller.ts
+|   +-- meetings.controller.ts   -- POST create, GET by case/consultant/person, cancel, complete
 |   +-- meetings.service.ts
 |   +-- dto/
 |
-+-- notifications/
-|   +-- notifications.module.ts
-|   +-- notifications.controller.ts
-|   +-- notifications.service.ts
-|   +-- notifications.gateway.ts  -- Socket.io
++-- assignment/            -- 3 контролери
+|   +-- assignment.module.ts
+|   +-- assignment.controller.ts -- POST auto-assign, manual-assign, reassign
+|   +-- assignment-suggestions.controller.ts -- GET suggestions, POST confirm/reject
+|   +-- consultant-profile.controller.ts -- CRUD consultant profiles
+|   +-- assignment.service.ts
 |   +-- dto/
+|
++-- sla/                   -- 2 контролери + cron
+|   +-- sla.module.ts
+|   +-- sla.controller.ts       -- GET /cases/:caseId/sla, GET /sla/dashboard, GET /sla/overview
+|   +-- sla.service.ts          -- Cron-based monitoring (5 min normal, 1 min crisis)
+|   +-- dto/
+|
++-- crisis/                -- 3 контролери
+|   +-- crisis.module.ts
+|   +-- crisis-admin.controller.ts  -- CRUD keywords, CRUD auto-replies
+|   +-- crisis-alert.controller.ts  -- GET list, POST acknowledge
+|   +-- duty.controller.ts          -- CRUD duty schedules, GET current, GET gaps
+|   +-- crisis.service.ts           -- Keyword detection, auto-reply, escalation
+|   +-- dto/
+|
++-- transfer/
+|   +-- transfer.module.ts
+|   +-- transfer.controller.ts  -- POST vacation/permanent, POST accept, GET pending/history, validate-deactivation
+|   +-- transfer.service.ts
+|   +-- dto/
+|
++-- workload/
+|   +-- workload.module.ts
+|   +-- workload.controller.ts  -- GET list, GET dashboard, GET consultant cases, PATCH limits
+|   +-- workload.service.ts
+|   +-- dto/
+|
++-- gdpr/
+|   +-- gdpr.module.ts
+|   +-- gdpr.controller.ts     -- deletion-request, export-request, admin audit endpoints
+|   +-- gdpr.service.ts
+|   +-- dto/
+|
++-- admin/
+|   +-- admin.module.ts
+|   +-- admin.controller.ts    -- dashboard, users CRUD, duplicates (detect/merge/dismiss), invites, settings, integrations, duty schedule, audit-log
+|   +-- admin.service.ts
+|   +-- dto/
+|
++-- supervisor/
+|   +-- supervisor.module.ts
+|   +-- supervisor.controller.ts -- GET cases (read-only), GET case detail, POST comment, GET crisis-history
+|   +-- supervisor.service.ts
+|   +-- dto/
+|
++-- analytics/
+|   +-- analytics.module.ts
+|   +-- analytics.controller.ts -- team, team/members, consultants, inactive-cases, platform/cases, platform/meetings
+|   +-- analytics.service.ts
+|   +-- dto/
+|
++-- storage/
+|   +-- storage.module.ts
+|   +-- storage.controller.ts  -- POST upload, GET presigned URL, DELETE
+|   +-- storage.service.ts     -- S3/R2 integration
 |
 +-- channels/
 |   +-- channels.module.ts
@@ -2464,41 +2704,24 @@ src/
 |   |   +-- facebook.adapter.ts
 |   |   +-- viber.adapter.ts
 |   |   +-- web.adapter.ts
-|   +-- controllers/
-|   |   +-- telegram-webhook.controller.ts
-|   |   +-- instagram-webhook.controller.ts
-|   |   +-- facebook-webhook.controller.ts
-|   |   +-- viber-webhook.controller.ts
 |
-+-- assignment/
-|   +-- assignment.module.ts
-|   +-- assignment.controller.ts
-|   +-- assignment.service.ts
++-- events/                -- Event streaming / pub-sub infrastructure
+|   +-- events.module.ts
+|   +-- events.service.ts
 |
-+-- sla/
-|   +-- sla.module.ts
-|   +-- sla.service.ts        -- Cron-based monitoring
++-- health/
+|   +-- health.controller.ts   -- GET /health
 |
-+-- crisis/
-|   +-- crisis.module.ts
-|   +-- crisis.service.ts
-|   +-- crisis-keywords.ts
-|
-+-- analytics/
-|   +-- analytics.module.ts
-|   +-- analytics.controller.ts
-|   +-- analytics.service.ts
-|   +-- dto/
-|
-+-- files/
-|   +-- files.module.ts
-|   +-- files.controller.ts
-|   +-- files.service.ts      -- S3/R2 integration
++-- person-cabinet/
+|   +-- person-cabinet.module.ts
+|   +-- person-cabinet.controller.ts -- User profile & preferences API
 |
 +-- prisma/
     +-- prisma.module.ts
     +-- prisma.service.ts
 ```
+
+**Загальна статистика:** 33 контролери, 17+ модулів, ~150+ REST ендпоінтів
 
 ### Залежності між модулями
 
