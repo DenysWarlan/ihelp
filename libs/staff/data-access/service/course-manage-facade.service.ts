@@ -45,8 +45,12 @@ export class CourseManageFacade {
     hasTriggerWarning: false,
   });
 
-  loadCourses(): void {
-    this.store.loadCourses();
+  loadCourses(source?: 'staff'): void {
+    if (source === 'staff') {
+      this.store.loadStaffCourses();
+    } else {
+      this.store.loadCourses();
+    }
   }
 
   loadCourseDetail(id: string): void {
@@ -87,7 +91,7 @@ export class CourseManageFacade {
   }
 
   updateCourseField(
-    field: 'title' | 'description',
+    field: 'title' | 'description' | 'visibility',
     value: string
   ): void {
     const course = this.selectedCourse();

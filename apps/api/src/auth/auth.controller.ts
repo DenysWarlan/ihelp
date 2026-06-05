@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 import {
   ApiTags,
   ApiOperation,
@@ -30,6 +31,8 @@ import {
   RefreshTokenDto,
   StaffLoginDto,
   PersonLoginDto,
+  PhoneLoginDto,
+  PersonRegisterDto,
   SetPasswordDto,
 } from './auth.model.js';
 import { Public } from './decorators/public.decorator.js';
@@ -201,6 +204,7 @@ export class AuthController {
   // ---------------------------------------------------------------------------
 
   @Public()
+  @Throttle([{ ttl: 60_000, limit: 5 }])
   @Post('person/login')
   @ApiOperation({ summary: 'Person email/password login' })
   @ApiBody({ type: PersonLoginDto })
@@ -208,6 +212,36 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async personLogin(@Body() dto: PersonLoginDto) {
     return this.authService.personLogin(dto.email, dto.password);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Person Phone Login
+  // ---------------------------------------------------------------------------
+
+  @Public()
+  @Throttle([{ ttl: 60_000, limit: 5 }])
+  @Post('person/login/phone')
+  @ApiOperation({ summary: 'Person phone/password login' })
+  @ApiBody({ type: PhoneLoginDto })
+  @ApiResponse({ status: 200, description: 'Returns token pair' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  async personLoginByPhone(@Body() dto: PhoneLoginDto) {
+    return this.authService.personLoginByPhone(dto.phone, dto.password);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Person Registration
+  // ---------------------------------------------------------------------------
+
+  @Public()
+  @Throttle([{ ttl: 60_000, limit: 3 }])
+  @Post('person/register')
+  @ApiOperation({ summary: 'Register a new person account' })
+  @ApiBody({ type: PersonRegisterDto })
+  @ApiResponse({ status: 201, description: 'Returns token pair' })
+  @ApiResponse({ status: 409, description: 'User already exists' })
+  async personRegister(@Body() dto: PersonRegisterDto) {
+    return this.authService.registerPerson(dto.name, dto.password, dto.email, dto.phone);
   }
 
   // ---------------------------------------------------------------------------

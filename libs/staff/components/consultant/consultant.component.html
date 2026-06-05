@@ -2,6 +2,28 @@
   <section class="consultant-dashboard">
     <h1 class="consultant-dashboard__title">{{ t('staff.consultant') }}</h1>
 
+    <!-- Stats -->
+    @if (dashboard(); as d) {
+      <div class="consultant-dashboard__stats">
+        <div class="consultant-dashboard__stat">
+          <span class="consultant-dashboard__stat-value">{{ d.activeCases }}</span>
+          <span class="consultant-dashboard__stat-label">{{ t('consultant.activeCases') }}</span>
+        </div>
+        <div class="consultant-dashboard__stat">
+          <span class="consultant-dashboard__stat-value">{{ d.todayMeetings }}</span>
+          <span class="consultant-dashboard__stat-label">{{ t('consultant.todayMeetings') }}</span>
+        </div>
+        <div class="consultant-dashboard__stat">
+          <span class="consultant-dashboard__stat-value">{{ d.pendingCases }}</span>
+          <span class="consultant-dashboard__stat-label">{{ t('consultant.pendingCases') }}</span>
+        </div>
+        <div class="consultant-dashboard__stat">
+          <span class="consultant-dashboard__stat-value">{{ d.resolvedThisWeek }}</span>
+          <span class="consultant-dashboard__stat-label">{{ t('consultant.resolvedWeek') }}</span>
+        </div>
+      </div>
+    }
+
     <div class="consultant-dashboard__cards">
       <a routerLink="../cases" class="consultant-dashboard__link">
         <ui-card padding="md" [hoverable]="true">
@@ -15,7 +37,31 @@
         </ui-card>
       </a>
 
-      <a routerLink="/person/courses" class="consultant-dashboard__link">
+      <a routerLink="../chat" class="consultant-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="MessageCircle" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('consultant.chat') }}</span>
+              <span class="nav-card__desc">{{ t('consultant.chatDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../meetings" class="consultant-dashboard__link">
+        <ui-card padding="md" [hoverable]="true">
+          <div class="nav-card">
+            <ui-icon name="Calendar" [size]="28" color="var(--ihelp-accent)" />
+            <div class="nav-card__content">
+              <span class="nav-card__label">{{ t('consultant.meetings') }}</span>
+              <span class="nav-card__desc">{{ t('consultant.meetingsDesc') }}</span>
+            </div>
+          </div>
+        </ui-card>
+      </a>
+
+      <a routerLink="../courses" class="consultant-dashboard__link">
         <ui-card padding="md" [hoverable]="true">
           <div class="nav-card">
             <ui-icon name="BookOpen" [size]="28" color="var(--ihelp-accent)" />

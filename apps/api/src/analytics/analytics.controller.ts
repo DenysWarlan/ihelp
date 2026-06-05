@@ -2,10 +2,10 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Query,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiBadRequestResponse,
@@ -91,7 +91,7 @@ export class AnalyticsController {
   @ApiNotFoundResponse({ description: 'Consultant profile not found' })
   @ApiBadRequestResponse({ description: 'Invalid period or missing from date' })
   async getConsultantDetail(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Query() query: PeriodQueryDto,
   ) {
     return this.analyticsService.getConsultantDetail(

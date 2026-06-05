@@ -3,10 +3,10 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -95,7 +95,7 @@ export class TransferController {
   @ApiNotFoundResponse({ description: 'Transfer not found' })
   @ApiBadRequestResponse({ description: 'Transfer not in PENDING status' })
   async acceptMatch(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: AcceptTransferMatchDto,
     @Req() req: Request,
   ) {
@@ -111,7 +111,7 @@ export class TransferController {
   })
   @ApiResponse({ status: 200, description: 'List of pending transfer matches' })
   async getPendingTransfers(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('userId', ParseUuidPipe) userId: string,
   ) {
     return this.transferService.getPendingTransfers(userId);
   }
@@ -131,7 +131,7 @@ export class TransferController {
   @ApiResponse({ status: 200, description: 'List of transfer history entries' })
   @ApiNotFoundResponse({ description: 'Care case not found' })
   async getTransferHistory(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
   ) {
     return this.transferService.getTransferHistory(caseId);
   }
@@ -153,7 +153,7 @@ export class TransferController {
     description: 'Consultant has active cases that block deactivation',
   })
   async validateDeactivation(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('userId', ParseUuidPipe) userId: string,
   ) {
     await this.transferService.validateConsultantDeactivation(userId);
     return { canDeactivate: true };

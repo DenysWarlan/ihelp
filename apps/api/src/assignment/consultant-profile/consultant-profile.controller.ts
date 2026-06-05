@@ -3,10 +3,10 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -46,7 +46,7 @@ export class ConsultantProfileController {
   @ApiResponse({ status: 200, description: 'Consultant profile' })
   @ApiNotFoundResponse({ description: 'Profile not found' })
   async findByUserId(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('userId', ParseUuidPipe) userId: string,
   ): Promise<ConsultantProfileResponse> {
     return this.consultantProfileService.findByUserId(userId);
   }
@@ -71,7 +71,7 @@ export class ConsultantProfileController {
   @ApiResponse({ status: 200, description: 'Profile updated' })
   @ApiNotFoundResponse({ description: 'Profile not found' })
   async update(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('userId', ParseUuidPipe) userId: string,
     @Body() dto: UpdateConsultantProfileDto,
   ): Promise<ConsultantProfileResponse> {
     return this.consultantProfileService.update(userId, dto);

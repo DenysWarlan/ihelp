@@ -51,6 +51,13 @@ export class ChatService {
     );
   }
 
+  markAsRead(conversationId: string, messageIds: string[]): Observable<{ count: number }> {
+    return this.http.put<{ count: number }>(
+      `/api/person-cabinet/conversations/${conversationId}/read`,
+      { messageIds },
+    );
+  }
+
   sendMessage(
     conversationId: string,
     content: string,

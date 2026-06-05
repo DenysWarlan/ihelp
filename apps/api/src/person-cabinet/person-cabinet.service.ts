@@ -722,6 +722,32 @@ export class PersonCabinetService {
     }));
   }
 
+  async markMessagesAsRead(
+    caseId: string,
+    messageIds: string[],
+    personId: string,
+  ): Promise<{ count: number }> {
+    if (messageIds.length === 0) return { count: 0 };
+
+    // Verify case belongs to this person
+    const careCase = await this.prisma.careCase.findFirst({
+      where: { id: caseId, personId },
+      select: { id: true },
+    });
+    if (!careCase) return { count: 0 };
+
+    const result = await this.prisma.message.updateMany({
+      where: {
+        id: { in: messageIds },
+        careCaseId: caseId,
+        isRead: false,
+      },
+      data: { isRead: true, readAt: new Date() },
+    });
+
+    return { count: result.count };
+  }
+
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
@@ -835,6 +861,7 @@ export class PersonCabinetService {
     const courses = await this.prisma.course.findMany({
       where: {
         status: CourseStatus.PUBLISHED,
+        visibility: 'PUBLIC',
         ...(excludeCourseIds.length > 0
           ? { id: { notIn: excludeCourseIds } }
           : {}),

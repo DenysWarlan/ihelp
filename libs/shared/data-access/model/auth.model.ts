@@ -34,4 +34,16 @@ export interface PersonLoginRequest {
   readonly password: string;
 }
 
+export interface PhoneLoginRequest {
+  readonly phone: string;
+  readonly password: string;
+}
+
+export interface PersonRegisterRequest {
+  readonly name: string;
+  readonly password: string;
+  readonly email?: string;
+  readonly phone?: string;
+}
+
 export type PersonLoginResponse = TokenPair;

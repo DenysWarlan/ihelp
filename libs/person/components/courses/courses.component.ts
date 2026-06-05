@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
@@ -27,6 +28,7 @@ import type { PersonCourse } from '@org/person/data-access';
 })
 export class CoursesComponent implements OnInit {
   readonly facade: PersonFacade = inject(PersonFacade);
+  private readonly router: Router = inject(Router);
 
   readonly activeCourses: Signal<PersonCourse[]> = computed(() =>
     this.facade.courses().filter((c) => c.status === 'in_progress')
@@ -38,5 +40,14 @@ export class CoursesComponent implements OnInit {
 
   ngOnInit(): void {
     this.facade.loadCourses();
+    this.facade.loadDashboard();
+  }
+
+  onWriteConsultant(): void {
+    if (this.facade.dashboard()?.consultantName) {
+      this.router.navigate(['/person/chat']);
+    } else {
+      this.router.navigate(['/person/request-help']);
+    }
   }
 }

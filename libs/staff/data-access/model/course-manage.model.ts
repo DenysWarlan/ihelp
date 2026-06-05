@@ -11,11 +11,14 @@ export interface AdminCourse {
   readonly updatedAt: string;
 }
 
+export type CourseVisibility = 'PUBLIC' | 'STAFF';
+
 export interface AdminCourseDetail {
   readonly id: string;
   readonly title: string;
   readonly description: string;
   readonly status: CourseStatus;
+  readonly visibility: CourseVisibility;
   readonly imageUrl: string | null;
   readonly language: string | null;
   readonly tags: string[];

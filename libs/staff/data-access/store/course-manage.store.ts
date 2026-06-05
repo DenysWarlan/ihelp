@@ -66,6 +66,30 @@ export const CourseManageStore = signalStore(
         )
       ),
 
+      loadStaffCourses: rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(() =>
+            service.getStaffCourses().pipe(
+              tap((courses: AdminCourse[]) =>
+                patchState(store, {
+                  courses: courses.map((c) => ({ ...c, lessonsCount: c.lessonsCount ?? 0, enrollmentsCount: 0 })),
+                  total: courses.length,
+                  isLoading: false,
+                })
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to load staff courses',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
       loadCourseDetail: rxMethod<string>(
         pipe(
           tap(() =>
@@ -121,7 +145,7 @@ export const CourseManageStore = signalStore(
 
       updateCourse: rxMethod<{
         id: string;
-        dto: Partial<{ title: string; description: string }>;
+        dto: Partial<{ title: string; description: string; visibility: string }>;
       }>(
         pipe(
           tap(() => patchState(store, { isSaving: true, error: null })),

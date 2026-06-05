@@ -4,10 +4,11 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   Max,
   Min,
 } from 'class-validator';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 import { MeetingStatus } from '@prisma/client';
 
 import {
@@ -22,7 +23,7 @@ import {
 
 export class CreateMeetingDto {
   @ApiProperty({ description: 'Care case ID to link the meeting to' })
-  @IsUUID()
+  @IsUuidFormat()
   careCaseId!: string;
 
   @ApiProperty({ description: 'Scheduled date/time in ISO 8601 format (must be in the future)' })
@@ -104,4 +105,6 @@ export interface MeetingResponse {
   readonly updatedAt: Date;
   readonly personTzTime: string;
   readonly consultantTzTime: string;
+  readonly personName: string | null;
+  readonly topic: string | null;
 }

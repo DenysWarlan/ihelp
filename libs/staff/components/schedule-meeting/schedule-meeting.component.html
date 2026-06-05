@@ -25,7 +25,9 @@
           class="schedule-meeting__input"
           [ngModel]="formModel().date"
           (ngModelChange)="updateField('date', $event)"
+          [min]="today"
           name="date"
+          required
         />
       </div>
 
@@ -37,6 +39,7 @@
           [ngModel]="formModel().time"
           (ngModelChange)="updateField('time', $event)"
           name="time"
+          required
         />
       </div>
 
@@ -49,20 +52,6 @@
           name="duration"
         >
           @for (opt of durationOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="schedule-meeting__field">
-        <label class="schedule-meeting__label">{{ t('staffMeetings.platformLabel') }}</label>
-        <select
-          class="schedule-meeting__select"
-          [ngModel]="formModel().platform"
-          (ngModelChange)="updateField('platform', $event)"
-          name="platform"
-        >
-          @for (opt of platformOptions; track opt.value) {
             <option [value]="opt.value">{{ opt.label }}</option>
           }
         </select>

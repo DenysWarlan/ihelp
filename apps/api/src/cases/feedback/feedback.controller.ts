@@ -3,10 +3,10 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -38,7 +38,7 @@ export class FeedbackController {
   @ApiConflictResponse({ description: 'Feedback already submitted' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async create(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
     @Body() dto: CreateFeedbackDto,
     @Req() req: Request,
   ): Promise<FeedbackResponse> {
@@ -52,7 +52,7 @@ export class FeedbackController {
   @ApiResponse({ status: 200, description: 'Feedback details' })
   @ApiNotFoundResponse({ description: 'Feedback not found' })
   async findOne(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
   ): Promise<FeedbackResponse> {
     return this.feedbackService.findOne(caseId);
   }

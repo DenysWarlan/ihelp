@@ -8,6 +8,8 @@ import {
 import { AuthStore } from '../store/auth.store';
 import {
   PersonLoginRequest,
+  PersonRegisterRequest,
+  PhoneLoginRequest,
   StaffLoginRequest,
 } from '../model/auth.model';
 
@@ -19,6 +21,18 @@ export interface StaffLoginFormModel {
 
 export interface PersonLoginFormModel {
   email: string;
+  password: string;
+}
+
+export interface PhoneLoginFormModel {
+  phone: string;
+  password: string;
+}
+
+export interface RegisterFormModel {
+  name: string;
+  email: string;
+  phone: string;
   password: string;
 }
 
@@ -37,6 +51,18 @@ export class AuthFacade {
     password: '',
   });
 
+  readonly phoneLoginForm: WritableSignal<PhoneLoginFormModel> = signal({
+    phone: '',
+    password: '',
+  });
+
+  readonly registerForm: WritableSignal<RegisterFormModel> = signal({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+  });
+
   readonly isLoading: Signal<boolean> = this.store.isLoading;
   readonly error: Signal<string | null> = this.store.error;
   readonly mfaRequired: Signal<boolean> = this.store.mfaRequired;
@@ -47,6 +73,14 @@ export class AuthFacade {
 
   updatePersonField(field: keyof PersonLoginFormModel, value: string): void {
     this.personLoginForm.update((form) => ({ ...form, [field]: value }));
+  }
+
+  updatePhoneLoginField(field: keyof PhoneLoginFormModel, value: string): void {
+    this.phoneLoginForm.update((form) => ({ ...form, [field]: value }));
+  }
+
+  updateRegisterField(field: keyof RegisterFormModel, value: string): void {
+    this.registerForm.update((form) => ({ ...form, [field]: value }));
   }
 
   submitLogin(): void {
@@ -68,8 +102,34 @@ export class AuthFacade {
     this.store.personLogin(request);
   }
 
+  submitPhoneLogin(): void {
+    const form = this.phoneLoginForm();
+    const request: PhoneLoginRequest = {
+      phone: form.phone,
+      password: form.password,
+    };
+    this.store.personLoginByPhone(request);
+  }
+
+  submitRegister(): void {
+    const form = this.registerForm();
+    const request: PersonRegisterRequest = {
+      name: form.name,
+      password: form.password,
+      ...(form.email ? { email: form.email } : {}),
+      ...(form.phone ? { phone: form.phone } : {}),
+    };
+    this.store.personRegister(request);
+  }
+
   logout(): void {
     this.store.logout();
+  }
+
+  resetForms(): void {
+    this.personLoginForm.set({ email: '', password: '' });
+    this.phoneLoginForm.set({ phone: '', password: '' });
+    this.registerForm.set({ name: '', email: '', phone: '', password: '' });
   }
 
   clearError(): void {

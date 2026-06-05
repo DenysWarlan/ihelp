@@ -65,6 +65,13 @@
           (ngModelChange)="onSaveDescription($event)"
           name="courseDescription"
         />
+        <ui-select
+          [label]="t('admin.courseVisibility')"
+          [options]="visibilityOptions"
+          [ngModel]="course.visibility ?? 'PUBLIC'"
+          (ngModelChange)="onSaveVisibility($event)"
+          name="courseVisibility"
+        />
       </div>
 
       <div class="course-edit__lessons-header">

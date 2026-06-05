@@ -152,14 +152,36 @@ export const ChatStore = signalStore(
         });
       },
 
-      markMessagesAsRead(): void {
-        const unreadIds = store.messages()
-          .filter((m) => !m.isFromPerson && m.status !== 'read' && !m.id.startsWith('temp-'))
-          .map((m) => m.id);
-        if (unreadIds.length > 0) {
-          socketService.emitRead(unreadIds);
-        }
-      },
+      markMessagesAsRead: rxMethod<void>(
+        pipe(
+          switchMap(() => {
+            const unreadIds = store.messages()
+              .filter((m: ChatMessage) => !m.isFromPerson && m.status !== 'read' && !m.id.startsWith('temp-'))
+              .map((m: ChatMessage) => m.id);
+            const selectedId = store.selectedConversationId();
+
+            if (unreadIds.length === 0 || !selectedId) return EMPTY;
+
+            return chatService.markAsRead(selectedId, unreadIds).pipe(
+              tap(() => {
+                socketService.emitRead(unreadIds);
+                const updated = store.messages().map((m: ChatMessage) =>
+                  unreadIds.includes(m.id) ? { ...m, status: 'read' as const } : m,
+                );
+                const updatedConvs = store.conversations().map((c: ChatConversation) =>
+                  c.id === selectedId
+                    ? { ...c, unreadCount: Math.max(0, c.unreadCount - unreadIds.length) }
+                    : c,
+                );
+                patchState(store, { messages: updated, conversations: updatedConvs });
+                const totalUnread = updatedConvs.reduce((sum: number, c: ChatConversation) => sum + c.unreadCount, 0);
+                navBadgeService.setChatUnreadCount(totalUnread);
+              }),
+              catchError(() => EMPTY),
+            );
+          }),
+        ),
+      ),
 
       handleMessagesRead(data: SocketMessagesRead): void {
         const ids = new Set(data.messageIds);

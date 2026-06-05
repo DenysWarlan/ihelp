@@ -1,5 +1,5 @@
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString, MinLength, MaxLength, IsOptional, ValidateIf, Matches } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class StaffLoginDto {
   @ApiProperty({ description: 'Staff email address' })
@@ -44,16 +44,56 @@ export class PersonLoginDto {
   @IsEmail()
   readonly email!: string;
 
-  @ApiProperty({ description: 'Password', minLength: 8 })
+  @ApiProperty({ description: 'Password', minLength: 8, maxLength: 128 })
   @IsString()
   @MinLength(8)
+  @MaxLength(128)
+  readonly password!: string;
+}
+
+export class PersonRegisterDto {
+  @ApiProperty({ description: 'Full name' })
+  @IsString()
+  @MinLength(2)
+  @MaxLength(128)
+  readonly name!: string;
+
+  @ApiPropertyOptional({ description: 'Email address' })
+  @ValidateIf((o) => !o.phone)
+  @IsEmail()
+  readonly email?: string;
+
+  @ApiPropertyOptional({ description: 'Phone number (e.g. +380501234567)' })
+  @ValidateIf((o) => !o.email)
+  @IsString()
+  @Matches(/^\+?[1-9]\d{7,14}$/, { message: 'Phone must be a valid international number' })
+  readonly phone?: string;
+
+  @ApiProperty({ description: 'Password', minLength: 8, maxLength: 128 })
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  readonly password!: string;
+}
+
+export class PhoneLoginDto {
+  @ApiProperty({ description: 'Phone number' })
+  @IsString()
+  @Matches(/^\+?[1-9]\d{7,14}$/, { message: 'Phone must be a valid international number' })
+  readonly phone!: string;
+
+  @ApiProperty({ description: 'Password', minLength: 8, maxLength: 128 })
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
   readonly password!: string;
 }
 
 export class SetPasswordDto {
-  @ApiProperty({ description: 'New password', minLength: 8 })
+  @ApiProperty({ description: 'New password', minLength: 8, maxLength: 128 })
   @IsString()
   @MinLength(8)
+  @MaxLength(128)
   readonly password!: string;
 
   @ApiProperty({ description: 'Current password (required if password already set)', required: false })

@@ -4,12 +4,12 @@ import {
   Delete,
   Get,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -107,7 +107,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Get merge detail by ID' })
   @ApiResponse({ status: 200, description: 'Merge detail' })
   @ApiResponse({ status: 404, description: 'Merge record not found' })
-  async getMergeDetail(@Param('mergeId', ParseUUIDPipe) mergeId: string) {
+  async getMergeDetail(@Param('mergeId', ParseUuidPipe) mergeId: string) {
     return this.userMergeService.getMergeDetail(mergeId);
   }
 
@@ -174,7 +174,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Get staff user details' })
   @ApiResponse({ status: 200, description: 'Staff user details' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async getUser(@Param('id', ParseUUIDPipe) id: string) {
+  async getUser(@Param('id', ParseUuidPipe) id: string) {
     return this.adminService.getUser(id);
   }
 
@@ -184,7 +184,7 @@ export class AdminController {
   @ApiResponse({ status: 400, description: 'Cannot change own role' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async updateUser(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: UpdateStaffUserDto,
     @Req() req: Request,
   ) {
@@ -198,7 +198,7 @@ export class AdminController {
   @ApiResponse({ status: 400, description: 'Cannot deactivate own account' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async deactivateUser(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
@@ -234,7 +234,7 @@ export class AdminController {
   @ApiResponse({ status: 200, description: 'Invite revoked' })
   @ApiResponse({ status: 404, description: 'Invite not found' })
   @ApiResponse({ status: 409, description: 'Cannot revoke claimed invite' })
-  async revokeInvite(@Param('id', ParseUUIDPipe) id: string) {
+  async revokeInvite(@Param('id', ParseUuidPipe) id: string) {
     await this.adminInviteService.revokeInvite(id);
     return { message: 'Invite revoked' };
   }

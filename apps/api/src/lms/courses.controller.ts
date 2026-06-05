@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Param, Req, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Param, Req } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiTags,
   ApiOperation,
@@ -32,6 +33,14 @@ export class CoursesController {
     return this.coursesService.findAllPublished();
   }
 
+  @Get('staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List courses visible to staff (PUBLIC + STAFF_ONLY)' })
+  @ApiOkResponse({ type: [CourseListItemDto], description: 'Staff-visible courses' })
+  async findAllStaff(): Promise<CourseListItemDto[]> {
+    return this.coursesService.findAllStaffCourses();
+  }
+
   @Get('my-enrollments')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List courses the current user is enrolled in' })
@@ -46,7 +55,7 @@ export class CoursesController {
   @ApiOperation({ summary: 'Get published course detail with lessons' })
   @ApiOkResponse({ type: CourseDetailDto, description: 'Course detail with lessons' })
   @ApiNotFoundResponse({ description: 'Course not found or not published' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<CourseDetailDto> {
+  async findOne(@Param('id', ParseUuidPipe) id: string): Promise<CourseDetailDto> {
     return this.coursesService.findOnePublished(id);
   }
 
@@ -58,7 +67,7 @@ export class CoursesController {
   @ApiBadRequestResponse({ description: 'Course is not available for enrollment' })
   @ApiConflictResponse({ description: 'Already enrolled in this course' })
   async enroll(
-    @Param('id', ParseUUIDPipe) courseId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;

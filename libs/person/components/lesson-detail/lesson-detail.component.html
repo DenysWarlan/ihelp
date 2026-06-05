@@ -122,6 +122,19 @@
             </button>
           }
         </div>
+        <!-- Help Banner -->
+        <div class="help-banner">
+          <div class="help-banner__content">
+            <div class="help-banner__icon">
+              <ui-icon name="MessageCircle" [size]="24" color="#fff" />
+            </div>
+            <div class="help-banner__text">
+              <h3 class="help-banner__title">{{ t('courses.helpTitle') }}</h3>
+              <p class="help-banner__subtitle">{{ t('courses.helpSubtitle') }}</p>
+            </div>
+          </div>
+          <ui-button variant="secondary" size="sm" class="help-banner__btn" (click)="onWriteConsultant()">{{ t('courses.helpAction') }}</ui-button>
+        </div>
       } @else {
         <p class="lesson-page__empty">{{ t('lessonDetail.notFound') }}</p>
       }

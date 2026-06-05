@@ -6,10 +6,11 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   Min,
 } from 'class-validator';
 import { CasePriority, CaseSource, CaseStatus, CrisisLevel } from '@prisma/client';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 // ---------------------------------------------------------------------------
 // DTOs — Create
@@ -18,7 +19,7 @@ import { CasePriority, CaseSource, CaseStatus, CrisisLevel } from '@prisma/clien
 export class CreateCaseDto {
   @ApiPropertyOptional({ description: 'Person ID (defaults to JWT sub if PERSON role)' })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   personId?: string;
 
   @ApiPropertyOptional()
@@ -78,12 +79,12 @@ export class CreateCaseDto {
 
   @ApiPropertyOptional({ description: 'Required when source=COURSE' })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   sourceCourseId?: string;
 
   @ApiPropertyOptional({ description: 'Optional lesson reference when source=COURSE' })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   sourceLessonId?: string;
 }
 
@@ -108,7 +109,7 @@ export class ChangeStatusDto {
 
 export class AssignConsultantDto {
   @ApiProperty()
-  @IsUUID()
+  @IsUuidFormat()
   consultantId!: string;
 
   @ApiProperty({ description: 'Optimistic lock version' })
@@ -148,6 +149,63 @@ export interface CaseResponse {
   readonly consultantName?: string | null;
   readonly sourceCourse?: { id: string; title: string } | null;
   readonly sourceLesson?: { id: string; title: string } | null;
+}
+
+export interface CaseDetailNote {
+  readonly id: string;
+  readonly content: string;
+  readonly authorName: string;
+  readonly isSupervisorNote: boolean;
+  readonly createdAt: Date;
+}
+
+export interface CaseDetailMessage {
+  readonly id: string;
+  readonly content: string;
+  readonly authorName: string;
+  readonly senderRole: string;
+  readonly channel: string;
+  readonly isFromStaff: boolean;
+  readonly createdAt: Date;
+}
+
+export interface CaseDetailMeeting {
+  readonly id: string;
+  readonly status: string;
+  readonly scheduledAt: Date;
+  readonly durationMin: number;
+  readonly meetingUrl: string | null;
+  readonly consultantName: string | null;
+}
+
+export interface CaseDetailTag {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string | null;
+}
+
+export interface CaseDetailFeedback {
+  readonly rating: number;
+  readonly comment: string | null;
+  readonly createdAt: Date;
+}
+
+export interface CaseDetailSla {
+  readonly status: string;
+  readonly currentLevel: number;
+  readonly startedAt: Date;
+  readonly lastEscalatedAt: Date | null;
+}
+
+export interface CaseDetailResponse extends CaseResponse {
+  readonly personEmail: string | null;
+  readonly personPhone: string | null;
+  readonly notes: CaseDetailNote[];
+  readonly messages: CaseDetailMessage[];
+  readonly meetings: CaseDetailMeeting[];
+  readonly tags: CaseDetailTag[];
+  readonly feedback: CaseDetailFeedback | null;
+  readonly sla: CaseDetailSla | null;
 }
 
 export interface CaseListResponse {

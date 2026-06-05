@@ -1,0 +1,151 @@
+:host {
+  display: block;
+}
+
+.register {
+  display: flex;
+  min-height: 100vh;
+}
+
+.register__brand {
+  flex: 1;
+  background-color: var(--ihelp-surface-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register__brand-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+}
+
+.register__brand-title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ihelp-text-inverse);
+}
+
+.register__brand-subtitle {
+  font-size: 14px;
+  color: var(--ihelp-text-inverse);
+  opacity: 0.7;
+}
+
+.register__form-side {
+  flex: 1;
+  background-color: var(--ihelp-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register__form-container {
+  width: 360px;
+}
+
+.register__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  margin-bottom: var(--ihelp-space-2);
+}
+
+.register__subtitle {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+  margin-bottom: var(--ihelp-space-6);
+}
+
+.register__tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: var(--ihelp-space-4);
+  border-bottom: 1px solid var(--ihelp-border);
+}
+
+.register__tab {
+  flex: 1;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ihelp-text-muted);
+  cursor: pointer;
+  transition: color var(--ihelp-transition-fast), border-color var(--ihelp-transition-fast);
+
+  &:hover {
+    color: var(--ihelp-text-primary);
+  }
+
+  &--active {
+    color: var(--ihelp-accent);
+    border-bottom-color: var(--ihelp-accent);
+  }
+}
+
+.register__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+  margin-bottom: var(--ihelp-space-4);
+}
+
+.register__login-link {
+  font-size: 13px;
+  color: var(--ihelp-text-muted);
+  text-align: center;
+  margin-bottom: var(--ihelp-space-6);
+
+  a {
+    color: var(--ihelp-accent);
+    text-decoration: underline;
+    font-weight: 500;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.register__consent {
+  font-size: 11px;
+  color: var(--ihelp-text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.register__privacy-link {
+  color: var(--ihelp-accent);
+  text-decoration: underline;
+  transition: opacity var(--ihelp-transition-fast);
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 768px) {
+  .register {
+    flex-direction: column;
+  }
+
+  .register__brand {
+    padding: 48px 24px;
+  }
+
+  .register__form-side {
+    padding: 48px 24px;
+  }
+
+  .register__form-container {
+    width: 100%;
+    max-width: 360px;
+  }
+}

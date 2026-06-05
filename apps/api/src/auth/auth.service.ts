@@ -123,7 +123,7 @@ export class AuthService {
     }
 
     this.logger.log(`User ${user.id} authenticated via ${profile.provider}`);
-    return this.createTokenPair(user.id, user.email, user.role, undefined, user.name ?? undefined);
+    return this.createTokenPair(user.id, user.email ?? '', user.role, undefined, user.name ?? undefined);
   }
 
   /**
@@ -366,7 +366,7 @@ export class AuthService {
     }
 
     this.logger.log(`Staff user ${user.id} authenticated via password`);
-    return this.createTokenPair(user.id, user.email, user.role, undefined, user.name ?? undefined);
+    return this.createTokenPair(user.id, user.email ?? '', user.role, undefined, user.name ?? undefined);
   }
 
   // ---------------------------------------------------------------------------
@@ -389,8 +389,80 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    this.logger.log(`Person user ${user.id} authenticated via password`);
-    return this.createTokenPair(user.id, user.email, user.role, undefined, user.name ?? undefined);
+    this.logger.log(`Person user ${user.id} authenticated via email/password`);
+    return this.createTokenPair(user.id, user.email ?? '', user.role, undefined, user.name ?? undefined);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Person Phone Login
+  // ---------------------------------------------------------------------------
+
+  async personLoginByPhone(phone: string, password: string): Promise<TokenPair> {
+    // Normalize phone to always include '+' prefix for consistent lookup
+    const normalizedPhone = phone.startsWith('+') ? phone : `+${phone}`;
+    const user = await this.prisma.user.findUnique({ where: { phone: normalizedPhone } });
+
+    if (!user || !user.passwordHash || !user.isActive) {
+      throw new UnauthorizedException('Invalid phone or password');
+    }
+
+    if (user.role !== 'PERSON') {
+      throw new UnauthorizedException('Invalid phone or password');
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid phone or password');
+    }
+
+    this.logger.log(`Person user ${user.id} authenticated via phone`);
+    return this.createTokenPair(user.id, user.email ?? '', user.role, undefined, user.name ?? undefined);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Person Registration
+  // ---------------------------------------------------------------------------
+
+  async registerPerson(
+    name: string,
+    password: string,
+    email?: string,
+    phone?: string,
+  ): Promise<TokenPair> {
+    if (!email && !phone) {
+      throw new BadRequestException('Email or phone is required');
+    }
+
+    // Normalize phone number to always include '+' prefix
+    const normalizedPhone = phone ? (phone.startsWith('+') ? phone : `+${phone}`) : null;
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    // Use try/catch around create to handle race conditions atomically
+    // instead of TOCTOU check-then-insert pattern
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          name,
+          email: email ?? null,
+          phone: normalizedPhone,
+          passwordHash,
+          role: 'PERSON',
+        },
+      });
+
+      this.logger.log(`Person registered: ${user.id} (${email ?? normalizedPhone})`);
+      return this.createTokenPair(user.id, user.email ?? '', user.role, undefined, user.name ?? undefined);
+    } catch (error: unknown) {
+      // Prisma unique constraint violation
+      if (
+        typeof error === 'object' && error !== null &&
+        'code' in error && (error as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException('An account with this email or phone already exists');
+      }
+      throw error;
+    }
   }
 
   // ---------------------------------------------------------------------------

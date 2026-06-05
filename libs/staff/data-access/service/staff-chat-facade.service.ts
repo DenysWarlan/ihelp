@@ -51,7 +51,7 @@ export class StaffChatFacade {
   }
 
   markMessagesAsRead(): void {
-    this.store.markMessagesAsRead(undefined);
+    this.store.markMessagesAsRead();
   }
 
   updateMessageContent(content: string): void {

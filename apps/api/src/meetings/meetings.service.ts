@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { PrismaService } from '@org/prisma-client';
-import { Meeting, MeetingStatus } from '@prisma/client';
+import { type Meeting, MeetingStatus } from '@prisma/client';
 import { Queue } from 'bullmq';
 
 import {
@@ -30,6 +30,17 @@ import {
   CreateMeetingDto,
   MeetingResponse,
 } from './meetings.model.js';
+
+/** Prisma include to join person name and case topic. */
+const MEETING_ENRICH_INCLUDE = {
+  person: { select: { name: true } },
+  careCase: { select: { topic: true } },
+} as const;
+
+type MeetingWithRelations = Meeting & {
+  person?: { name: string } | null;
+  careCase?: { topic: string } | null;
+};
 
 @Injectable()
 export class MeetingsService {
@@ -101,6 +112,7 @@ export class MeetingsService {
         notes: dto.notes,
         status: MeetingStatus.SCHEDULED,
       },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     this.logger.log(
@@ -121,6 +133,7 @@ export class MeetingsService {
     const meetings = await this.prisma.meeting.findMany({
       where: { careCaseId: caseId },
       orderBy: { scheduledAt: 'asc' },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     return meetings.map((m) => this.formatWithTimezones(m));
@@ -143,6 +156,7 @@ export class MeetingsService {
     const meetings = await this.prisma.meeting.findMany({
       where,
       orderBy: { scheduledAt: 'asc' },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     return meetings.map((m) => this.formatWithTimezones(m));
@@ -151,6 +165,7 @@ export class MeetingsService {
   async findById(meetingId: string): Promise<MeetingResponse> {
     const meeting = await this.prisma.meeting.findUnique({
       where: { id: meetingId },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     if (!meeting) {
@@ -198,6 +213,7 @@ export class MeetingsService {
         cancelledAt: new Date(),
         cancelReason: dto.cancelReason,
       },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     this.logger.log(`Meeting ${meetingId} cancelled by ${actorId}`);
@@ -226,6 +242,7 @@ export class MeetingsService {
     const meetings = await this.prisma.meeting.findMany({
       where,
       orderBy: { scheduledAt: 'asc' },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     return meetings.map((m) => this.formatWithTimezones(m));
@@ -259,6 +276,7 @@ export class MeetingsService {
     const updated = await this.prisma.meeting.update({
       where: { id: meetingId },
       data: { status: MeetingStatus.COMPLETED },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     this.logger.log(`Meeting ${meetingId} completed by ${actorId}`);
@@ -290,6 +308,7 @@ export class MeetingsService {
     const updated = await this.prisma.meeting.update({
       where: { id: meetingId },
       data: { status },
+      include: MEETING_ENRICH_INCLUDE,
     });
 
     this.logger.log(`Meeting ${meetingId} status updated to ${status}`);
@@ -418,9 +437,11 @@ export class MeetingsService {
   // Timezone formatting
   // ---------------------------------------------------------------------------
 
-  formatWithTimezones(meeting: Meeting): MeetingResponse {
+  formatWithTimezones(meeting: MeetingWithRelations): MeetingResponse {
     const personTzTime = this.formatInTimezone(meeting.scheduledAt, meeting.personTz);
     const consultantTzTime = this.formatInTimezone(meeting.scheduledAt, meeting.consultantTz);
+
+    const personName = meeting.person?.name ?? null;
 
     return {
       id: meeting.id,
@@ -440,6 +461,8 @@ export class MeetingsService {
       updatedAt: meeting.updatedAt,
       personTzTime,
       consultantTzTime,
+      personName,
+      topic: meeting.careCase?.topic ?? null,
     };
   }
 

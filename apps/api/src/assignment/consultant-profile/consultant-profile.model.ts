@@ -5,10 +5,11 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  IsUUID,
   Min,
 } from 'class-validator';
 import { ConsultantStatus } from '@prisma/client';
+
+import { IsUuidFormat } from '../../common/pipes/uuid-format.validator.js';
 
 // ---------------------------------------------------------------------------
 // DTOs — Create
@@ -16,7 +17,7 @@ import { ConsultantStatus } from '@prisma/client';
 
 export class CreateConsultantProfileDto {
   @ApiProperty({ description: 'User ID to create the profile for' })
-  @IsUUID()
+  @IsUuidFormat()
   userId!: string;
 
   @ApiPropertyOptional({

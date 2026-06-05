@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
-import { IconComponent } from '@org/shared/ui';
+import { ButtonComponent, IconComponent } from '@org/shared/ui';
 import { PersonFacade, PersonLesson, PersonLessonDetail } from '@org/person/data-access';
 
 @Component({
@@ -12,6 +12,7 @@ import { PersonFacade, PersonLesson, PersonLessonDetail } from '@org/person/data
   standalone: true,
   imports: [
     TranslocoDirective,
+    ButtonComponent,
     IconComponent,
   ],
   templateUrl: './lesson-detail.component.html',
@@ -20,6 +21,7 @@ import { PersonFacade, PersonLesson, PersonLessonDetail } from '@org/person/data
 })
 export class LessonDetailComponent {
   readonly facade: PersonFacade = inject(PersonFacade);
+  private readonly router: Router = inject(Router);
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
   private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
 
@@ -29,6 +31,7 @@ export class LessonDetailComponent {
   private readonly lessonId: Signal<string> = computed(() => this.params()?.['lessonId'] ?? '');
 
   constructor() {
+    this.facade.loadDashboard();
     effect(() => {
       const courseId = this.courseId();
       const lessonId = this.lessonId();
@@ -118,6 +121,14 @@ export class LessonDetailComponent {
     const courseId = this.courseId();
     if (next && courseId) {
       this.facade.navigateToLesson(courseId, next.id);
+    }
+  }
+
+  onWriteConsultant(): void {
+    if (this.facade.dashboard()?.consultantName) {
+      this.router.navigate(['/person/chat']);
+    } else {
+      this.router.navigate(['/person/request-help']);
     }
   }
 

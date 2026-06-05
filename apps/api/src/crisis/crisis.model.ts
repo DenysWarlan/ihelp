@@ -7,10 +7,11 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 // ---------------------------------------------------------------------------
 // Default keyword entry (used by seed data in crisis.const.ts)
@@ -181,7 +182,7 @@ export class UpdateCrisisAutoReplyDto {
 
 export class CreateDutyScheduleDto {
   @ApiProperty({ description: 'User ID of the duty person' })
-  @IsUUID()
+  @IsUuidFormat()
   @IsNotEmpty()
   readonly userId!: string;
 
@@ -203,7 +204,7 @@ export class CreateDutyScheduleDto {
 
 export class UpdateDutyScheduleDto {
   @ApiPropertyOptional({ description: 'User ID of the duty person' })
-  @IsUUID()
+  @IsUuidFormat()
   @IsOptional()
   readonly userId?: string;
 

@@ -10,8 +10,11 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, pipe, switchMap, tap, catchError } from 'rxjs';
 import { AuthService } from '../service/auth.service';
+import { NavBadgeService } from '../service/nav-badge.service';
 import {
   PersonLoginRequest,
+  PersonRegisterRequest,
+  PhoneLoginRequest,
   StaffLoginRequest,
   UserProfile,
 } from '../model/auth.model';
@@ -50,6 +53,7 @@ export const AuthStore = signalStore(
     const authService = inject(AuthService);
     const router = inject(Router);
     const doc = inject(DOCUMENT);
+    const navBadgeService = inject(NavBadgeService);
 
     return {
       staffLogin: rxMethod<StaffLoginRequest>(
@@ -81,12 +85,17 @@ export const AuthStore = signalStore(
                       const payload = JSON.parse(
                         decodeJwtPayload(win, response.accessToken),
                       );
+                      if (payload.name) {
+                        win.localStorage.setItem('ihelp_user_name', payload.name);
+                      }
                       if (payload.email) {
                         win.localStorage.setItem('ihelp_user_email', payload.email);
-                        win.localStorage.setItem(
-                          'ihelp_user_name',
-                          payload.name ?? payload.email.split('@')[0],
-                        );
+                        if (!payload.name) {
+                          win.localStorage.setItem(
+                            'ihelp_user_name',
+                            payload.email.split('@')[0],
+                          );
+                        }
                       }
                       if (payload.role) {
                         win.localStorage.setItem(
@@ -144,12 +153,17 @@ export const AuthStore = signalStore(
                     const payload = JSON.parse(
                       decodeJwtPayload(win, response.accessToken),
                     );
+                    if (payload.name) {
+                      win.localStorage.setItem('ihelp_user_name', payload.name);
+                    }
                     if (payload.email) {
                       win.localStorage.setItem('ihelp_user_email', payload.email);
-                      win.localStorage.setItem(
-                        'ihelp_user_name',
-                        payload.name ?? payload.email.split('@')[0],
-                      );
+                      if (!payload.name) {
+                        win.localStorage.setItem(
+                          'ihelp_user_name',
+                          payload.email.split('@')[0],
+                        );
+                      }
                     }
                     if (payload.role) {
                       win.localStorage.setItem(
@@ -167,6 +181,128 @@ export const AuthStore = signalStore(
               catchError((err) => {
                 const message =
                   err?.error?.message ?? 'Login failed';
+                patchState(store, { isLoading: false, error: message });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      personLoginByPhone: rxMethod<PhoneLoginRequest>(
+        pipe(
+          tap(() =>
+            patchState(store, {
+              isLoading: true,
+              error: null,
+            }),
+          ),
+          switchMap((request: PhoneLoginRequest) =>
+            authService.personLoginByPhone(request).pipe(
+              tap((response) => {
+                const win = doc.defaultView;
+                if (win) {
+                  win.localStorage.setItem(
+                    'ihelp_token',
+                    response.accessToken,
+                  );
+                  win.localStorage.setItem(
+                    'ihelp_refresh_token',
+                    response.refreshToken,
+                  );
+                  try {
+                    const payload = JSON.parse(
+                      decodeJwtPayload(win, response.accessToken),
+                    );
+                    if (payload.name) {
+                      win.localStorage.setItem('ihelp_user_name', payload.name);
+                    }
+                    if (payload.email) {
+                      win.localStorage.setItem('ihelp_user_email', payload.email);
+                      if (!payload.name) {
+                        win.localStorage.setItem(
+                          'ihelp_user_name',
+                          payload.email.split('@')[0],
+                        );
+                      }
+                    }
+                    if (payload.role) {
+                      win.localStorage.setItem(
+                        'ihelp_user_role',
+                        payload.role.toLowerCase(),
+                      );
+                    }
+                  } catch {
+                    /* ignore decode errors */
+                  }
+                }
+                patchState(store, { isLoading: false });
+                router.navigate(['/person/cabinet']);
+              }),
+              catchError((err) => {
+                const message =
+                  err?.error?.message ?? 'Login failed';
+                patchState(store, { isLoading: false, error: message });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      personRegister: rxMethod<PersonRegisterRequest>(
+        pipe(
+          tap(() =>
+            patchState(store, {
+              isLoading: true,
+              error: null,
+            }),
+          ),
+          switchMap((request: PersonRegisterRequest) =>
+            authService.personRegister(request).pipe(
+              tap((response) => {
+                const win = doc.defaultView;
+                if (win) {
+                  win.localStorage.setItem(
+                    'ihelp_token',
+                    response.accessToken,
+                  );
+                  win.localStorage.setItem(
+                    'ihelp_refresh_token',
+                    response.refreshToken,
+                  );
+                  try {
+                    const payload = JSON.parse(
+                      decodeJwtPayload(win, response.accessToken),
+                    );
+                    if (payload.name) {
+                      win.localStorage.setItem('ihelp_user_name', payload.name);
+                    }
+                    if (payload.email) {
+                      win.localStorage.setItem('ihelp_user_email', payload.email);
+                      if (!payload.name) {
+                        win.localStorage.setItem(
+                          'ihelp_user_name',
+                          payload.email.split('@')[0],
+                        );
+                      }
+                    }
+                    if (payload.role) {
+                      win.localStorage.setItem(
+                        'ihelp_user_role',
+                        payload.role.toLowerCase(),
+                      );
+                    }
+                  } catch {
+                    /* ignore decode errors */
+                  }
+                }
+                patchState(store, { isLoading: false });
+                router.navigate(['/person/cabinet']);
+              }),
+              catchError((err) => {
+                const message =
+                  err?.error?.message ?? 'Registration failed';
                 patchState(store, { isLoading: false, error: message });
                 return EMPTY;
               }),
@@ -194,6 +330,7 @@ export const AuthStore = signalStore(
                   win.localStorage.removeItem('ihelp_user_name');
                   win.localStorage.removeItem('ihelp_user_email');
                 }
+                navBadgeService.reset();
                 patchState(store, { user: null, isLoading: false });
                 router.navigate([redirectPath]);
               }),
@@ -205,6 +342,7 @@ export const AuthStore = signalStore(
                   win.localStorage.removeItem('ihelp_user_name');
                   win.localStorage.removeItem('ihelp_user_email');
                 }
+                navBadgeService.reset();
                 patchState(store, { user: null, isLoading: false });
                 router.navigate([redirectPath]);
                 return EMPTY;

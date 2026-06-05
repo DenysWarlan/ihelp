@@ -2,9 +2,9 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   NotFoundException,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiTags,
   ApiOperation,
@@ -33,7 +33,7 @@ export class PersonProgressController {
   @ApiOkResponse({ type: PersonProgressDto, description: 'Person progress across all enrollments' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async getPersonProgress(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
   ): Promise<PersonProgressDto> {
     const careCase = await this.prisma.careCase.findUnique({
       where: { id: caseId },

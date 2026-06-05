@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { ButtonComponent, IconComponent } from '@org/shared/ui';
-import type { SelectOption } from '@org/shared/ui';
 import { StaffFacade } from '@org/staff/data-access';
 import type { ScheduleMeetingFormModel } from '@org/staff/data-access';
 
@@ -38,25 +37,20 @@ export class ScheduleMeetingComponent implements OnInit {
   readonly personName: WritableSignal<string> = signal('');
   readonly topic: WritableSignal<string> = signal('');
 
+  readonly today: string = new Date().toLocaleDateString('en-CA');
+
   readonly formModel: WritableSignal<ScheduleMeetingFormModel> = signal({
     date: '',
-    time: '14:00',
+    time: '',
     duration: '30',
-    platform: 'Google Meet',
     notes: '',
   });
 
-  readonly durationOptions: SelectOption[] = [
+  readonly durationOptions: { value: string; label: string }[] = [
     { value: '15', label: '15 хвилин' },
     { value: '30', label: '30 хвилин' },
     { value: '45', label: '45 хвилин' },
     { value: '60', label: '60 хвилин' },
-  ];
-
-  readonly platformOptions: SelectOption[] = [
-    { value: 'Google Meet', label: 'Google Meet' },
-    { value: 'Zoom', label: 'Zoom' },
-    { value: 'Teams', label: 'Microsoft Teams' },
   ];
 
   ngOnInit(): void {
@@ -90,7 +84,6 @@ export class ScheduleMeetingComponent implements OnInit {
         date: form.date,
         time: form.time,
         durationMinutes: parseInt(form.duration, 10),
-        platform: form.platform,
         notes: form.notes,
       });
     }

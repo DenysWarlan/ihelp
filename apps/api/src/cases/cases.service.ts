@@ -19,6 +19,7 @@ import {
 } from './cases.const.js';
 import {
   AssignConsultantDto,
+  CaseDetailResponse,
   CaseResponse,
   ChangeStatusDto,
   CreateCaseDto,
@@ -29,6 +30,31 @@ const CASE_INCLUDE = {
   person: { select: { name: true } },
   consultant: { select: { name: true } },
   sourceCourse: { select: { id: true, title: true } },
+} as const;
+
+/** Extended include for single-case detail view. */
+const CASE_DETAIL_INCLUDE = {
+  person: { select: { name: true, email: true, phone: true } },
+  consultant: { select: { name: true } },
+  sourceCourse: { select: { id: true, title: true } },
+  notes: {
+    orderBy: { createdAt: 'desc' as const },
+    include: { author: { select: { name: true } } },
+  },
+  messages: {
+    orderBy: { createdAt: 'asc' as const },
+    take: 50,
+    include: { sender: { select: { name: true } } },
+  },
+  meetings: {
+    orderBy: { scheduledAt: 'desc' as const },
+    include: { consultant: { select: { name: true } } },
+  },
+  tags: {
+    include: { tag: { select: { id: true, name: true } } },
+  },
+  feedback: true,
+  slaTimer: true,
 } as const;
 
 @Injectable()
@@ -245,10 +271,10 @@ export class CasesService {
     return Promise.all(cases.map((c) => this.enrichWithLesson(c)));
   }
 
-  async findOne(id: string, actor: JwtPayload): Promise<CaseResponse> {
+  async findOne(id: string, actor: JwtPayload): Promise<CaseDetailResponse> {
     const careCase = await this.prisma.careCase.findUnique({
       where: { id },
-      include: CASE_INCLUDE,
+      include: CASE_DETAIL_INCLUDE,
     });
 
     if (!careCase) {
@@ -263,7 +289,7 @@ export class CasesService {
       throw new NotFoundException('Case not found');
     }
 
-    return this.enrichWithLesson(careCase);
+    return this.enrichDetailResponse(careCase, actor);
   }
 
   // ---------------------------------------------------------------------------
@@ -448,13 +474,106 @@ export class CasesService {
   }
 
   /**
+   * Build a full CaseDetailResponse with all relations mapped.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma include types are complex; using `any` with safe access
+  private async enrichDetailResponse(
+    careCase: any,
+    actor?: JwtPayload,
+  ): Promise<CaseDetailResponse> {
+    const base = await this.enrichWithLesson(careCase);
+
+    const person = careCase.person ?? null;
+    const allNotes = careCase.notes ?? [];
+    const messages = careCase.messages ?? [];
+    const meetings = careCase.meetings ?? [];
+    const caseTags = careCase.tags ?? [];
+    const feedback = careCase.feedback ?? null;
+    const slaTimer = careCase.slaTimer ?? null;
+
+    const staffRoles = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'];
+
+    // Filter notes by role: PERSON sees none, CONSULTANT sees non-supervisor notes only
+    let visibleNotes = allNotes;
+    if (actor?.role === 'PERSON') {
+      visibleNotes = [];
+    } else if (actor?.role === 'CONSULTANT') {
+      visibleNotes = allNotes.filter((n: any) => !n.isSupervisorNote);
+    }
+
+    // Destructure to exclude raw Prisma relation objects from the spread
+    const {
+      person: _person,
+      consultant: _consultant,
+      notes: _notes,
+      messages: _messages,
+      meetings: _meetings,
+      tags: _tags,
+      feedback: _feedback,
+      slaTimer: _slaTimer,
+      ...safeBase
+    } = base as Record<string, unknown>;
+
+    return {
+      ...safeBase,
+      personEmail: person?.email ?? null,
+      personPhone: person?.phone ?? null,
+      notes: visibleNotes.map((n: any) => ({
+        id: n.id,
+        content: n.content,
+        authorName: n.author?.name ?? 'Unknown',
+        isSupervisorNote: n.isSupervisorNote ?? false,
+        createdAt: n.createdAt,
+      })),
+      messages: messages.map((m: any) => ({
+        id: m.id,
+        content: m.content,
+        authorName: m.sender?.name ?? 'Unknown',
+        senderRole: m.senderRole ?? 'PERSON',
+        channel: m.channel ?? 'WEB',
+        isFromStaff: staffRoles.includes(m.senderRole ?? ''),
+        createdAt: m.createdAt,
+      })),
+      meetings: meetings.map((mt: any) => ({
+        id: mt.id,
+        status: mt.status,
+        scheduledAt: mt.scheduledAt,
+        durationMin: mt.durationMin ?? 30,
+        meetingUrl: mt.meetingUrl ?? null,
+        consultantName: mt.consultant?.name ?? null,
+      })),
+      tags: caseTags.map((ct: any) => ({
+        id: ct.tag.id,
+        name: ct.tag.name,
+        color: null,
+      })),
+      feedback: feedback
+        ? {
+            rating: feedback.rating,
+            comment: feedback.comment ?? null,
+            createdAt: feedback.createdAt,
+          }
+        : null,
+      sla: slaTimer
+        ? {
+            status: slaTimer.status,
+            currentLevel: slaTimer.currentLevel,
+            startedAt: slaTimer.startedAt,
+            lastEscalatedAt: slaTimer.lastEscalatedAt ?? null,
+          }
+        : null,
+    };
+  }
+
+  /**
    * Enrich case with lesson title if sourceLessonId is set.
    * sourceLessonId is not a Prisma relation, so we look it up manually.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async enrichWithLesson(
-    careCase: Record<string, unknown>,
+    careCase: any,
   ): Promise<CaseResponse> {
-    const lessonId = careCase['sourceLessonId'] as string | null;
+    const lessonId = careCase.sourceLessonId as string | null;
     let sourceLesson: { id: string; title: string } | null = null;
 
     if (lessonId) {
@@ -465,13 +584,10 @@ export class CasesService {
       sourceLesson = lesson;
     }
 
-    const person = (careCase as Record<string, unknown>)['person'] as { name: string } | null;
-    const consultant = (careCase as Record<string, unknown>)['consultant'] as { name: string } | null;
-
     return {
-      ...(careCase as unknown as CaseResponse),
-      personName: person?.name ?? (careCase['name'] as string | null) ?? null,
-      consultantName: consultant?.name ?? null,
+      ...careCase,
+      personName: careCase.person?.name ?? careCase.name ?? null,
+      consultantName: careCase.consultant?.name ?? null,
       sourceLesson,
     };
   }

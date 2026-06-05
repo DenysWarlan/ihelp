@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Req } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -9,6 +10,7 @@ import { Request } from 'express';
 
 import { JwtPayload } from '../auth/auth.model.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
+import { MarkAsReadDto } from '../chat/chat.model.js';
 import {
   PersonConversationDto,
   PersonCoursesResponse,
@@ -56,7 +58,7 @@ export class PersonCabinetController {
   @ApiResponse({ status: 404, description: 'Course not found or not enrolled' })
   async getCourseDetail(
     @Req() req: Request,
-    @Param('id', ParseUUIDPipe) courseId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
   ) {
     const actor = req.user as JwtPayload;
     return this.cabinetService.getCourseDetail(actor.sub, courseId);
@@ -69,8 +71,8 @@ export class PersonCabinetController {
   @ApiResponse({ status: 404, description: 'Course or lesson not found' })
   async getLessonDetail(
     @Req() req: Request,
-    @Param('courseId', ParseUUIDPipe) courseId: string,
-    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Param('courseId', ParseUuidPipe) courseId: string,
+    @Param('lessonId', ParseUuidPipe) lessonId: string,
   ) {
     const actor = req.user as JwtPayload;
     return this.cabinetService.getLessonDetail(actor.sub, courseId, lessonId);
@@ -83,8 +85,8 @@ export class PersonCabinetController {
   @ApiResponse({ status: 404, description: 'Course or lesson not found' })
   async completeLesson(
     @Req() req: Request,
-    @Param('courseId', ParseUUIDPipe) courseId: string,
-    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Param('courseId', ParseUuidPipe) courseId: string,
+    @Param('lessonId', ParseUuidPipe) lessonId: string,
   ) {
     const actor = req.user as JwtPayload;
     return this.cabinetService.completeLesson(actor.sub, courseId, lessonId);
@@ -133,5 +135,18 @@ export class PersonCabinetController {
   ): Promise<PersonConversationDto[]> {
     const actor = req.user as JwtPayload;
     return this.cabinetService.getConversations(actor.sub);
+  }
+
+  @Put('conversations/:id/read')
+  @Roles('PERSON')
+  @ApiOperation({ summary: 'Mark messages as read in a conversation' })
+  @ApiResponse({ status: 200, description: 'Messages marked as read' })
+  async markAsRead(
+    @Param('id', ParseUuidPipe) caseId: string,
+    @Body() dto: MarkAsReadDto,
+    @Req() req: Request,
+  ): Promise<{ count: number }> {
+    const actor = req.user as JwtPayload;
+    return this.cabinetService.markMessagesAsRead(caseId, dto.messageIds, actor.sub);
   }
 }

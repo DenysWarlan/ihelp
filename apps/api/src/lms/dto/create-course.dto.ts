@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsArray, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsArray, MaxLength, IsEnum } from 'class-validator';
+import { CourseVisibility } from '@prisma/client';
 
 export class CreateCourseDto {
   @ApiProperty({ description: 'Course title' })
@@ -28,4 +29,9 @@ export class CreateCourseDto {
   @IsString()
   @IsOptional()
   imageUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Course visibility: PUBLIC (for persons) or STAFF (for consultants)', enum: CourseVisibility })
+  @IsEnum(CourseVisibility)
+  @IsOptional()
+  visibility?: CourseVisibility;
 }

@@ -51,9 +51,16 @@ export class StaffService {
   }
 
   scheduleMeeting(data: ScheduleMeetingRequest): Observable<StaffMeeting> {
+    // Build a Date from local inputs to get the correct UTC ISO string
+    const localDate = new Date(`${data.date}T${data.time}:00`);
     return this.http.post<StaffMeeting>(
-      `/api/cases/${data.caseId}/meetings`,
-      data
+      '/api/meetings',
+      {
+        careCaseId: data.caseId,
+        scheduledAt: localDate.toISOString(),
+        durationMin: data.durationMinutes,
+        notes: data.notes || undefined,
+      }
     );
   }
 

@@ -16,7 +16,8 @@ enum Role {
 
 model User {
   id        String   @id @default(uuid()) @db.Uuid
-  email     String   @unique
+  email     String?  @unique
+  phone     String?  @unique
   name      String
   role      Role     @default(PERSON)
   avatarUrl String?  @map("avatar_url")
@@ -194,6 +195,11 @@ enum CourseStatus {
   ARCHIVED
 }
 
+enum CourseVisibility {
+  PUBLIC
+  STAFF
+}
+
 enum LessonContentType {
   TEXT
   VIDEO
@@ -207,17 +213,18 @@ enum EnrollmentStatus {
 }
 
 model Course {
-  id          String       @id @default(uuid()) @db.Uuid
+  id          String           @id @default(uuid()) @db.Uuid
   title       String
   description String
-  status      CourseStatus @default(DRAFT)
-  imageUrl    String?      @map("image_url")
+  status      CourseStatus     @default(DRAFT)
+  visibility  CourseVisibility @default(PUBLIC)
+  imageUrl    String?          @map("image_url")
   language    String?
-  tags        String[]     @default([])
-  lessonCount Int          @default(0) @map("lesson_count")
-  gracePeriodEnd DateTime? @map("grace_period_end")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  tags        String[]         @default([])
+  lessonCount Int              @default(0) @map("lesson_count")
+  gracePeriodEnd DateTime?     @map("grace_period_end")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
   lessons     Lesson[]
   careCases   CareCase[]

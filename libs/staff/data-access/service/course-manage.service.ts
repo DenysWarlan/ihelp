@@ -23,6 +23,10 @@ export class CourseManageService {
     );
   }
 
+  getStaffCourses(): Observable<AdminCourse[]> {
+    return this.http.get<AdminCourse[]>('/api/courses/staff');
+  }
+
   getCourseDetail(id: string): Observable<AdminCourseDetail> {
     return this.http.get<AdminCourseDetail>(`/api/admin/courses/${id}`);
   }
@@ -33,7 +37,7 @@ export class CourseManageService {
 
   updateCourse(
     id: string,
-    dto: Partial<{ title: string; description: string }>
+    dto: Partial<{ title: string; description: string; visibility: string }>
   ): Observable<AdminCourseDetail> {
     return this.http.patch<AdminCourseDetail>(`/api/admin/courses/${id}`, dto);
   }

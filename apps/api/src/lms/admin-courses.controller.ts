@@ -7,12 +7,12 @@ import {
   Param,
   Body,
   Query,
-  ParseUUIDPipe,
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
@@ -86,7 +86,7 @@ export class AdminCoursesController {
   @ApiOperation({ summary: 'Get course detail (any status) with lessons' })
   @ApiOkResponse({ description: 'Course detail with lessons' })
   @ApiNotFoundResponse({ description: 'Course not found' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+  async findOne(@Param('id', ParseUuidPipe) id: string) {
     return this.coursesService.findOne(id);
   }
 
@@ -95,7 +95,7 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Course updated' })
   @ApiNotFoundResponse({ description: 'Course not found' })
   async update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: UpdateCourseDto,
   ) {
     return this.coursesService.update(id, dto);
@@ -106,7 +106,7 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Course archived' })
   @ApiNotFoundResponse({ description: 'Course not found' })
   @ApiBadRequestResponse({ description: 'Cannot archive from current status' })
-  async softDelete(@Param('id', ParseUUIDPipe) id: string) {
+  async softDelete(@Param('id', ParseUuidPipe) id: string) {
     return this.coursesService.softDelete(id);
   }
 
@@ -116,7 +116,7 @@ export class AdminCoursesController {
   @ApiNotFoundResponse({ description: 'Course not found' })
   @ApiBadRequestResponse({ description: 'Invalid transition or prerequisites not met' })
   async changeStatus(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: ChangeStatusDto,
   ) {
     return this.coursesService.changeStatus(id, dto);
@@ -129,7 +129,7 @@ export class AdminCoursesController {
   @ApiCreatedResponse({ description: 'Lesson created' })
   @ApiNotFoundResponse({ description: 'Course not found' })
   async createLesson(
-    @Param('id', ParseUUIDPipe) courseId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
     @Body() dto: CreateLessonDto,
   ) {
     return this.lessonsService.create(courseId, dto);
@@ -139,7 +139,7 @@ export class AdminCoursesController {
   @ApiOperation({ summary: 'List lessons for a course' })
   @ApiOkResponse({ description: 'List of lessons ordered by sortOrder' })
   @ApiNotFoundResponse({ description: 'Course not found' })
-  async findLessons(@Param('id', ParseUUIDPipe) courseId: string) {
+  async findLessons(@Param('id', ParseUuidPipe) courseId: string) {
     return this.lessonsService.findByCourse(courseId);
   }
 
@@ -148,8 +148,8 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Lesson updated' })
   @ApiNotFoundResponse({ description: 'Lesson not found' })
   async updateLesson(
-    @Param('id', ParseUUIDPipe) courseId: string,
-    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
+    @Param('lessonId', ParseUuidPipe) lessonId: string,
     @Body() dto: UpdateLessonDto,
   ) {
     return this.lessonsService.update(lessonId, dto, courseId);
@@ -160,8 +160,8 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Lesson deleted' })
   @ApiNotFoundResponse({ description: 'Lesson not found' })
   async deleteLesson(
-    @Param('id', ParseUUIDPipe) courseId: string,
-    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
+    @Param('lessonId', ParseUuidPipe) lessonId: string,
   ) {
     return this.lessonsService.delete(lessonId, courseId);
   }
@@ -171,7 +171,7 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Lessons reordered' })
   @ApiNotFoundResponse({ description: 'Course not found' })
   async reorderLessons(
-    @Param('id', ParseUUIDPipe) courseId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
     @Body() dto: ReorderLessonsDto,
   ) {
     return this.lessonsService.reorder(courseId, dto.lessonIds);
@@ -185,7 +185,7 @@ export class AdminCoursesController {
   @ApiNotFoundResponse({ description: 'Course not found' })
   @ApiBadRequestResponse({ description: 'Course is not in PUBLISHED status' })
   async publishVersion(
-    @Param('id', ParseUUIDPipe) courseId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
     @Body() dto: PublishVersionDto,
   ) {
     return this.courseVersionService.publishVersion(courseId, dto.changelog);
@@ -195,7 +195,7 @@ export class AdminCoursesController {
   @ApiOperation({ summary: 'List all versions for a course' })
   @ApiOkResponse({ description: 'List of versions' })
   @ApiNotFoundResponse({ description: 'Course not found' })
-  async listVersions(@Param('id', ParseUUIDPipe) courseId: string) {
+  async listVersions(@Param('id', ParseUuidPipe) courseId: string) {
     return this.courseVersionService.listVersions(courseId);
   }
 
@@ -204,7 +204,7 @@ export class AdminCoursesController {
   @ApiOkResponse({ description: 'Version detail' })
   @ApiNotFoundResponse({ description: 'Version not found' })
   async getVersion(
-    @Param('id', ParseUUIDPipe) courseId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
     @Param('versionNum', ParseIntPipe) versionNum: number,
   ) {
     return this.courseVersionService.getVersion(courseId, versionNum);
@@ -216,7 +216,7 @@ export class AdminCoursesController {
   @ApiNotFoundResponse({ description: 'Course not found' })
   @ApiBadRequestResponse({ description: 'No versions exist or grace period active' })
   async forceUpdateEnrollments(
-    @Param('id', ParseUUIDPipe) courseId: string,
+    @Param('id', ParseUuidPipe) courseId: string,
   ) {
     return this.courseVersionService.forceUpdateEnrollments(courseId);
   }
@@ -266,7 +266,7 @@ export class AdminCoursesController {
   @ApiOperation({ summary: 'Export course as JSON bundle' })
   @ApiOkResponse({ description: 'Course export bundle or async job reference' })
   @ApiNotFoundResponse({ description: 'Course not found' })
-  async exportCourse(@Param('id', ParseUUIDPipe) courseId: string) {
+  async exportCourse(@Param('id', ParseUuidPipe) courseId: string) {
     return this.importExportService.exportCourse(courseId);
   }
 }

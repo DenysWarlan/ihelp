@@ -1,50 +1,174 @@
 <ng-container *transloco="let t">
   <section class="meetings">
-    <h1 class="meetings__title">{{ t('staff.meetings') }}</h1>
+    <div class="meetings__header">
+      <h1 class="meetings__title">{{ t('staff.meetings') }}</h1>
+      <button class="meetings__schedule-btn" (click)="openModal()">
+        {{ t('staffMeetings.scheduleMeeting') }}
+      </button>
+    </div>
 
     @if (isLoading()) {
       <p class="meetings__loading">{{ t('common.loading') }}</p>
     } @else if (meetings().length === 0) {
       <div class="meetings__empty-state">
         <p class="meetings__empty">{{ t('staffMeetings.empty') }}</p>
-        <button class="meetings__schedule-btn" (click)="onScheduleMeeting()">
-          {{ t('staffMeetings.scheduleMeeting') }}
-        </button>
       </div>
     } @else {
       <div class="meetings__grid">
         @for (meeting of meetings(); track meeting.id) {
-          <ui-card class="meeting-card" padding="md">
-            <div class="meeting-card__header">
-              <span class="meeting-card__title">{{ meeting.title }}</span>
-              <ui-badge [variant]="getMeetingStatusVariant(meeting.status)" size="sm">
-                {{ t('staffMeetings.status.' + meeting.status) }}
-              </ui-badge>
-            </div>
-            <div class="meeting-card__details">
-              <span class="meeting-card__person">{{ meeting.personName }}</span>
-              <span class="meeting-card__time">
-                {{ meeting.scheduledAt | date:'medium' }}
-              </span>
-              <span class="meeting-card__duration">
-                {{ meeting.durationMinutes }} {{ t('staffMeetings.minutes') }}
-              </span>
-            </div>
-            @if (meeting.meetingUrl && meeting.status !== 'COMPLETED' && meeting.status !== 'CANCELLED') {
-              <div class="meeting-card__actions">
-                <a
-                  class="meeting-card__join"
-                  [href]="meeting.meetingUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {{ t('staffMeetings.join') }}
-                </a>
+          <div class="meeting-card" [class.meeting-card--past]="meeting.status === 'COMPLETED' || meeting.status === 'CANCELLED'">
+            <div class="meeting-card__top">
+              <div class="meeting-card__topic-row">
+                <span class="meeting-card__topic">{{ meeting.topic || t('staffMeetings.noTopic') }}</span>
+                <ui-badge [variant]="getMeetingStatusVariant(meeting.status)" size="sm">
+                  {{ t('staffMeetings.status.' + meeting.status) }}
+                </ui-badge>
               </div>
+              @if (meeting.personName) {
+                <span class="meeting-card__person">{{ meeting.personName }}</span>
+              }
+            </div>
+
+            <div class="meeting-card__meta">
+              <div class="meeting-card__meta-item">
+                <span class="meeting-card__meta-icon">&#128197;</span>
+                <span>{{ meeting.scheduledAt | date:'d MMM y' }}</span>
+              </div>
+              <div class="meeting-card__meta-item">
+                <span class="meeting-card__meta-icon">&#128336;</span>
+                <span>{{ meeting.scheduledAt | date:'HH:mm' }}</span>
+              </div>
+              <div class="meeting-card__meta-item">
+                <span class="meeting-card__meta-icon">&#9202;</span>
+                <span>{{ meeting.durationMin }} {{ t('staffMeetings.minutes') }}</span>
+              </div>
+            </div>
+
+            @if (meeting.notes) {
+              <p class="meeting-card__notes">{{ meeting.notes }}</p>
             }
-          </ui-card>
+
+            @if (meeting.meetingUrl && meeting.status !== 'COMPLETED' && meeting.status !== 'CANCELLED') {
+              <a
+                class="meeting-card__join"
+                [href]="meeting.meetingUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ t('staffMeetings.join') }}
+              </a>
+            }
+          </div>
         }
       </div>
     }
   </section>
+
+  <!-- Schedule Meeting Modal -->
+  <ui-modal [isOpen]="isModalOpen()" [title]="t('staffMeetings.scheduleTitle')" (closed)="closeModal()" size="lg">
+    <form class="schedule-modal" (submit)="onSubmit()">
+      <div class="schedule-modal__section">
+        <label class="schedule-modal__label">{{ t('staffMeetings.selectCase') }}</label>
+
+        @if (selectedCaseId()) {
+          <div class="schedule-modal__selected-case">
+            <span>{{ getSelectedCaseName() }}</span>
+            <button type="button" class="schedule-modal__clear" (click)="selectedCaseId.set('')">
+              &times;
+            </button>
+          </div>
+        } @else {
+          <input
+            type="text"
+            class="schedule-modal__input"
+            [placeholder]="t('staffMeetings.searchCase')"
+            [ngModel]="caseSearch()"
+            (ngModelChange)="caseSearch.set($event)"
+            name="caseSearch"
+          />
+          <div class="schedule-modal__case-list">
+            @for (c of filteredCases(); track c.id) {
+              <button type="button" class="schedule-modal__case-item" (click)="selectCase(c)">
+                <span class="schedule-modal__case-name">{{ c.personName }}</span>
+                <span class="schedule-modal__case-topic">{{ c.topic }}</span>
+              </button>
+            } @empty {
+              <p class="schedule-modal__no-cases">{{ t('staffMeetings.noCases') }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      @if (selectedCaseId()) {
+        <div class="schedule-modal__row">
+          <div class="schedule-modal__field">
+            <label class="schedule-modal__label">{{ t('staffMeetings.dateLabel') }}</label>
+            <input
+              type="date"
+              class="schedule-modal__input"
+              [ngModel]="formModel().date"
+              (ngModelChange)="updateField('date', $event)"
+              [min]="today"
+              name="date"
+              required
+            />
+          </div>
+          <div class="schedule-modal__field">
+            <label class="schedule-modal__label">{{ t('staffMeetings.timeLabel') }}</label>
+            <input
+              type="time"
+              class="schedule-modal__input"
+              [ngModel]="formModel().time"
+              (ngModelChange)="updateField('time', $event)"
+              name="time"
+              required
+            />
+          </div>
+          <div class="schedule-modal__field">
+            <label class="schedule-modal__label">{{ t('staffMeetings.durationLabel') }}</label>
+            <select
+              class="schedule-modal__input"
+              [ngModel]="formModel().duration"
+              (ngModelChange)="updateField('duration', $event)"
+              name="duration"
+            >
+              <option value="15">15 {{ t('staffMeetings.minutes') }}</option>
+              <option value="30">30 {{ t('staffMeetings.minutes') }}</option>
+              <option value="45">45 {{ t('staffMeetings.minutes') }}</option>
+              <option value="60">60 {{ t('staffMeetings.minutes') }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="schedule-modal__section">
+          <label class="schedule-modal__label">{{ t('staffMeetings.notesLabel') }}</label>
+          <textarea
+            class="schedule-modal__textarea"
+            rows="2"
+            [placeholder]="t('staffMeetings.notesPlaceholder')"
+            [ngModel]="formModel().notes"
+            (ngModelChange)="updateField('notes', $event)"
+            name="notes"
+          ></textarea>
+        </div>
+
+        @if (submitError()) {
+          <p class="schedule-modal__error">{{ submitError() }}</p>
+        }
+
+        <div class="schedule-modal__actions">
+          <button
+            type="submit"
+            class="schedule-modal__submit"
+            [disabled]="!formModel().date || !formModel().time"
+          >
+            {{ t('staffMeetings.createMeeting') }}
+          </button>
+          <button type="button" class="schedule-modal__cancel" (click)="closeModal()">
+            {{ t('staffMeetings.cancel') }}
+          </button>
+        </div>
+      }
+    </form>
+  </ui-modal>
 </ng-container>

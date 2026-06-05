@@ -5,7 +5,7 @@ import { authGuard, roleGuard } from '@org/shared/data-access';
 const ADMIN_ONLY = ['ADMIN'] as const;
 const COORD_ONLY = ['COORDINATOR'] as const;
 const SUPER_ONLY = ['SUPERVISOR'] as const;
-const ADMIN_COORD = ['ADMIN', 'COORDINATOR'] as const;
+const ADMIN_COORD_CONSULT = ['ADMIN', 'COORDINATOR', 'CONSULTANT'] as const;
 
 export const staffRoutes: Routes = [
   {
@@ -116,7 +116,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'courses',
-        canActivate: [roleGuard(...ADMIN_COORD)],
+        canActivate: [roleGuard(...ADMIN_COORD_CONSULT)],
         loadComponent: () =>
           import('./courses-manage/courses-manage.component').then(
             (m) => m.CoursesManageComponent,
@@ -124,7 +124,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'courses/:id',
-        canActivate: [roleGuard(...ADMIN_COORD)],
+        canActivate: [roleGuard(...ADMIN_COORD_CONSULT)],
         loadComponent: () =>
           import('./course-edit/course-edit.component').then(
             (m) => m.CourseEditComponent,

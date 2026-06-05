@@ -8,6 +8,13 @@
   gap: var(--ihelp-space-4);
 }
 
+.meetings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ihelp-space-3);
+}
+
 .meetings__title {
   font-family: var(--ihelp-font-heading);
   font-size: 28px;
@@ -38,6 +45,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 
   &:hover {
     opacity: 0.9;
@@ -45,54 +53,292 @@
 }
 
 .meetings__grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: var(--ihelp-space-3);
 }
 
-.meeting-card__header {
+.meeting-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+  padding: var(--ihelp-space-4);
+  background: var(--ihelp-bg-primary);
+  border: 1px solid var(--ihelp-border);
+  border-radius: 12px;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  &--past {
+    opacity: 0.65;
+  }
+}
+
+.meeting-card__top {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meeting-card__topic-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--ihelp-space-2);
-  margin-bottom: var(--ihelp-space-2);
 }
 
-.meeting-card__title {
+.meeting-card__topic {
   font-size: 16px;
   font-weight: 600;
   color: var(--ihelp-text-primary);
-}
-
-.meeting-card__details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ihelp-space-3);
-  font-size: 13px;
-  color: var(--ihelp-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .meeting-card__person {
+  font-size: 13px;
   color: var(--ihelp-text-secondary);
   font-weight: 500;
 }
 
-.meeting-card__actions {
-  margin-top: var(--ihelp-space-3);
+.meeting-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ihelp-space-3);
+}
+
+.meeting-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ihelp-text-muted);
+}
+
+.meeting-card__meta-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.meeting-card__notes {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ihelp-text-secondary);
+  margin: 0;
+  padding: var(--ihelp-space-2) var(--ihelp-space-3);
+  background: var(--ihelp-bg-secondary);
+  border-radius: 6px;
+  line-height: 1.4;
 }
 
 .meeting-card__join {
-  display: inline-block;
-  padding: 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  padding: 8px 20px;
   font-size: 13px;
   font-weight: 600;
   color: var(--ihelp-text-inverse);
   background-color: var(--ihelp-accent);
   border-radius: 6px;
   text-decoration: none;
-  transition: background-color 0.15s ease;
+  transition: opacity 0.15s ease;
 
   &:hover {
-    background-color: var(--ihelp-accent);
+    opacity: 0.9;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Schedule Meeting Modal
+// ---------------------------------------------------------------------------
+
+.schedule-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-4);
+}
+
+.schedule-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.schedule-modal__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ihelp-text-secondary);
+}
+
+.schedule-modal__input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--ihelp-border);
+  border-radius: 8px;
+  background: var(--ihelp-bg-primary);
+  color: var(--ihelp-text-primary);
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: var(--ihelp-accent);
+  }
+}
+
+.schedule-modal__textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--ihelp-border);
+  border-radius: 8px;
+  background: var(--ihelp-bg-primary);
+  color: var(--ihelp-text-primary);
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: var(--ihelp-accent);
+  }
+}
+
+.schedule-modal__case-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--ihelp-border);
+  border-radius: 8px;
+  background: var(--ihelp-bg-primary);
+}
+
+.schedule-modal__case-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  color: var(--ihelp-text-primary);
+  border-bottom: 1px solid var(--ihelp-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--ihelp-bg-secondary);
+  }
+}
+
+.schedule-modal__case-name {
+  font-weight: 600;
+}
+
+.schedule-modal__case-topic {
+  font-size: 13px;
+  color: var(--ihelp-text-muted);
+}
+
+.schedule-modal__no-cases {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--ihelp-text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.schedule-modal__selected-case {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--ihelp-bg-secondary);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ihelp-text-primary);
+}
+
+.schedule-modal__clear {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--ihelp-text-muted);
+  padding: 0 4px;
+
+  &:hover {
+    color: var(--ihelp-text-primary);
+  }
+}
+
+.schedule-modal__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--ihelp-space-3);
+}
+
+.schedule-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-2);
+}
+
+.schedule-modal__error {
+  color: var(--ihelp-error, #ef4444);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.schedule-modal__actions {
+  display: flex;
+  gap: var(--ihelp-space-3);
+  justify-content: flex-end;
+  padding-top: var(--ihelp-space-2);
+}
+
+.schedule-modal__submit {
+  padding: 10px 24px;
+  background-color: var(--ihelp-accent);
+  color: var(--ihelp-text-inverse);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.schedule-modal__cancel {
+  padding: 10px 24px;
+  background: none;
+  color: var(--ihelp-text-secondary);
+  border: 1px solid var(--ihelp-border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ihelp-bg-secondary);
   }
 }

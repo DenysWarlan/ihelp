@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -12,7 +11,7 @@ import type { CaseDetail } from '@org/staff/data-access';
 @Component({
   selector: 'app-case-detail',
   standalone: true,
-  imports: [TranslocoDirective, BadgeComponent, ButtonComponent, IconComponent, DatePipe, FormsModule],
+  imports: [TranslocoDirective, BadgeComponent, ButtonComponent, IconComponent, DatePipe],
   templateUrl: './case-detail.component.html',
   styleUrl: './case-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,7 +24,6 @@ export class CaseDetailComponent implements OnInit {
   readonly selectedCase: Signal<CaseDetail | null> = this.facade.selectedCase;
   readonly isLoading: Signal<boolean> = this.facade.isLoading;
   readonly error: Signal<string | null> = this.facade.error;
-  readonly messageInput: WritableSignal<string> = signal('');
   readonly showCompleteConfirm: WritableSignal<boolean> = signal(false);
 
   readonly messagesCount: Signal<number> = computed(
@@ -34,6 +32,10 @@ export class CaseDetailComponent implements OnInit {
 
   readonly notesCount: Signal<number> = computed(
     () => this.selectedCase()?.notes.length ?? 0,
+  );
+
+  readonly meetingsCount: Signal<number> = computed(
+    () => this.selectedCase()?.meetings.length ?? 0,
   );
 
   readonly canComplete: Signal<boolean> = computed(() => {
@@ -48,12 +50,10 @@ export class CaseDetailComponent implements OnInit {
     }
   }
 
-  onSendMessage(): void {
+  onOpenChat(): void {
     const c: CaseDetail | null = this.selectedCase();
-    const text: string = this.messageInput().trim();
-    if (c && text) {
-      this.facade.sendCaseMessage(c.id, text);
-      this.messageInput.set('');
+    if (c) {
+      this.router.navigate(['/staff/chat'], { queryParams: { caseId: c.id } });
     }
   }
 
@@ -113,6 +113,21 @@ export class CaseDetailComponent implements OnInit {
       case 'MEDIUM':
         return 'info';
       case 'LOW':
+        return 'neutral';
+      default:
+        return 'neutral';
+    }
+  }
+
+  getMeetingStatusVariant(status: string): BadgeVariant {
+    switch (status) {
+      case 'SCHEDULED':
+        return 'info';
+      case 'IN_PROGRESS':
+        return 'warning';
+      case 'COMPLETED':
+        return 'success';
+      case 'CANCELLED':
         return 'neutral';
       default:
         return 'neutral';

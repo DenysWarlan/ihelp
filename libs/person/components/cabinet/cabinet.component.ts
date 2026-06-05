@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
+  ButtonComponent,
   IconComponent,
   ProgressBarComponent,
 } from '@org/shared/ui';
@@ -15,6 +16,7 @@ import { PersonFacade, PersonMeeting } from '@org/person/data-access';
   imports: [
     DatePipe,
     TranslocoDirective,
+    ButtonComponent,
     IconComponent,
     ProgressBarComponent,
   ],

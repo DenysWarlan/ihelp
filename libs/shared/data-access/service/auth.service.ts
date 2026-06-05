@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import {
   PersonLoginRequest,
   PersonLoginResponse,
+  PersonRegisterRequest,
+  PhoneLoginRequest,
   StaffLoginRequest,
   StaffLoginResponse,
   TokenPair,
@@ -24,6 +26,20 @@ export class AuthService {
   personLogin(request: PersonLoginRequest): Observable<PersonLoginResponse> {
     return this.http.post<PersonLoginResponse>(
       '/api/auth/person/login',
+      request,
+    );
+  }
+
+  personLoginByPhone(request: PhoneLoginRequest): Observable<PersonLoginResponse> {
+    return this.http.post<PersonLoginResponse>(
+      '/api/auth/person/login/phone',
+      request,
+    );
+  }
+
+  personRegister(request: PersonRegisterRequest): Observable<TokenPair> {
+    return this.http.post<TokenPair>(
+      '/api/auth/person/register',
       request,
     );
   }

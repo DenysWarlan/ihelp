@@ -1,5 +1,4 @@
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   patchState,
   signalStore,
@@ -42,7 +41,6 @@ export const StaffStore = signalStore(
   withState(initialState),
   withMethods((store) => {
     const staffService = inject(StaffService);
-    const router = inject(Router);
 
     return {
       loadDashboard: rxMethod<void>(
@@ -157,9 +155,12 @@ export const StaffStore = signalStore(
           tap(() => patchState(store, { isLoading: true, error: null })),
           switchMap(() =>
             staffService.getMeetings().pipe(
-              tap((meetings: StaffMeeting[]) =>
-                patchState(store, { meetings, isLoading: false })
-              ),
+              tap((meetings: StaffMeeting[]) => {
+                const sorted = [...meetings].sort(
+                  (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+                );
+                patchState(store, { meetings: sorted, isLoading: false });
+              }),
               catchError(() => {
                 patchState(store, {
                   isLoading: false,
@@ -178,11 +179,10 @@ export const StaffStore = signalStore(
           switchMap((data: ScheduleMeetingRequest) =>
             staffService.scheduleMeeting(data).pipe(
               tap((meeting: StaffMeeting) => {
-                patchState(store, {
-                  meetings: [...store.meetings(), meeting],
-                  isLoading: false,
-                });
-                router.navigate(['/staff/cases', data.caseId]);
+                const updated = [...store.meetings(), meeting].sort(
+                  (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+                );
+                patchState(store, { meetings: updated, isLoading: false });
               }),
               catchError(() => {
                 patchState(store, {

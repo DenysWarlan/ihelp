@@ -5,12 +5,12 @@ import {
   Get,
   Logger,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -52,7 +52,7 @@ export class MessageController {
   @ApiResponse({ status: 200, description: 'Paginated messages' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async findByCaseId(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
     @Query() query: MessageQueryDto,
     @Req() req: Request,
   ): Promise<PaginatedMessagesResponse> {
@@ -72,7 +72,7 @@ export class MessageController {
   @ApiNotFoundResponse({ description: 'Case not found' })
   @ApiUnprocessableEntityResponse({ description: 'Unsupported channel' })
   async create(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
     @Body() dto: SendMessageDto,
     @Req() req: Request,
   ): Promise<MessageResponse> {
@@ -114,7 +114,7 @@ export class CaseChannelController {
   @ApiResponse({ status: 200, description: 'Active channel information' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async getActiveChannel(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
     @Req() req: Request,
   ): Promise<ActiveChannelResponse> {
     const actor = req.user as JwtPayload;
@@ -133,7 +133,7 @@ export class MessageReadController {
   @ApiResponse({ status: 200, description: 'Message marked as read' })
   @ApiNotFoundResponse({ description: 'Message not found' })
   async markAsRead(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ): Promise<MessageResponse> {
     const actor = req.user as JwtPayload;
@@ -146,7 +146,7 @@ export class MessageReadController {
   @ApiNotFoundResponse({ description: 'Message not found' })
   @ApiForbiddenResponse({ description: 'Cannot edit another user\'s message' })
   async editMessage(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: EditMessageDto,
     @Req() req: Request,
   ): Promise<MessageResponse> {
@@ -160,7 +160,7 @@ export class MessageReadController {
   @ApiNotFoundResponse({ description: 'Message not found' })
   @ApiForbiddenResponse({ description: 'Cannot delete another user\'s message' })
   async softDeleteMessage(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ): Promise<MessageResponse> {
     const actor = req.user as JwtPayload;
@@ -173,7 +173,7 @@ export class MessageReadController {
   @ApiNotFoundResponse({ description: 'Message not found' })
   @ApiForbiddenResponse({ description: 'Insufficient permissions' })
   async getVersionHistory(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ): Promise<MessageVersionResponse[]> {
     const actor = req.user as JwtPayload;

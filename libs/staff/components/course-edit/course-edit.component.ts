@@ -44,6 +44,11 @@ export class CourseEditComponent implements OnInit {
     { value: 'MIXED', label: 'Mixed' },
   ];
 
+  readonly visibilityOptions = [
+    { value: 'PUBLIC', label: 'Public (for clients)' },
+    { value: 'STAFF', label: 'Staff (for consultants)' },
+  ];
+
   private courseId = '';
 
   ngOnInit(): void {
@@ -75,6 +80,10 @@ export class CourseEditComponent implements OnInit {
 
   protected onSaveDescription(value: string): void {
     this.facade.updateCourseField('description', value);
+  }
+
+  protected onSaveVisibility(value: string): void {
+    this.facade.updateCourseField('visibility', value);
   }
 
   protected onAddLesson(): void {

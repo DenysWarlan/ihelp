@@ -1,0 +1,108 @@
+<ng-container *transloco="let t">
+  <div class="register">
+    <div class="register__brand">
+      <div class="register__brand-content">
+        <ui-icon name="HeartHandshake" [size]="64" color="var(--ihelp-text-inverse)" />
+        <h1 class="register__brand-title">{{ t('layout.appName') }}</h1>
+        <p class="register__brand-subtitle">{{ t('login.brandSubtitle') }}</p>
+      </div>
+    </div>
+
+    <div class="register__form-side">
+      <div class="register__form-container">
+        <h2 class="register__title">{{ t('register.title') }}</h2>
+        <p class="register__subtitle">{{ t('register.subtitle') }}</p>
+
+        @if (facade.error()) {
+          <ui-alert-banner variant="crisis" [dismissible]="true" (dismissed)="facade.clearError()">
+            {{ facade.error() }}
+          </ui-alert-banner>
+        }
+
+        <div class="register__tabs">
+          <button
+            type="button"
+            class="register__tab"
+            [class.register__tab--active]="identifierMode() === 'email'"
+            (click)="setMode('email')"
+          >
+            {{ t('register.tabEmail') }}
+          </button>
+          <button
+            type="button"
+            class="register__tab"
+            [class.register__tab--active]="identifierMode() === 'phone'"
+            (click)="setMode('phone')"
+          >
+            {{ t('register.tabPhone') }}
+          </button>
+        </div>
+
+        <form class="register__form" (submit)="onSubmit()">
+          <ui-input
+            [label]="t('register.nameLabel')"
+            type="text"
+            [placeholder]="t('register.namePlaceholder')"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            name="name"
+          />
+
+          @if (identifierMode() === 'email') {
+            <ui-input
+              [label]="t('login.emailLabel')"
+              type="email"
+              [placeholder]="t('login.emailPlaceholder')"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              name="email"
+            />
+          } @else {
+            <ui-input
+              [label]="t('login.phoneLabel')"
+              type="tel"
+              [placeholder]="t('login.phonePlaceholder')"
+              [ngModel]="phone()"
+              (ngModelChange)="phone.set($event)"
+              name="phone"
+            />
+          }
+
+          <ui-input
+            [label]="t('login.passwordLabel')"
+            type="password"
+            [placeholder]="t('login.passwordPlaceholder')"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            name="password"
+          />
+
+          <ui-button
+            type="submit"
+            variant="primary"
+            size="lg"
+            [loading]="facade.isLoading()"
+            [disabled]="isSubmitDisabled()"
+          >
+            {{ t('register.registerButton') }}
+          </ui-button>
+        </form>
+
+        <p class="register__login-link">
+          {{ t('register.hasAccount') }}
+          <a routerLink="/login">{{ t('register.loginLink') }}</a>
+        </p>
+
+        <p class="register__consent">
+          {{ t('login.consent') }}
+          <a
+            href="/privacy"
+            class="register__privacy-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ t('login.privacyPolicy') }}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</ng-container>

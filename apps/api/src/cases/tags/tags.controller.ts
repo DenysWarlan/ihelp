@@ -6,10 +6,10 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Post,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -70,7 +70,7 @@ export class TagsController {
   @ApiConflictResponse({ description: 'Tag already assigned to case' })
   @ApiNotFoundResponse({ description: 'Case or tag not found' })
   async addTag(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
     @Body() dto: AddTagDto,
     @Req() req: Request,
   ): Promise<CaseTagResponse> {
@@ -85,8 +85,8 @@ export class TagsController {
   @ApiResponse({ status: 204, description: 'Tag removed from case' })
   @ApiNotFoundResponse({ description: 'Case or tag assignment not found' })
   async removeTag(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
-    @Param('tagId', ParseUUIDPipe) tagId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
+    @Param('tagId', ParseUuidPipe) tagId: string,
     @Req() req: Request,
   ): Promise<void> {
     const actor = req.user as JwtPayload;

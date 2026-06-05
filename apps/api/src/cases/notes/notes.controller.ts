@@ -3,11 +3,11 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -36,7 +36,7 @@ export class NotesController {
   @ApiResponse({ status: 201, description: 'Note created' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async create(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
     @Body() dto: CreateNoteDto,
     @Req() req: Request,
   ): Promise<NoteResponse | NoteWithPiiWarnings> {
@@ -49,7 +49,7 @@ export class NotesController {
   @ApiResponse({ status: 200, description: 'List of notes' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async findAll(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
   ): Promise<NoteResponse[]> {
     return this.notesService.findAll(caseId);
   }
@@ -60,8 +60,8 @@ export class NotesController {
   @ApiNotFoundResponse({ description: 'Note not found' })
   @ApiForbiddenResponse({ description: 'Only the author can edit' })
   async update(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
-    @Param('noteId', ParseUUIDPipe) noteId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
+    @Param('noteId', ParseUuidPipe) noteId: string,
     @Body() dto: UpdateNoteDto,
     @Req() req: Request,
   ): Promise<NoteResponse | NoteWithPiiWarnings> {

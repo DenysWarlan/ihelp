@@ -4,8 +4,8 @@ import {
   Post,
   Param,
   Req,
-  ParseUUIDPipe,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiTags,
   ApiOperation,
@@ -42,7 +42,7 @@ export class ProgressController {
   @ApiNotFoundResponse({ description: 'Lesson not found' })
   @ApiBadRequestResponse({ description: 'Not enrolled or enrollment not active' })
   async completeLesson(
-    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Param('lessonId', ParseUuidPipe) lessonId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
@@ -57,7 +57,7 @@ export class ProgressController {
   @ApiNotFoundResponse({ description: 'Lesson not found' })
   @ApiBadRequestResponse({ description: 'Not enrolled or enrollment not active' })
   async skipLesson(
-    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Param('lessonId', ParseUuidPipe) lessonId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
@@ -71,7 +71,7 @@ export class ProgressController {
   @ApiOkResponse({ type: CourseProgressDto, description: 'Course progress with lesson details' })
   @ApiNotFoundResponse({ description: 'Enrollment not found' })
   async getProgress(
-    @Param('enrollmentId', ParseUUIDPipe) enrollmentId: string,
+    @Param('enrollmentId', ParseUuidPipe) enrollmentId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
@@ -86,7 +86,7 @@ export class ProgressController {
   @ApiNotFoundResponse({ description: 'Enrollment not found' })
   @ApiBadRequestResponse({ description: 'Max resets reached or enrollment dropped' })
   async resetProgress(
-    @Param('enrollmentId', ParseUUIDPipe) enrollmentId: string,
+    @Param('enrollmentId', ParseUuidPipe) enrollmentId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
@@ -101,7 +101,7 @@ export class ProgressController {
   @ApiNotFoundResponse({ description: 'Enrollment not found' })
   @ApiBadRequestResponse({ description: 'Already dropped' })
   async dropEnrollment(
-    @Param('enrollmentId', ParseUUIDPipe) enrollmentId: string,
+    @Param('enrollmentId', ParseUuidPipe) enrollmentId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
@@ -116,8 +116,8 @@ export class ProgressController {
   @ApiNotFoundResponse({ description: 'Course or lesson not found' })
   @ApiBadRequestResponse({ description: 'Not enrolled or lesson does not belong to course' })
   async struggling(
-    @Param('courseId', ParseUUIDPipe) courseId: string,
-    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Param('courseId', ParseUuidPipe) courseId: string,
+    @Param('lessonId', ParseUuidPipe) lessonId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;

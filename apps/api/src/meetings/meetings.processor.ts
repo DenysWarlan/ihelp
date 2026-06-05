@@ -9,10 +9,10 @@ import {
   JOB_NO_SHOW_CHECK,
   JOB_NO_SHOW_WAIT_5MIN,
   JOB_REMINDER,
-  MEETING_LINK_BASE_URL,
   MEETINGS_QUEUE,
   NO_SHOW_ELIGIBLE_STATUSES,
 } from './meetings.const.js';
+import { GoogleMeetService } from './google-meet.service.js';
 
 // ---------------------------------------------------------------------------
 // Job payload interfaces
@@ -54,7 +54,10 @@ type MeetingJobPayload =
 export class MeetingsProcessor extends WorkerHost {
   private readonly logger = new Logger(MeetingsProcessor.name);
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly googleMeet: GoogleMeetService,
+  ) {
     super();
   }
 
@@ -86,7 +89,15 @@ export class MeetingsProcessor extends WorkerHost {
 
     const meeting = await this.prisma.meeting.findUnique({
       where: { id: meetingId },
-      select: { id: true, status: true, meetingUrl: true },
+      select: {
+        id: true,
+        status: true,
+        meetingUrl: true,
+        scheduledAt: true,
+        durationMin: true,
+        careCase: { select: { topic: true } },
+        person: { select: { name: true } },
+      },
     });
 
     if (!meeting) {
@@ -99,8 +110,15 @@ export class MeetingsProcessor extends WorkerHost {
       return;
     }
 
-    // MVP: generate a placeholder URL (no real Zoom/Meet integration)
-    const meetingUrl = `${MEETING_LINK_BASE_URL}/${meetingId}`;
+    const personName = meeting.person?.name ?? 'Client';
+    const title = `${meeting.careCase?.topic ?? 'Meeting'} — ${personName}`;
+
+    const meetingUrl = await this.googleMeet.createMeetLink({
+      meetingId,
+      title,
+      scheduledAt: meeting.scheduledAt,
+      durationMin: meeting.durationMin,
+    });
 
     await this.prisma.meeting.update({
       where: { id: meetingId },

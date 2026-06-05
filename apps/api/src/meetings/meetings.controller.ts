@@ -4,12 +4,12 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -61,7 +61,7 @@ export class MeetingsController {
   @ApiResponse({ status: 200, description: 'List of meetings for the case' })
   @ApiNotFoundResponse({ description: 'Case not found or access denied' })
   async findByCaseId(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
     @Req() req: Request,
   ): Promise<MeetingResponse[]> {
     const actor = req.user as JwtPayload;
@@ -104,7 +104,7 @@ export class MeetingsController {
   @ApiResponse({ status: 200, description: 'Meeting details' })
   @ApiNotFoundResponse({ description: 'Meeting not found' })
   async findById(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
   ): Promise<MeetingResponse> {
     return this.meetingsService.findById(id);
   }
@@ -116,7 +116,7 @@ export class MeetingsController {
   @ApiResponse({ status: 400, description: 'Meeting cannot be cancelled' })
   @ApiNotFoundResponse({ description: 'Meeting not found' })
   async cancel(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: CancelMeetingDto,
     @Req() req: Request,
   ): Promise<MeetingResponse> {
@@ -131,7 +131,7 @@ export class MeetingsController {
   @ApiResponse({ status: 400, description: 'Invalid status transition' })
   @ApiNotFoundResponse({ description: 'Meeting not found' })
   async complete(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ): Promise<MeetingResponse> {
     const actor = req.user as JwtPayload;

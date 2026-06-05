@@ -33,7 +33,7 @@
                 <span class="consultant-card__spec">{{ facade.dashboard()?.consultantSpecialty ?? t('cabinet.consultant') }}</span>
               </div>
             </div>
-            <button class="cabinet__green-btn" (click)="onWriteConsultant()">{{ t('cabinet.write') }}</button>
+            <ui-button variant="primary" (click)="onWriteConsultant()">{{ t('cabinet.write') }}</ui-button>
           } @else if (facade.dashboard()?.caseStatus) {
             <div class="consultant-card__waiting">
               <ui-icon name="Clock" [size]="24" color="var(--sai-brand)" />
@@ -41,7 +41,7 @@
             </div>
           } @else {
             <p class="consultant-card__empty">{{ t('cabinet.noConsultant') }}</p>
-            <button class="cabinet__green-btn" (click)="onStartConversation()">{{ t('cabinet.startConversation') }}</button>
+            <ui-button variant="primary" (click)="onStartConversation()">{{ t('cabinet.startConversation') }}</ui-button>
           }
         </div>
 
@@ -58,7 +58,7 @@
             </div>
             @if (meeting.meetingUrl) {
               <a [href]="meeting.meetingUrl" target="_blank" rel="noopener" class="cabinet__green-btn-link">
-                <button class="cabinet__green-btn">{{ t('cabinet.joinMeeting') }}</button>
+                <ui-button variant="primary">{{ t('cabinet.joinMeeting') }}</ui-button>
               </a>
             }
           } @else {

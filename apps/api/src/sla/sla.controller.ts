@@ -2,8 +2,8 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -36,7 +36,7 @@ export class SlaController {
   @ApiOkResponse({ description: 'SLA timer details' })
   @ApiNotFoundResponse({ description: 'No SLA timer found for this case' })
   async getSlaTimer(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
   ): Promise<SlaTimerResponse> {
     return this.slaService.getTimer(caseId);
   }

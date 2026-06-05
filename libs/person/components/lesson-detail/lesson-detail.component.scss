@@ -284,3 +284,61 @@
     }
   }
 }
+
+// Help banner
+.help-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ihelp-space-5) var(--ihelp-space-6);
+  border-radius: 16px;
+  background: var(--ihelp-accent);
+  margin-top: var(--ihelp-space-8);
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: var(--ihelp-space-4);
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ihelp-space-1);
+  }
+
+  &__title {
+    font-size: var(--ihelp-text-base);
+    font-weight: var(--ihelp-font-semibold);
+    color: #fff;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: var(--ihelp-text-sm);
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+
+  &__btn ::ng-deep .btn {
+    background-color: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: #fff;
+    }
+  }
+}

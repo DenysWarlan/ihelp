@@ -13,20 +13,39 @@
   color: var(--ihelp-text-muted);
 }
 
+// Crisis banner
+.case-detail__crisis-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+  padding: 10px 16px;
+  background-color: var(--ihelp-warning-bg, #fff7ed);
+  color: var(--ihelp-warning, #f59e0b);
+  border: 1px solid var(--ihelp-warning, #f59e0b);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: var(--ihelp-space-3);
+
+  &--critical {
+    background-color: var(--ihelp-error-bg, #fef2f2);
+    color: var(--ihelp-error, #dc2626);
+    border-color: var(--ihelp-error, #dc2626);
+  }
+}
+
 .case-detail__layout {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr 380px;
   gap: var(--ihelp-space-4);
   min-height: calc(100vh - 120px);
 }
 
-// Chat panel
-.case-detail__chat {
+// Main panel
+.case-detail__main {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--ihelp-border);
-  border-radius: 12px;
-  overflow: hidden;
+  gap: var(--ihelp-space-4);
 }
 
 .case-detail__chat-header {
@@ -38,19 +57,88 @@
   background-color: var(--ihelp-bg-primary, #fff);
 }
 
+.case-detail__header-badges {
+  display: flex;
+  gap: var(--ihelp-space-2);
+}
+
 .case-detail__person-name {
   font-weight: 600;
   font-size: 16px;
   color: var(--ihelp-text-primary);
 }
 
-.case-detail__messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--ihelp-space-4);
+.case-detail__description {
+  padding: var(--ihelp-space-3);
+  border-radius: 12px;
+  background-color: var(--ihelp-bg-secondary, #f9fafb);
+
+  p {
+    font-size: 14px;
+    color: var(--ihelp-text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+// Person info card
+.case-detail__info-card {
+  padding: var(--ihelp-space-3);
+  border-radius: 12px;
+  border: 1px solid var(--ihelp-border);
+  background-color: var(--ihelp-bg-primary, #fff);
+}
+
+.case-detail__info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ihelp-space-2) var(--ihelp-space-4);
+}
+
+.case-detail__info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.case-detail__info-label {
+  font-size: 11px;
+  color: var(--ihelp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.case-detail__info-value {
+  font-size: 14px;
+  color: var(--ihelp-text-primary);
+  word-break: break-word;
+}
+
+// Chat link
+.case-detail__chat-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ihelp-space-3);
+  padding: var(--ihelp-space-5);
+  border: 2px dashed var(--ihelp-border);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.case-detail__chat-link-text {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+  margin: 0;
+}
+
+// Messages
+.case-detail__recent-messages {
   display: flex;
   flex-direction: column;
   gap: var(--ihelp-space-3);
+  padding: var(--ihelp-space-3);
+  border-radius: 12px;
   background-color: var(--ihelp-bg-secondary, #f9fafb);
 }
 
@@ -91,33 +179,44 @@
   margin-top: 4px;
 }
 
-.case-detail__no-messages {
-  text-align: center;
-  color: var(--ihelp-text-muted);
-  font-size: 14px;
-}
-
-.case-detail__chat-input {
+// Meetings
+.case-detail__meetings-section {
   display: flex;
+  flex-direction: column;
   gap: var(--ihelp-space-2);
   padding: var(--ihelp-space-3);
-  border-top: 1px solid var(--ihelp-border);
-  background-color: var(--ihelp-bg-primary, #fff);
+  border-radius: 12px;
+  border: 1px solid var(--ihelp-border);
 }
 
-.case-detail__input {
-  flex: 1;
-  padding: var(--ihelp-space-2) var(--ihelp-space-3);
-  border: 1px solid var(--ihelp-border);
+.case-detail__meeting-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ihelp-space-2);
   border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  background: transparent;
-  color: var(--ihelp-text-primary);
+  background-color: var(--ihelp-bg-secondary, #f9fafb);
+}
 
-  &:focus {
-    border-color: var(--ihelp-brand, #4a7c59);
-  }
+.case-detail__meeting-info {
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-2);
+}
+
+.case-detail__meeting-date {
+  font-size: 13px;
+  color: var(--ihelp-text-primary);
+}
+
+.case-detail__meeting-duration {
+  font-size: 12px;
+  color: var(--ihelp-text-muted);
+}
+
+.case-detail__meeting-consultant {
+  font-size: 13px;
+  color: var(--ihelp-text-secondary);
 }
 
 // Sidebar
@@ -134,14 +233,21 @@
 }
 
 .case-detail__section-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--ihelp-text-primary);
   margin: 0 0 var(--ihelp-space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--ihelp-space-1);
 }
 
 .case-detail__details-section,
-.case-detail__notes-section {
+.case-detail__notes-section,
+.case-detail__timeline-section,
+.case-detail__sla-section,
+.case-detail__tags-section,
+.case-detail__feedback-section {
   display: flex;
   flex-direction: column;
   gap: var(--ihelp-space-2);
@@ -162,15 +268,52 @@
 }
 
 .case-detail__detail-value {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ihelp-text-primary);
   text-align: right;
 }
 
+// Tags
+.case-detail__tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ihelp-space-1);
+}
+
+.case-detail__tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ihelp-text-primary);
+  background-color: var(--ihelp-bg-secondary, #f3f4f6);
+}
+
+// Feedback
+.case-detail__feedback-rating {
+  display: flex;
+  gap: 2px;
+  margin-bottom: var(--ihelp-space-1);
+}
+
+.case-detail__feedback-comment {
+  font-size: 13px;
+  color: var(--ihelp-text-secondary);
+  margin: 0;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+// Notes
 .case-detail__note {
   padding: var(--ihelp-space-2);
   border-radius: 8px;
   background-color: var(--ihelp-bg-secondary, #f9fafb);
+
+  &--supervisor {
+    border-left: 3px solid var(--ihelp-warning, #f59e0b);
+  }
 }
 
 .case-detail__note-text {
@@ -185,6 +328,11 @@
   color: var(--ihelp-text-muted);
 }
 
+.case-detail__no-notes {
+  font-size: 14px;
+  color: var(--ihelp-text-muted);
+}
+
 // Progress section
 .case-detail__progress-section {
   display: flex;
@@ -196,7 +344,7 @@
 
 .case-detail__progress-stats {
   display: flex;
-  gap: var(--ihelp-space-3);
+  gap: var(--ihelp-space-2);
 }
 
 .case-detail__progress-stat {
@@ -216,12 +364,7 @@
 }
 
 .case-detail__progress-label {
-  font-size: 12px;
-  color: var(--ihelp-text-muted);
-}
-
-.case-detail__no-notes {
-  font-size: 14px;
+  font-size: 11px;
   color: var(--ihelp-text-muted);
 }
 
@@ -283,6 +426,10 @@
 
 @media (max-width: 900px) {
   .case-detail__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .case-detail__info-grid {
     grid-template-columns: 1fr;
   }
 }

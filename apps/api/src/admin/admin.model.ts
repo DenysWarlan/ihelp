@@ -8,12 +8,13 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   Max,
   Min,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { Role } from '@prisma/client';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 import {
   DEFAULT_PAGE_SIZE,
@@ -311,7 +312,7 @@ export interface ScheduleOverlap {
 export class ListAuditLogDto {
   @ApiPropertyOptional({ description: 'Filter by user ID' })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   readonly userId?: string;
 
   @ApiPropertyOptional({ description: 'Filter by action type' })

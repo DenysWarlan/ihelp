@@ -2,8 +2,8 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -28,7 +28,7 @@ export class CaseAuditController {
   @ApiResponse({ status: 200, description: 'List of audit entries' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async findAll(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
   ): Promise<AuditEntryResponse[]> {
     return this.caseAuditService.findAll(caseId);
   }

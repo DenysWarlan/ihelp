@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { LowerCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { DOCUMENT, LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -33,9 +33,14 @@ import { CourseManageFacade, CourseStatus } from '@org/staff/data-access';
 })
 export class CoursesManageComponent implements OnInit {
   protected readonly facade: CourseManageFacade = inject(CourseManageFacade);
+  private readonly doc: Document = inject(DOCUMENT);
+  readonly isAdmin: WritableSignal<boolean> = signal(false);
 
   ngOnInit(): void {
-    this.facade.loadCourses();
+    const win = this.doc.defaultView;
+    const role: string = win?.localStorage?.getItem('ihelp_user_role') ?? '';
+    this.isAdmin.set(role === 'admin' || role === 'coordinator');
+    this.facade.loadCourses(this.isAdmin() ? undefined : 'staff');
   }
 
   protected onCreateCourse(): void {

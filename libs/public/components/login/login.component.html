@@ -5,6 +5,15 @@
         <ui-icon name="HeartHandshake" [size]="64" color="var(--ihelp-text-inverse)" />
         <h1 class="login__brand-title">{{ t('layout.appName') }}</h1>
         <p class="login__brand-subtitle">{{ t('login.brandSubtitle') }}</p>
+
+        <a class="login__support-cta" routerLink="/need-help">
+          <ui-icon name="MessageCircle" [size]="20" color="var(--ihelp-accent)" />
+          <span class="login__support-cta-text">
+            <strong>{{ t('login.helpTitle') }}</strong>
+            {{ t('login.helpSubtitle') }}
+          </span>
+          <ui-icon name="ArrowRight" [size]="18" color="var(--ihelp-text-inverse)" class="login__support-cta-arrow" />
+        </a>
       </div>
     </div>
 
@@ -29,20 +38,52 @@
           </div>
         }
 
+        <div class="login__tabs">
+          <button
+            type="button"
+            class="login__tab"
+            [class.login__tab--active]="loginMode() === 'email'"
+            (click)="setMode('email')"
+          >
+            {{ t('login.tabEmail') }}
+          </button>
+          <button
+            type="button"
+            class="login__tab"
+            [class.login__tab--active]="loginMode() === 'phone'"
+            (click)="setMode('phone')"
+          >
+            {{ t('login.tabPhone') }}
+          </button>
+        </div>
+
         <form class="login__form" (submit)="onSubmit()">
-          <ui-input
-            [label]="t('login.emailLabel')"
-            type="email"
-            [placeholder]="t('login.emailPlaceholder')"
-            [(ngModel)]="email"
-            name="email"
-          />
+          @if (loginMode() === 'email') {
+            <ui-input
+              [label]="t('login.emailLabel')"
+              type="email"
+              [placeholder]="t('login.emailPlaceholder')"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              name="email"
+            />
+          } @else {
+            <ui-input
+              [label]="t('login.phoneLabel')"
+              type="tel"
+              [placeholder]="t('login.phonePlaceholder')"
+              [ngModel]="phone()"
+              (ngModelChange)="phone.set($event)"
+              name="phone"
+            />
+          }
 
           <ui-input
             [label]="t('login.passwordLabel')"
             type="password"
             [placeholder]="t('login.passwordPlaceholder')"
-            [(ngModel)]="password"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
             name="password"
           />
 
@@ -51,11 +92,16 @@
             variant="primary"
             size="lg"
             [loading]="facade.isLoading()"
-            [disabled]="!email || !password"
+            [disabled]="isSubmitDisabled()"
           >
             {{ t('login.loginButton') }}
           </ui-button>
         </form>
+
+        <p class="login__register-link">
+          {{ t('login.noAccount') }}
+          <a routerLink="/register">{{ t('login.registerLink') }}</a>
+        </p>
 
         <div class="login__divider">
           <span class="login__divider-text">{{ t('login.orLoginWith') }}</span>
@@ -86,6 +132,13 @@
           >
             {{ t('login.telegram') }}
           </button>
+        </div>
+
+        <div class="login__support-footer">
+          <a class="login__support-link" routerLink="/need-help">
+            <ui-icon name="Heart" [size]="14" color="var(--ihelp-accent)" />
+            {{ t('login.helpTitle') }} {{ t('login.helpSubtitle') }}
+          </a>
         </div>
 
         <p class="login__consent">

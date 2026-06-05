@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { IconComponent, ButtonComponent, BadgeComponent } from '@org/shared/ui';
 import type { BadgeVariant } from '@org/shared/ui';
@@ -24,6 +25,7 @@ import { StaffChatFacade } from '@org/staff/data-access';
 })
 export class StaffChatComponent implements OnInit {
   readonly facade: StaffChatFacade = inject(StaffChatFacade);
+  private readonly route: ActivatedRoute = inject(ActivatedRoute);
   messageText = '';
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
@@ -40,6 +42,11 @@ export class StaffChatComponent implements OnInit {
 
   ngOnInit(): void {
     this.facade.loadConversations();
+
+    const caseId: string | null = this.route.snapshot.queryParamMap.get('caseId');
+    if (caseId) {
+      this.facade.selectConversation(caseId);
+    }
   }
 
   private scrollToBottom(): void {

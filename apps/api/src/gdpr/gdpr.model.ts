@@ -3,13 +3,14 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
   IsBoolean,
   IsInt,
   Min,
   IsDateString,
 } from 'class-validator';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 // ---------------------------------------------------------------------------
 // Deletion request DTOs (S-E12-03)
@@ -46,7 +47,7 @@ export class CreateExportRequestDto {
 export class CreateAccessRequestDto {
   @ApiProperty({ description: 'UUID of the target user whose data is requested' })
   @IsNotEmpty()
-  @IsUUID()
+  @IsUuidFormat()
   readonly targetUserId!: string;
 
   @ApiProperty({ description: 'Reason for requesting access to personal data' })
@@ -141,7 +142,7 @@ export class AuditLogQueryDto {
 
   @ApiPropertyOptional({ description: 'Filter by user ID' })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   readonly userId?: string;
 
   @ApiPropertyOptional({ description: 'Filter from date (ISO 8601)' })

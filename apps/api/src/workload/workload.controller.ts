@@ -3,9 +3,9 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Patch,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -76,7 +76,7 @@ export class WorkloadController {
   @ApiResponse({ status: 200, description: 'Consultant cases' })
   @ApiNotFoundResponse({ description: 'Consultant profile not found' })
   async getConsultantCases(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('userId', ParseUuidPipe) userId: string,
   ) {
     return this.workloadService.getConsultantCases(userId);
   }
@@ -95,7 +95,7 @@ export class WorkloadController {
     description: 'maxCrisisCases exceeds maxCases',
   })
   async updateLimits(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('userId', ParseUuidPipe) userId: string,
     @Body() dto: UpdateConsultantLimitsDto,
   ) {
     return this.workloadService.updateConsultantLimits(userId, dto);

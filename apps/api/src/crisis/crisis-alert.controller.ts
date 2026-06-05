@@ -4,10 +4,10 @@ import {
   Logger,
   NotFoundException,
   Param,
-  ParseUUIDPipe,
   Post,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -78,7 +78,7 @@ export class CrisisAlertController {
   @ApiResponse({ status: 201, description: 'Alert acknowledged' })
   @ApiNotFoundResponse({ description: 'Alert not found' })
   async acknowledge(
-    @Param('alertId', ParseUUIDPipe) alertId: string,
+    @Param('alertId', ParseUuidPipe) alertId: string,
     @Req() req: Request,
   ): Promise<CrisisAlertResponse> {
     const actor = req.user as JwtPayload;

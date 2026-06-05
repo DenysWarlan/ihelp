@@ -5,9 +5,10 @@ import {
   IsDateString,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import { TransferStatus, TransferType } from '@prisma/client';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 // ---------------------------------------------------------------------------
 // DTOs — Vacation transfer (S-E10-01)
@@ -20,7 +21,7 @@ export class InitiateVacationTransferDto {
   @ApiProperty({
     description: 'User ID of the consultant going on vacation',
   })
-  @IsUUID()
+  @IsUuidFormat()
   consultantUserId!: string;
 
   @ApiProperty({
@@ -54,7 +55,7 @@ export class InitiatePermanentTransferDto {
   @ApiProperty({
     description: 'User ID of the consultant leaving',
   })
-  @IsUUID()
+  @IsUuidFormat()
   consultantUserId!: string;
 
   @ApiPropertyOptional({ description: 'Reason for leaving' })
@@ -77,7 +78,7 @@ export class AcceptTransferMatchDto {
       'If omitted, accepts the auto-matched consultant.',
   })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   overrideConsultantUserId?: string;
 }
 
@@ -95,7 +96,7 @@ export class ReturnCasesDto {
   })
   @IsArray()
   @ArrayNotEmpty()
-  @IsUUID('all', { each: true })
+  @IsUuidFormat({ each: true })
   transferIds!: string[];
 }
 

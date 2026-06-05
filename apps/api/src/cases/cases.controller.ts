@@ -3,12 +3,12 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -77,7 +77,7 @@ export class CasesController {
   @ApiResponse({ status: 200, description: 'Case details' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ): Promise<CaseResponse> {
     const actor = req.user as JwtPayload;
@@ -92,7 +92,7 @@ export class CasesController {
   @ApiConflictResponse({ description: 'Version mismatch' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async changeStatus(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: ChangeStatusDto,
     @Req() req: Request,
   ): Promise<CaseResponse> {
@@ -107,7 +107,7 @@ export class CasesController {
   @ApiConflictResponse({ description: 'Version mismatch' })
   @ApiNotFoundResponse({ description: 'Case or consultant not found' })
   async assign(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: AssignConsultantDto,
     @Req() req: Request,
   ): Promise<CaseResponse> {

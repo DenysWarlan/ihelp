@@ -6,10 +6,10 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -88,7 +88,7 @@ export class CrisisAdminController {
   @ApiOkResponse({ description: 'Keyword updated' })
   @ApiNotFoundResponse({ description: 'Keyword not found' })
   async updateKeyword(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: UpdateCrisisKeywordDto,
   ): Promise<CrisisKeywordResponse> {
     const existing = await this.prisma.crisisKeyword.findUnique({
@@ -120,7 +120,7 @@ export class CrisisAdminController {
   @ApiOkResponse({ description: 'Keyword deleted' })
   @ApiNotFoundResponse({ description: 'Keyword not found' })
   async deleteKeyword(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
   ): Promise<{ deleted: true }> {
     const existing = await this.prisma.crisisKeyword.findUnique({
       where: { id },
@@ -181,7 +181,7 @@ export class CrisisAdminController {
   @ApiOkResponse({ description: 'Auto-reply template updated' })
   @ApiNotFoundResponse({ description: 'Template not found' })
   async updateAutoReply(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: UpdateCrisisAutoReplyDto,
   ): Promise<CrisisAutoReplyResponse> {
     const existing = await this.prisma.crisisAutoReply.findUnique({
@@ -207,7 +207,7 @@ export class CrisisAdminController {
   @ApiOkResponse({ description: 'Auto-reply template deleted' })
   @ApiNotFoundResponse({ description: 'Template not found' })
   async deleteAutoReply(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
   ): Promise<{ deleted: true }> {
     const existing = await this.prisma.crisisAutoReply.findUnique({
       where: { id },

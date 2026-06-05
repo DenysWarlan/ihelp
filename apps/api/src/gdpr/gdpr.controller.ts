@@ -4,12 +4,12 @@ import {
   Delete,
   Get,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -143,7 +143,7 @@ export class GdprAdminController {
   @ApiOkResponse({ description: 'SAR keyword updated' })
   @ApiNotFoundResponse({ description: 'SAR keyword not found' })
   async updateSarKeyword(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: UpdateSarKeywordDto,
   ) {
     return this.gdprService.updateSarKeyword(id, dto);
@@ -154,7 +154,7 @@ export class GdprAdminController {
   @ApiOperation({ summary: 'Delete a SAR keyword' })
   @ApiOkResponse({ description: 'SAR keyword deleted' })
   @ApiNotFoundResponse({ description: 'SAR keyword not found' })
-  async deleteSarKeyword(@Param('id', ParseUUIDPipe) id: string) {
+  async deleteSarKeyword(@Param('id', ParseUuidPipe) id: string) {
     await this.gdprService.deleteSarKeyword(id);
     return { message: 'SAR keyword deleted' };
   }
@@ -193,7 +193,7 @@ export class GdprAdminController {
   @ApiOkResponse({ description: 'Retention policy updated' })
   @ApiNotFoundResponse({ description: 'Retention policy not found' })
   async updateRetentionPolicy(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: UpdateRetentionPolicyDto,
   ) {
     return this.gdprService.updateRetentionPolicy(id, dto);
@@ -204,7 +204,7 @@ export class GdprAdminController {
   @ApiOperation({ summary: 'Delete a retention policy' })
   @ApiOkResponse({ description: 'Retention policy deleted' })
   @ApiNotFoundResponse({ description: 'Retention policy not found' })
-  async deleteRetentionPolicy(@Param('id', ParseUUIDPipe) id: string) {
+  async deleteRetentionPolicy(@Param('id', ParseUuidPipe) id: string) {
     await this.gdprService.deleteRetentionPolicy(id);
     return { message: 'Retention policy deleted' };
   }
@@ -230,7 +230,7 @@ export class GdprAdminController {
   @ApiOkResponse({ description: 'Access request approved' })
   @ApiNotFoundResponse({ description: 'Access request not found' })
   async approveAccessRequest(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ) {
     const user = req.user as JwtPayload;
@@ -243,7 +243,7 @@ export class GdprAdminController {
   @ApiOkResponse({ description: 'Access request rejected' })
   @ApiNotFoundResponse({ description: 'Access request not found' })
   async rejectAccessRequest(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: RejectAccessRequestDto,
     @Req() req: Request,
   ) {

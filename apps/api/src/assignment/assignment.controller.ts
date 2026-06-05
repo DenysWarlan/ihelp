@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Param,
-  ParseUUIDPipe,
   Post,
   Req,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -45,7 +45,7 @@ export class AssignmentController {
   @ApiResponse({ status: 201, description: 'Assignment result (success or fallback)' })
   @ApiNotFoundResponse({ description: 'Case not found' })
   async autoAssign(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Req() req: Request,
   ): Promise<AssignmentResult> {
     const actor = req.user as JwtPayload;
@@ -64,7 +64,7 @@ export class AssignmentController {
   @ApiNotFoundResponse({ description: 'Case or consultant not found' })
   @ApiBadRequestResponse({ description: 'Case is already assigned' })
   async manualAssign(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: ManualAssignDto,
     @Req() req: Request,
   ): Promise<ManualAssignResult> {
@@ -88,7 +88,7 @@ export class AssignmentController {
   @ApiNotFoundResponse({ description: 'Case or consultant not found' })
   @ApiBadRequestResponse({ description: 'Same consultant or invalid state' })
   async reassign(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: ReassignDto,
     @Req() req: Request,
   ): Promise<ReassignResult> {

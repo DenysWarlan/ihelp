@@ -3,58 +3,150 @@
     @if (isLoading()) {
       <p class="case-detail__loading">{{ t('common.loading') }}</p>
     } @else if (selectedCase(); as c) {
+      <!-- Crisis alert banner -->
+      @if (c.crisisLevel && c.crisisLevel !== 'NONE') {
+        <div class="case-detail__crisis-banner" [class.case-detail__crisis-banner--critical]="c.crisisLevel === 'CRITICAL' || c.crisisLevel === 'HIGH'">
+          <ui-icon name="AlertTriangle" [size]="20" />
+          <span>{{ t('staffCaseDetail.crisisAlert') }}: {{ t('staffCaseDetail.crisis_' + c.crisisLevel) }}</span>
+        </div>
+      }
+
       <div class="case-detail__layout">
-        <!-- Left: Chat -->
-        <div class="case-detail__chat">
+        <!-- Left: Main content -->
+        <div class="case-detail__main">
           <div class="case-detail__chat-header">
             <span class="case-detail__person-name">{{ c.personName }} — {{ c.topic }}</span>
-            <ui-badge [variant]="getStatusVariant(c.status)" size="sm">
-              {{ t('staffCases.status.' + c.status) }}
-            </ui-badge>
+            <div class="case-detail__header-badges">
+              <ui-badge [variant]="getStatusVariant(c.status)" size="sm">
+                {{ t('staffCases.status.' + c.status) }}
+              </ui-badge>
+              <ui-badge [variant]="getPriorityVariant(c.priority)" size="sm">
+                {{ t('staffCases.priority.' + c.priority) }}
+              </ui-badge>
+            </div>
           </div>
 
-          <div class="case-detail__messages">
-            @for (msg of c.messages; track msg.id) {
-              <div class="case-detail__message" [class.case-detail__message--staff]="msg.isFromStaff">
-                <div class="case-detail__msg-bubble">
-                  <p class="case-detail__msg-text">{{ msg.content }}</p>
+          <!-- Description -->
+          @if (c.description) {
+            <div class="case-detail__description">
+              <h3 class="case-detail__section-title">{{ t('staffCaseDetail.description') }}</h3>
+              <p>{{ c.description }}</p>
+            </div>
+          }
+
+          <!-- Person info card -->
+          <div class="case-detail__info-card">
+            <h3 class="case-detail__section-title">
+              <ui-icon name="User" [size]="16" color="var(--ihelp-accent)" />
+              {{ t('staffCaseDetail.personInfo') }}
+            </h3>
+            <div class="case-detail__info-grid">
+              @if (c.personEmail) {
+                <div class="case-detail__info-item">
+                  <span class="case-detail__info-label">{{ t('staffCaseDetail.personEmail') }}</span>
+                  <span class="case-detail__info-value">{{ c.personEmail }}</span>
                 </div>
-                <span class="case-detail__msg-meta">{{ msg.authorName }} · {{ msg.createdAt | date:'short' }}</span>
-              </div>
-            } @empty {
-              <p class="case-detail__no-messages">{{ t('staffCaseDetail.noMessages') }}</p>
-            }
+              }
+              @if (c.personPhone) {
+                <div class="case-detail__info-item">
+                  <span class="case-detail__info-label">{{ t('staffCaseDetail.personPhone') }}</span>
+                  <span class="case-detail__info-value">{{ c.personPhone }}</span>
+                </div>
+              }
+              @if (c.contactMethod) {
+                <div class="case-detail__info-item">
+                  <span class="case-detail__info-label">{{ t('staffCaseDetail.contactMethod') }}</span>
+                  <span class="case-detail__info-value">{{ c.contactMethod }}</span>
+                </div>
+              }
+              @if (c.contactValue) {
+                <div class="case-detail__info-item">
+                  <span class="case-detail__info-label">{{ t('staffCaseDetail.contactValue') }}</span>
+                  <span class="case-detail__info-value">{{ c.contactValue }}</span>
+                </div>
+              }
+              @if (c.country) {
+                <div class="case-detail__info-item">
+                  <span class="case-detail__info-label">{{ t('staffCaseDetail.country') }}</span>
+                  <span class="case-detail__info-value">{{ c.country }}</span>
+                </div>
+              }
+              @if (c.language) {
+                <div class="case-detail__info-item">
+                  <span class="case-detail__info-label">{{ t('staffCaseDetail.language') }}</span>
+                  <span class="case-detail__info-value">{{ c.language }}</span>
+                </div>
+              }
+            </div>
           </div>
 
-          <form class="case-detail__chat-input" (submit)="onSendMessage()">
-            <input
-              type="text"
-              class="case-detail__input"
-              [placeholder]="t('staffCaseDetail.messagePlaceholder')"
-              [ngModel]="messageInput()"
-              (ngModelChange)="messageInput.set($event)"
-              name="message"
-            />
-            <ui-button type="submit" variant="primary" size="sm" [disabled]="!messageInput().trim()">
-              <ui-icon name="Send" [size]="16" />
+          <!-- Chat link -->
+          <div class="case-detail__chat-link">
+            <ui-icon name="MessageCircle" [size]="32" color="var(--ihelp-accent)" />
+            <p class="case-detail__chat-link-text">{{ t('staffCaseDetail.chatHint') }}</p>
+            <ui-button variant="primary" (click)="onOpenChat()">
+              <ui-icon name="MessageCircle" [size]="16" />
+              {{ t('staffCaseDetail.openChat') }}
             </ui-button>
-          </form>
+          </div>
+
+          <!-- Recent messages preview -->
+          @if (c.messages.length > 0) {
+            <div class="case-detail__recent-messages">
+              <h3 class="case-detail__section-title">{{ t('staffCaseDetail.recentMessages') }} ({{ c.messages.length }})</h3>
+              @for (msg of c.messages.slice(-5); track msg.id) {
+                <div class="case-detail__message" [class.case-detail__message--staff]="msg.isFromStaff">
+                  <div class="case-detail__msg-bubble">
+                    <p class="case-detail__msg-text">{{ msg.content }}</p>
+                  </div>
+                  <span class="case-detail__msg-meta">
+                    {{ msg.authorName }}
+                    @if (msg.channel !== 'WEB') {
+                      · {{ msg.channel }}
+                    }
+                    · {{ msg.createdAt | date:'short' }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Meetings -->
+          @if (c.meetings.length > 0) {
+            <div class="case-detail__meetings-section">
+              <h3 class="case-detail__section-title">
+                <ui-icon name="Calendar" [size]="16" color="var(--ihelp-accent)" />
+                {{ t('staffCaseDetail.meetingsTitle') }} ({{ c.meetings.length }})
+              </h3>
+              @for (meeting of c.meetings; track meeting.id) {
+                <div class="case-detail__meeting-card">
+                  <div class="case-detail__meeting-info">
+                    <ui-badge [variant]="getMeetingStatusVariant(meeting.status)" size="sm">
+                      {{ t('staffMeetings.status.' + meeting.status) }}
+                    </ui-badge>
+                    <span class="case-detail__meeting-date">{{ meeting.scheduledAt | date:'medium' }}</span>
+                    <span class="case-detail__meeting-duration">{{ meeting.durationMin }} {{ t('staffMeetings.minutes') }}</span>
+                  </div>
+                  @if (meeting.consultantName) {
+                    <span class="case-detail__meeting-consultant">{{ meeting.consultantName }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
         </div>
 
         <!-- Right: Sidebar -->
         <div class="case-detail__sidebar">
+          <!-- Case details -->
           <div class="case-detail__details-section">
-            <h3 class="case-detail__section-title">{{ t('staffCaseDetail.detailsTitle') }}</h3>
+            <h3 class="case-detail__section-title">{{ t('staffCaseDetail.caseInfo') }}</h3>
             @if (c.consultantName) {
               <div class="case-detail__detail-row">
                 <span class="case-detail__detail-label">{{ t('staffCaseDetail.consultant') }}</span>
                 <span class="case-detail__detail-value">{{ c.consultantName }}</span>
               </div>
             }
-            <div class="case-detail__detail-row">
-              <span class="case-detail__detail-label">{{ t('staffCaseDetail.topic') }}</span>
-              <span class="case-detail__detail-value">{{ c.topic }}</span>
-            </div>
             <div class="case-detail__detail-row">
               <span class="case-detail__detail-label">{{ t('staffCaseDetail.status') }}</span>
               <ui-badge [variant]="getStatusVariant(c.status)" size="sm">{{ t('staffCases.status.' + c.status) }}</ui-badge>
@@ -63,19 +155,95 @@
               <span class="case-detail__detail-label">{{ t('staffCaseDetail.priority') }}</span>
               <ui-badge [variant]="getPriorityVariant(c.priority)" size="sm">{{ t('staffCases.priority.' + c.priority) }}</ui-badge>
             </div>
-            <div class="case-detail__detail-row">
-              <span class="case-detail__detail-label">{{ t('staffCaseDetail.created') }}</span>
-              <span class="case-detail__detail-value">{{ c.createdAt | date:'mediumDate' }}</span>
-            </div>
-            @if (c.slaDeadline) {
+            @if (c.crisisLevel && c.crisisLevel !== 'NONE') {
               <div class="case-detail__detail-row">
-                <span class="case-detail__detail-label">SLA</span>
-                <ui-badge variant="warning" size="sm">{{ c.slaDeadline | date:'short' }}</ui-badge>
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.crisisLevel') }}</span>
+                <ui-badge variant="error" size="sm">{{ t('staffCaseDetail.crisis_' + c.crisisLevel) }}</ui-badge>
+              </div>
+            }
+            <div class="case-detail__detail-row">
+              <span class="case-detail__detail-label">{{ t('staffCaseDetail.source') }}</span>
+              <span class="case-detail__detail-value">{{ t('staffCaseDetail.source_' + c.source) }}</span>
+            </div>
+            @if (c.sourceCourse) {
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.sourceCourse') }}</span>
+                <span class="case-detail__detail-value">{{ c.sourceCourse.title }}</span>
+              </div>
+            }
+            @if (c.sourceLesson) {
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.sourceLesson') }}</span>
+                <span class="case-detail__detail-value">{{ c.sourceLesson.title }}</span>
               </div>
             }
           </div>
 
-          <!-- Progress Section -->
+          <!-- Tags -->
+          @if (c.tags.length > 0) {
+            <div class="case-detail__tags-section">
+              <h3 class="case-detail__section-title">{{ t('staffCaseDetail.tagsTitle') }}</h3>
+              <div class="case-detail__tags-list">
+                @for (tag of c.tags; track tag.id) {
+                  <span class="case-detail__tag" [style.background-color]="tag.color || 'var(--ihelp-bg-secondary)'">
+                    {{ tag.name }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- SLA -->
+          @if (c.sla) {
+            <div class="case-detail__sla-section">
+              <h3 class="case-detail__section-title">{{ t('staffCaseDetail.slaTitle') }}</h3>
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.slaStatus') }}</span>
+                <ui-badge [variant]="c.sla.status === 'BREACHED' ? 'error' : 'info'" size="sm">{{ c.sla.status }}</ui-badge>
+              </div>
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.slaLevel') }}</span>
+                <ui-badge variant="warning" size="sm">L{{ c.sla.currentLevel }}</ui-badge>
+              </div>
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.slaStarted') }}</span>
+                <span class="case-detail__detail-value">{{ c.sla.startedAt | date:'short' }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Timeline -->
+          <div class="case-detail__timeline-section">
+            <h3 class="case-detail__section-title">{{ t('staffCaseDetail.timeline') }}</h3>
+            <div class="case-detail__detail-row">
+              <span class="case-detail__detail-label">{{ t('staffCaseDetail.created') }}</span>
+              <span class="case-detail__detail-value">{{ c.createdAt | date:'mediumDate' }}</span>
+            </div>
+            @if (c.firstResponseAt) {
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.firstResponse') }}</span>
+                <span class="case-detail__detail-value">{{ c.firstResponseAt | date:'short' }}</span>
+              </div>
+            }
+            @if (c.resolvedAt) {
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.resolvedAt') }}</span>
+                <span class="case-detail__detail-value">{{ c.resolvedAt | date:'short' }}</span>
+              </div>
+            }
+            @if (c.closedAt) {
+              <div class="case-detail__detail-row">
+                <span class="case-detail__detail-label">{{ t('staffCaseDetail.closedAt') }}</span>
+                <span class="case-detail__detail-value">{{ c.closedAt | date:'short' }}</span>
+              </div>
+            }
+            <div class="case-detail__detail-row">
+              <span class="case-detail__detail-label">{{ t('staffCaseDetail.updatedAt') }}</span>
+              <span class="case-detail__detail-value">{{ c.updatedAt | date:'short' }}</span>
+            </div>
+          </div>
+
+          <!-- Progress -->
           <div class="case-detail__progress-section">
             <h3 class="case-detail__section-title">{{ t('staffCaseDetail.progressTitle') }}</h3>
             <div class="case-detail__progress-stats">
@@ -89,13 +257,38 @@
                 <span class="case-detail__progress-value">{{ notesCount() }}</span>
                 <span class="case-detail__progress-label">{{ t('staffCaseDetail.notes') }}</span>
               </div>
+              <div class="case-detail__progress-stat">
+                <ui-icon name="Calendar" [size]="16" color="var(--ihelp-accent)" />
+                <span class="case-detail__progress-value">{{ meetingsCount() }}</span>
+                <span class="case-detail__progress-label">{{ t('staffCaseDetail.meetingsTitle') }}</span>
+              </div>
             </div>
           </div>
 
+          <!-- Feedback -->
+          @if (c.feedback) {
+            <div class="case-detail__feedback-section">
+              <h3 class="case-detail__section-title">{{ t('staffCaseDetail.feedbackTitle') }}</h3>
+              <div class="case-detail__feedback-rating">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <ui-icon
+                    name="Star"
+                    [size]="18"
+                    [color]="star <= c.feedback.rating ? 'var(--ihelp-warning, #f59e0b)' : 'var(--ihelp-border)'"
+                  />
+                }
+              </div>
+              @if (c.feedback.comment) {
+                <p class="case-detail__feedback-comment">{{ c.feedback.comment }}</p>
+              }
+            </div>
+          }
+
+          <!-- Private Notes -->
           <div class="case-detail__notes-section">
             <h3 class="case-detail__section-title">{{ t('staffCaseDetail.privateNotes') }}</h3>
             @for (note of c.notes; track note.id) {
-              <div class="case-detail__note">
+              <div class="case-detail__note" [class.case-detail__note--supervisor]="note.isSupervisorNote">
                 <p class="case-detail__note-text">{{ note.content }}</p>
                 <span class="case-detail__note-meta">{{ note.authorName }} · {{ note.createdAt | date:'short' }}</span>
               </div>

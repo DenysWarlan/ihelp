@@ -31,7 +31,7 @@ export class SupervisorService {
           select: { name: true },
         },
         consultant: {
-          select: { name: true },
+          select: { id: true, name: true },
         },
         messages: {
           orderBy: { createdAt: 'desc' },
@@ -50,6 +50,7 @@ export class SupervisorService {
       assignedAt: c.createdAt,
       lastMessageAt: c.messages[0]?.createdAt ?? null,
       consultantName: c.consultant?.name ?? null,
+      consultantUserId: c.consultant?.id ?? null,
     }));
   }
 

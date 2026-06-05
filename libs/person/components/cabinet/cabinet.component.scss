@@ -92,23 +92,6 @@
     color: var(--ihelp-text-muted);
   }
 
-  &__green-btn {
-    width: 100%;
-    padding: 10px 20px;
-    background-color: var(--ihelp-accent);
-    color: var(--ihelp-text-inverse);
-    border: none;
-    border-radius: 8px;
-    font-size: var(--ihelp-text-sm);
-    font-weight: var(--ihelp-font-semibold);
-    cursor: pointer;
-    text-align: center;
-
-    &:hover {
-      opacity: 0.9;
-    }
-  }
-
   &__green-btn-link {
     text-decoration: none;
   }

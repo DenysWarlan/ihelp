@@ -1,9 +1,13 @@
+export type CaseStatus = 'NEW' | 'ASSIGNED' | 'IN_PROGRESS' | 'MEETING_SCHEDULED' | 'ON_HOLD' | 'TRANSFERRED' | 'COMPLETED' | 'CLOSED';
+export type CasePriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
+export type CrisisLevel = 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
 export interface CaseListItem {
   readonly id: string;
   readonly personName: string;
   readonly topic: string;
-  readonly status: 'NEW' | 'ASSIGNED' | 'IN_PROGRESS' | 'MEETING_SCHEDULED' | 'ON_HOLD' | 'TRANSFERRED' | 'COMPLETED' | 'CLOSED';
-  readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
+  readonly status: CaseStatus;
+  readonly priority: CasePriority;
   readonly assignedAt: string;
   readonly lastMessageAt: string | null;
   readonly slaDeadline: string | null;
@@ -11,47 +15,98 @@ export interface CaseListItem {
   readonly consultantUserId?: string;
 }
 
-export interface CaseDetail {
+export interface CaseNote {
   readonly id: string;
-  readonly personName: string;
-  readonly personEmail: string;
-  readonly consultantName?: string;
-  readonly topic: string;
-  readonly status: 'NEW' | 'ASSIGNED' | 'IN_PROGRESS' | 'MEETING_SCHEDULED' | 'ON_HOLD' | 'TRANSFERRED' | 'COMPLETED' | 'CLOSED';
-  readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
-  readonly description: string;
-  readonly notes: CaseNote[];
-  readonly messages: StaffCaseMessage[];
-  readonly assignedAt: string;
+  readonly content: string;
+  readonly authorName: string;
+  readonly isSupervisorNote: boolean;
   readonly createdAt: string;
-  readonly slaDeadline: string | null;
-  readonly version: number;
 }
 
 export interface StaffCaseMessage {
   readonly id: string;
   readonly content: string;
   readonly authorName: string;
+  readonly senderRole: string;
+  readonly channel: string;
   readonly isFromStaff: boolean;
   readonly createdAt: string;
 }
 
-export interface CaseNote {
+export interface CaseMeeting {
   readonly id: string;
-  readonly content: string;
-  readonly authorName: string;
+  readonly status: string;
+  readonly scheduledAt: string;
+  readonly durationMin: number;
+  readonly meetingUrl: string | null;
+  readonly consultantName: string | null;
+}
+
+export interface CaseTag {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string | null;
+}
+
+export interface CaseFeedback {
+  readonly rating: number;
+  readonly comment: string | null;
   readonly createdAt: string;
-  readonly isInternal: boolean;
+}
+
+export interface CaseSla {
+  readonly status: string;
+  readonly currentLevel: number;
+  readonly startedAt: string;
+  readonly lastEscalatedAt: string | null;
+}
+
+export interface CaseDetail {
+  readonly id: string;
+  readonly personId: string;
+  readonly personName: string;
+  readonly personEmail: string | null;
+  readonly personPhone: string | null;
+  readonly consultantName?: string;
+  readonly topic: string;
+  readonly status: CaseStatus;
+  readonly priority: CasePriority;
+  readonly crisisLevel: CrisisLevel;
+  readonly source: string;
+  readonly description: string | null;
+  readonly name: string | null;
+  readonly country: string | null;
+  readonly language: string | null;
+  readonly contactMethod: string | null;
+  readonly contactValue: string | null;
+  readonly sourceCourse: { id: string; title: string } | null;
+  readonly sourceLesson: { id: string; title: string } | null;
+  readonly firstResponseAt: string | null;
+  readonly resolvedAt: string | null;
+  readonly closedAt: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly version: number;
+  readonly notes: CaseNote[];
+  readonly messages: StaffCaseMessage[];
+  readonly meetings: CaseMeeting[];
+  readonly tags: CaseTag[];
+  readonly feedback: CaseFeedback | null;
+  readonly sla: CaseSla | null;
 }
 
 export interface StaffMeeting {
   readonly id: string;
-  readonly title: string;
-  readonly personName: string;
+  readonly careCaseId: string;
+  readonly status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW_PERSON' | 'NO_SHOW_CONSULTANT' | 'CONFIRMED';
   readonly scheduledAt: string;
-  readonly durationMinutes: number;
-  readonly status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  readonly durationMin: number;
   readonly meetingUrl: string | null;
+  readonly notes: string | null;
+  readonly personName: string | null;
+  readonly topic: string | null;
+  readonly personTzTime: string;
+  readonly consultantTzTime: string;
 }
 
 export interface StaffDashboard {
@@ -66,7 +121,6 @@ export interface ScheduleMeetingRequest {
   readonly date: string;
   readonly time: string;
   readonly durationMinutes: number;
-  readonly platform: string;
   readonly notes: string;
 }
 
@@ -74,6 +128,5 @@ export interface ScheduleMeetingFormModel {
   readonly date: string;
   readonly time: string;
   readonly duration: string;
-  readonly platform: string;
   readonly notes: string;
 }

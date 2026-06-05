@@ -1,12 +1,14 @@
 <ng-container *transloco="let t">
   <section class="courses-page">
     <div class="courses-page__header">
-      <h1 class="courses-page__title">{{ t('admin.courseManagement') }}</h1>
-      <div class="courses-page__actions">
-        <ui-button variant="primary" (click)="onCreateCourse()">
-          {{ t('admin.createCourse') }}
-        </ui-button>
-      </div>
+      <h1 class="courses-page__title">{{ isAdmin() ? t('admin.courseManagement') : t('consultant.staffCourses') }}</h1>
+      @if (isAdmin()) {
+        <div class="courses-page__actions">
+          <ui-button variant="primary" (click)="onCreateCourse()">
+            {{ t('admin.createCourse') }}
+          </ui-button>
+        </div>
+      }
     </div>
 
     @if (facade.isLoading()) {
@@ -39,29 +41,36 @@
               </span>
             </div>
             <div class="course-card__actions">
-              <ui-button variant="secondary" size="sm" (click)="onEditCourse(course.id)">
-                <ui-icon name="Edit" [size]="14" />
-                {{ t('admin.editCourse') }}
-              </ui-button>
-              @switch (course.status) {
-                @case ('DRAFT') {
-                  <ui-button variant="primary" size="sm" (click)="onChangeStatus(course.id, 'PUBLISHED')">
-                    <ui-icon name="Globe" [size]="14" />
-                    {{ t('admin.publish') }}
-                  </ui-button>
+              @if (isAdmin()) {
+                <ui-button variant="secondary" size="sm" (click)="onEditCourse(course.id)">
+                  <ui-icon name="Edit" [size]="14" />
+                  {{ t('admin.editCourse') }}
+                </ui-button>
+                @switch (course.status) {
+                  @case ('DRAFT') {
+                    <ui-button variant="primary" size="sm" (click)="onChangeStatus(course.id, 'PUBLISHED')">
+                      <ui-icon name="Globe" [size]="14" />
+                      {{ t('admin.publish') }}
+                    </ui-button>
+                  }
+                  @case ('PUBLISHED') {
+                    <ui-button variant="secondary" size="sm" (click)="onChangeStatus(course.id, 'HIDDEN')">
+                      <ui-icon name="EyeOff" [size]="14" />
+                      {{ t('admin.hide') }}
+                    </ui-button>
+                  }
+                  @case ('HIDDEN') {
+                    <ui-button variant="primary" size="sm" (click)="onChangeStatus(course.id, 'PUBLISHED')">
+                      <ui-icon name="Globe" [size]="14" />
+                      {{ t('admin.publish') }}
+                    </ui-button>
+                  }
                 }
-                @case ('PUBLISHED') {
-                  <ui-button variant="secondary" size="sm" (click)="onChangeStatus(course.id, 'HIDDEN')">
-                    <ui-icon name="EyeOff" [size]="14" />
-                    {{ t('admin.hide') }}
-                  </ui-button>
-                }
-                @case ('HIDDEN') {
-                  <ui-button variant="primary" size="sm" (click)="onChangeStatus(course.id, 'PUBLISHED')">
-                    <ui-icon name="Globe" [size]="14" />
-                    {{ t('admin.publish') }}
-                  </ui-button>
-                }
+              } @else {
+                <ui-button variant="secondary" size="sm" (click)="onEditCourse(course.id)">
+                  <ui-icon name="BookOpen" [size]="14" />
+                  {{ t('consultant.viewCourse') }}
+                </ui-button>
               }
             </div>
           </div>

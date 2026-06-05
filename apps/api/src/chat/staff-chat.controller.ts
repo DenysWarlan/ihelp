@@ -1,12 +1,11 @@
-import { Body, Controller, Get, Logger, Param, ParseUUIDPipe, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Put, Req } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsString, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { PrismaService } from '@org/prisma-client';
 import { Request } from 'express';
 
@@ -14,16 +13,9 @@ import { JwtPayload } from '../auth/auth.model.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { ChatGateway } from './chat.gateway.js';
 import { MessageService } from './message.service.js';
-import { SendMessageDto } from './chat.model.js';
+import { MarkAsReadDto, SendMessageDto } from './chat.model.js';
 import { CASE_ROOM_PREFIX, CHAT_EVENTS } from './chat.const.js';
 import { TelegramAdapter } from './adapters/telegram.adapter.js';
-
-export class MarkAsReadDto {
-  @ApiProperty({ description: 'Array of message IDs to mark as read' })
-  @IsArray()
-  @IsUUID('4', { each: true })
-  messageIds!: string[];
-}
 
 const STAFF_ROLES = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as const;
 
@@ -113,7 +105,7 @@ export class StaffChatController {
   @ApiOperation({ summary: 'Get messages for a staff conversation' })
   @ApiResponse({ status: 200, description: 'Conversation messages' })
   async getMessages(
-    @Param('id', ParseUUIDPipe) caseId: string,
+    @Param('id', ParseUuidPipe) caseId: string,
     @Req() req: Request,
   ) {
     const actor = req.user as JwtPayload;
@@ -146,7 +138,7 @@ export class StaffChatController {
   @ApiOperation({ summary: 'Send a message in a staff conversation' })
   @ApiResponse({ status: 201, description: 'Message sent' })
   async sendMessage(
-    @Param('id', ParseUUIDPipe) caseId: string,
+    @Param('id', ParseUuidPipe) caseId: string,
     @Body() dto: SendMessageDto,
     @Req() req: Request,
   ) {
@@ -202,7 +194,7 @@ export class StaffChatController {
   @ApiOperation({ summary: 'Mark messages as read via REST (fallback for WebSocket)' })
   @ApiResponse({ status: 200, description: 'Messages marked as read' })
   async markAsRead(
-    @Param('id', ParseUUIDPipe) caseId: string,
+    @Param('id', ParseUuidPipe) caseId: string,
     @Body() dto: MarkAsReadDto,
     @Req() req: Request,
   ) {

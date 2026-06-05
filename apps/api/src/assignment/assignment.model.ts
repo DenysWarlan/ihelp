@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
 import { ConsultantStatus } from '@prisma/client';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 import { FallbackReason } from './assignment.const.js';
 
@@ -47,6 +48,16 @@ export interface ScoredConsultant {
 }
 
 // ---------------------------------------------------------------------------
+// Confirm auto-assignment suggestion
+// ---------------------------------------------------------------------------
+
+export class ConfirmAssignmentDto {
+  @ApiProperty({ description: 'User ID of the consultant to assign' })
+  @IsUuidFormat()
+  consultantId!: string;
+}
+
+// ---------------------------------------------------------------------------
 // Manual assignment / reassignment DTOs
 // ---------------------------------------------------------------------------
 
@@ -55,7 +66,7 @@ export interface ScoredConsultant {
  */
 export class ManualAssignDto {
   @ApiProperty({ description: 'User ID of the consultant to assign' })
-  @IsUUID()
+  @IsUuidFormat()
   consultantUserId!: string;
 }
 
@@ -64,7 +75,7 @@ export class ManualAssignDto {
  */
 export class ReassignDto {
   @ApiProperty({ description: 'User ID of the new consultant to assign' })
-  @IsUUID()
+  @IsUuidFormat()
   consultantUserId!: string;
 }
 

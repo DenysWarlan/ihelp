@@ -26,6 +26,7 @@ export interface CaseListItem {
   readonly assignedAt: Date | null;
   readonly lastMessageAt: Date | null;
   readonly consultantName: string | null;
+  readonly consultantUserId: string | null;
 }
 
 export interface SupervisorCaseMessage {

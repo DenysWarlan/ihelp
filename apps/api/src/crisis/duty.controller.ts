@@ -6,10 +6,10 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -98,7 +98,7 @@ export class DutyController {
   @ApiOkResponse({ description: 'Schedule updated' })
   @ApiNotFoundResponse({ description: 'Schedule not found' })
   async updateSchedule(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
     @Body() dto: UpdateDutyScheduleDto,
   ): Promise<DutyScheduleResponse> {
     const existing = await this.prisma.dutySchedule.findUnique({
@@ -135,7 +135,7 @@ export class DutyController {
   @ApiOkResponse({ description: 'Schedule deleted' })
   @ApiNotFoundResponse({ description: 'Schedule not found' })
   async deleteSchedule(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUuidPipe) id: string,
   ): Promise<{ deleted: true }> {
     const existing = await this.prisma.dutySchedule.findUnique({
       where: { id },

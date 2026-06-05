@@ -1,21 +1,30 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
 } from 'class-validator';
 import { MessageChannel, Role } from '@prisma/client';
 import { Type } from 'class-transformer';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 import { MAX_MESSAGE_LENGTH } from './chat.const.js';
 
 // ---------------------------------------------------------------------------
 // DTOs
 // ---------------------------------------------------------------------------
+
+export class MarkAsReadDto {
+  @ApiProperty({ description: 'Array of message IDs to mark as read' })
+  @IsArray()
+  @IsUuidFormat({ each: true })
+  messageIds!: string[];
+}
 
 export class SendMessageDto {
   @ApiProperty({ description: 'Message text content', maxLength: MAX_MESSAGE_LENGTH })
@@ -50,7 +59,7 @@ export class EditMessageDto {
 export class MessageQueryDto {
   @ApiPropertyOptional({ description: 'Cursor: message ID to start after' })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   cursor?: string;
 
   @ApiPropertyOptional({ description: 'Page size (default 50, max 100)', default: 50 })

@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { ParseUuidPipe } from '../common/pipes/parse-uuid.pipe.js';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -10,6 +11,7 @@ import { CaseStatus, ConsultantStatus } from '@prisma/client';
 
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { AUTO_ASSIGN_ROLES } from './assignment.const.js';
+import { ConfirmAssignmentDto } from './assignment.model.js';
 import { AssignmentService } from './assignment.service.js';
 
 @ApiTags('assignment')
@@ -126,20 +128,20 @@ export class AssignmentSuggestionsController {
   })
   @ApiResponse({ status: 201, description: 'Assignment confirmed' })
   async confirmAssignment(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
-    @Body() body: { consultantId: string },
+    @Param('caseId', ParseUuidPipe) caseId: string,
+    @Body() dto: ConfirmAssignmentDto,
   ) {
     await this.prisma.$transaction(async (tx) => {
       await tx.careCase.update({
         where: { id: caseId },
         data: {
-          consultantId: body.consultantId,
+          consultantId: dto.consultantId,
           status: CaseStatus.IN_PROGRESS,
         },
       });
 
       await tx.consultantProfile.updateMany({
-        where: { userId: body.consultantId },
+        where: { userId: dto.consultantId },
         data: { currentCases: { increment: 1 } },
       });
     });
@@ -155,7 +157,7 @@ export class AssignmentSuggestionsController {
   })
   @ApiResponse({ status: 201, description: 'Suggestion rejected' })
   async rejectAssignment(
-    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @Param('caseId', ParseUuidPipe) caseId: string,
   ) {
     return { success: true, caseId };
   }

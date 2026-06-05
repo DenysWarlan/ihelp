@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+
+import { IsUuidFormat } from '../../common/pipes/uuid-format.validator.js';
 
 // ---------------------------------------------------------------------------
 // DTOs
@@ -14,7 +16,7 @@ export class CreateTagDto {
 
 export class AddTagDto {
   @ApiProperty({ description: 'Tag ID to add to the case' })
-  @IsUUID()
+  @IsUuidFormat()
   tagId!: string;
 }
 

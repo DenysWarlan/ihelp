@@ -3,10 +3,11 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  IsUUID,
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 import { EnrollmentStatus, ExportStatus, DeletionStatus } from '@prisma/client';
 
 // ---------------------------------------------------------------------------
@@ -72,7 +73,7 @@ export interface PersonCoursesResponse {
 export class PersonChatQueryDto {
   @ApiPropertyOptional({ description: 'Cursor: message ID to start after' })
   @IsOptional()
-  @IsUUID()
+  @IsUuidFormat()
   cursor?: string;
 
   @ApiPropertyOptional({

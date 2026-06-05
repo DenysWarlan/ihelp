@@ -43,8 +43,8 @@ export const REMINDER_15MIN_MS = 15 * 60 * 1000;
 /** Max retries for link generation. */
 export const GENERATE_LINK_MAX_RETRIES = 3;
 
-/** MVP base URL for placeholder meeting links. */
-export const MEETING_LINK_BASE_URL = 'https://meet.ihelp.org' as const;
+/** Jitsi Meet base URL for video meetings. */
+export const MEETING_LINK_BASE_URL = 'https://meet.jit.si' as const;
 
 // ---------------------------------------------------------------------------
 // Status transitions

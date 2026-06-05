@@ -4,10 +4,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 
 import { CONFIDENCE_LEVELS, type ConfidenceLevel, type MatchReason } from './duplicate.const.js';
+import { IsUuidFormat } from '../common/pipes/uuid-format.validator.js';
 
 // ---------------------------------------------------------------------------
 // Detection DTOs
@@ -36,12 +36,12 @@ export class DismissDuplicateDto {
 
 export class ExecuteMergeDto {
   @ApiProperty({ description: 'ID of the primary (surviving) user' })
-  @IsUUID()
+  @IsUuidFormat()
   @IsNotEmpty()
   readonly primaryUserId!: string;
 
   @ApiProperty({ description: 'ID of the secondary (absorbed) user' })
-  @IsUUID()
+  @IsUuidFormat()
   @IsNotEmpty()
   readonly secondaryUserId!: string;
 }

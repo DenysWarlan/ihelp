@@ -164,31 +164,25 @@ export const StaffChatStore = signalStore(
         pipe(
           switchMap(() => {
             const unreadIds = store.messages()
-              .filter((m) => !m.isFromStaff && m.status !== 'read' && !m.id.startsWith('temp-'))
-              .map((m) => m.id);
+              .filter((m: StaffChatMessage) => !m.isFromStaff && m.status !== 'read' && !m.id.startsWith('temp-'))
+              .map((m: StaffChatMessage) => m.id);
             const selectedId = store.selectedConversationId();
 
             if (unreadIds.length === 0 || !selectedId) return EMPTY;
 
-            // Also emit via WebSocket if connected
-            socketService.emitRead(unreadIds);
-
-            // Use REST as primary method (reliable)
             return chatService.markAsRead(selectedId, unreadIds).pipe(
               tap(() => {
-                const updated = store.messages().map((m) =>
+                socketService.emitRead(unreadIds);
+                const updated = store.messages().map((m: StaffChatMessage) =>
                   unreadIds.includes(m.id) ? { ...m, status: 'read' as const } : m,
                 );
-                patchState(store, { messages: updated });
-
-                // Update conversation unread count
-                const updatedConvs = store.conversations().map((c) =>
+                const updatedConvs = store.conversations().map((c: StaffChatConversation) =>
                   c.id === selectedId
                     ? { ...c, unreadCount: Math.max(0, c.unreadCount - unreadIds.length) }
                     : c,
                 );
-                patchState(store, { conversations: updatedConvs });
-                const totalUnread = updatedConvs.reduce((sum, c) => sum + c.unreadCount, 0);
+                patchState(store, { messages: updated, conversations: updatedConvs });
+                const totalUnread = updatedConvs.reduce((sum: number, c: StaffChatConversation) => sum + c.unreadCount, 0);
                 navBadgeService.setChatUnreadCount(totalUnread);
               }),
               catchError(() => EMPTY),

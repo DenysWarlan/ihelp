@@ -30,6 +30,7 @@ export class CoursesService {
         language: dto.language,
         tags: dto.tags ?? [],
         imageUrl: dto.imageUrl,
+        visibility: dto.visibility,
       },
     });
   }
@@ -45,6 +46,7 @@ export class CoursesService {
         ...(dto.language !== undefined && { language: dto.language }),
         ...(dto.tags !== undefined && { tags: dto.tags }),
         ...(dto.imageUrl !== undefined && { imageUrl: dto.imageUrl }),
+        ...(dto.visibility !== undefined && { visibility: dto.visibility }),
       },
     });
   }
@@ -126,13 +128,20 @@ export class CoursesService {
     });
   }
 
-  async findAll() {
+  async findAll(visibility?: 'PUBLIC' | 'STAFF') {
+    const where: Record<string, unknown> = {};
+    if (visibility) {
+      where['visibility'] = visibility;
+    }
+
     return this.prisma.course.findMany({
+      where,
       select: {
         id: true,
         title: true,
         description: true,
         status: true,
+        visibility: true,
         tags: true,
         lessonCount: true,
         imageUrl: true,
@@ -168,6 +177,7 @@ export class CoursesService {
           title: true,
           description: true,
           status: true,
+          visibility: true,
           tags: true,
           lessonCount: true,
           imageUrl: true,
@@ -257,7 +267,22 @@ export class CoursesService {
 
   async findAllPublished() {
     return this.prisma.course.findMany({
-      where: { status: CourseStatus.PUBLISHED },
+      where: { status: CourseStatus.PUBLISHED, visibility: 'PUBLIC' },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        tags: true,
+        lessonCount: true,
+        imageUrl: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findAllStaffCourses() {
+    return this.prisma.course.findMany({
+      where: { status: CourseStatus.PUBLISHED, visibility: 'STAFF' },
       select: {
         id: true,
         title: true,
