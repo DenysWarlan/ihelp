@@ -64,6 +64,7 @@ export class CourseManageFacade {
 
   closeCreateModal(): void {
     this.showCreateModal.set(false);
+    this.createCourseModel.set({ title: '', description: '' });
   }
 
   submitCreate(): void {
@@ -138,6 +139,15 @@ export class CourseManageFacade {
   closeLessonModal(): void {
     this.showLessonModal.set(false);
     this.editingLesson.set(null);
+    this.lessonModel.set({
+      title: '',
+      content: '',
+      contentType: 'TEXT',
+      videoUrl: '',
+      imageUrl: '',
+      hasTriggerWarning: false,
+    });
+    this.isUploading.set(false);
   }
 
   updateLessonField(field: keyof LessonFormModel, value: string | boolean): void {
