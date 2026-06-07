@@ -5,6 +5,8 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  HeadBucketCommand,
+  CreateBucketCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +24,7 @@ export class StorageService {
   private readonly s3: S3Client;
   private readonly bucket: string;
   private readonly endpoint: string;
+  private bucketReady = false;
 
   constructor(private readonly config: ConfigService) {
     this.endpoint = this.config.getOrThrow<string>('S3_ENDPOINT');
@@ -39,6 +42,23 @@ export class StorageService {
     });
 
     this.logger.log(`Storage service configured for bucket "${this.bucket}" at ${this.endpoint}`);
+    this.ensureBucket();
+  }
+
+  private async ensureBucket(): Promise<void> {
+    try {
+      await this.s3.send(new HeadBucketCommand({ Bucket: this.bucket }));
+      this.bucketReady = true;
+      this.logger.log(`Bucket "${this.bucket}" exists`);
+    } catch {
+      try {
+        await this.s3.send(new CreateBucketCommand({ Bucket: this.bucket }));
+        this.bucketReady = true;
+        this.logger.log(`Bucket "${this.bucket}" created`);
+      } catch (createErr) {
+        this.logger.error(`Failed to create bucket "${this.bucket}"`, createErr);
+      }
+    }
   }
 
   async upload(file: Express.Multer.File): Promise<UploadResult> {
