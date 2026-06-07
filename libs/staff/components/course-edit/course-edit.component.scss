@@ -196,6 +196,20 @@
     color: var(--ihelp-accent);
     font-weight: var(--ihelp-font-medium);
   }
+
+  &__warning {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-text-primary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  &__info {
+    font-size: var(--ihelp-text-sm);
+    color: var(--ihelp-text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
 }
 
 @media (max-width: 767px) {

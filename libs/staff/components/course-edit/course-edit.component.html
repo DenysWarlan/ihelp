@@ -22,6 +22,10 @@
                 <ui-icon name="Globe" [size]="14" />
                 {{ t('admin.publish') }}
               </ui-button>
+              <ui-button variant="danger" size="sm" (click)="onDelete()">
+                <ui-icon name="Trash2" [size]="14" />
+                {{ t('admin.deleteCourse') }}
+              </ui-button>
             }
             @case ('PUBLISHED') {
               <ui-button variant="secondary" size="sm" (click)="onHide()" [loading]="facade.isSaving()">
@@ -41,6 +45,10 @@
               <ui-button variant="secondary" size="sm" (click)="onDraft()" [loading]="facade.isSaving()">
                 <ui-icon name="Edit3" [size]="14" />
                 {{ t('admin.toDraft') }}
+              </ui-button>
+              <ui-button variant="danger" size="sm" (click)="onDelete()">
+                <ui-icon name="Trash2" [size]="14" />
+                {{ t('admin.deleteCourse') }}
               </ui-button>
             }
           }
@@ -190,6 +198,28 @@
     </ui-button>
     <ui-button modal-footer variant="primary" (click)="onSubmitLesson();" [loading]="facade.isSaving()">
       {{ facade.editingLesson() ? t('admin.save') : t('admin.create') }}
+    </ui-button>
+  </ui-modal>
+
+  <ui-modal
+    [isOpen]="facade.showDeleteModal()"
+    [title]="t('admin.deleteCourseConfirm')"
+    (closed)="onCancelDelete()"
+  >
+    <div class="modal-form">
+      <p class="modal-form__warning">
+        {{ t('admin.deleteCourseMessage', { title: facade.selectedCourse()?.title }) }}
+      </p>
+      <p class="modal-form__info">
+        {{ t('admin.deleteCourseGracePeriod') }}
+      </p>
+    </div>
+    <ui-button modal-footer variant="secondary" (click)="onCancelDelete()">
+      {{ t('admin.cancel') }}
+    </ui-button>
+    <ui-button modal-footer variant="danger" (click)="onConfirmDelete()" [loading]="facade.isSaving()">
+      <ui-icon name="Trash2" [size]="14" />
+      {{ t('admin.deleteCourse') }}
     </ui-button>
   </ui-modal>
 </ng-container>

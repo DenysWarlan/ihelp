@@ -28,6 +28,7 @@ export class CourseManageFacade {
 
   readonly showCreateModal: WritableSignal<boolean> = signal(false);
   readonly showLessonModal: WritableSignal<boolean> = signal(false);
+  readonly showDeleteModal: WritableSignal<boolean> = signal(false);
   readonly editingLesson: WritableSignal<AdminLesson | null> = signal(null);
   readonly isUploading: WritableSignal<boolean> = signal(false);
 
@@ -76,8 +77,21 @@ export class CourseManageFacade {
     this.closeCreateModal();
   }
 
-  deleteCourse(id: string): void {
-    this.store.deleteCourse(id);
+  openDeleteModal(): void {
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal.set(false);
+  }
+
+  confirmDeleteCourse(): void {
+    const course: AdminCourseDetail | null = this.selectedCourse();
+    if (course) {
+      this.store.deleteCourse(course.id);
+      this.closeDeleteModal();
+      this.navigateBackToCourses();
+    }
   }
 
   changeStatus(id: string, status: CourseStatus): void {

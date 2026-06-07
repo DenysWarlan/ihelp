@@ -110,6 +110,18 @@ export class CourseEditComponent implements OnInit {
     this.facade.submitLesson();
   }
 
+  protected onDelete(): void {
+    this.facade.openDeleteModal();
+  }
+
+  protected onConfirmDelete(): void {
+    this.facade.confirmDeleteCourse();
+  }
+
+  protected onCancelDelete(): void {
+    this.facade.closeDeleteModal();
+  }
+
   protected onImageFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file: File | undefined = input.files?.[0];
