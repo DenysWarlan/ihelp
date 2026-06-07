@@ -1,0 +1,71 @@
+<ng-container *transloco="let t">
+  <section class="staff-preview">
+    <div class="staff-preview__banner">
+      <span class="staff-preview__banner-label">
+        <ui-icon name="Eye" [size]="16" />
+        {{ t('admin.previewMode') }}
+      </span>
+      <ui-button variant="secondary" size="sm" (click)="onBackToEdit()">
+        <ui-icon name="ArrowLeft" [size]="14" />
+        {{ t('admin.backToEdit') }}
+      </ui-button>
+    </div>
+
+    @if (facade.isLoading()) {
+      <p class="staff-preview__loading">{{ t('common.loading') }}</p>
+    } @else if (facade.selectedCourse(); as course) {
+      <div class="staff-preview__layout">
+        <div class="staff-preview__main">
+          <h1 class="staff-preview__title">{{ course.title }}</h1>
+          <p class="staff-preview__description">{{ course.description }}</p>
+
+          <div class="staff-preview__meta">
+            <ui-badge [variant]="facade.getStatusBadgeVariant(course.status)" size="sm">
+              {{ t('admin.courseStatus_' + course.status) }}
+            </ui-badge>
+            <span class="staff-preview__meta-item">
+              {{ course.lessons.length }} {{ t('admin.lessons') }}
+            </span>
+          </div>
+
+          <div class="staff-preview__lessons">
+            <h2 class="staff-preview__lessons-title">{{ t('admin.lessons') }}</h2>
+            <div class="staff-preview__lesson-list">
+              @for (lesson of course.lessons; track lesson.id; let i = $index) {
+                <div class="staff-preview__lesson-row">
+                  <div class="staff-preview__lesson-info">
+                    <span class="staff-preview__lesson-number">{{ i + 1 }}</span>
+                    <ui-icon [name]="getLessonIcon(lesson.contentType)" [size]="16" color="var(--ihelp-text-muted)" />
+                    <span class="staff-preview__lesson-title">{{ lesson.title }}</span>
+                  </div>
+                  <span class="staff-preview__lesson-type">{{ lesson.contentType }}</span>
+                </div>
+              } @empty {
+                <p class="staff-preview__empty">{{ t('admin.noLessons') }}</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <aside class="staff-preview__sidebar">
+          <div class="staff-preview__card">
+            @if (course.imageUrl) {
+              <img [src]="course.imageUrl" [alt]="course.title" class="staff-preview__card-image" />
+            } @else {
+              <div class="staff-preview__card-placeholder">
+                <ui-icon name="BookOpen" [size]="48" color="var(--ihelp-accent)" />
+              </div>
+            }
+            <div class="staff-preview__card-body">
+              <span class="staff-preview__card-meta">
+                {{ course.lessons.length }} {{ t('admin.lessons') }}
+              </span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    } @else {
+      <p class="staff-preview__empty">{{ t('admin.courseNotFound') }}</p>
+    }
+  </section>
+</ng-container>

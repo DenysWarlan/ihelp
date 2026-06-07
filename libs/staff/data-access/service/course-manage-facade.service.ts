@@ -29,6 +29,8 @@ export class CourseManageFacade {
   readonly showCreateModal: WritableSignal<boolean> = signal(false);
   readonly showLessonModal: WritableSignal<boolean> = signal(false);
   readonly showDeleteModal: WritableSignal<boolean> = signal(false);
+  readonly showLessonPreviewModal: WritableSignal<boolean> = signal(false);
+  readonly previewLesson: WritableSignal<AdminLesson | null> = signal(null);
   readonly editingLesson: WritableSignal<AdminLesson | null> = signal(null);
   readonly isUploading: WritableSignal<boolean> = signal(false);
 
@@ -119,8 +121,22 @@ export class CourseManageFacade {
     this.router.navigate(['/staff/courses', id]);
   }
 
+  navigateToCoursePreview(id: string): void {
+    this.router.navigate(['/staff/courses', id, 'preview']);
+  }
+
   navigateBackToCourses(): void {
     this.router.navigate(['/staff/courses']);
+  }
+
+  openLessonPreview(lesson: AdminLesson): void {
+    this.previewLesson.set(lesson);
+    this.showLessonPreviewModal.set(true);
+  }
+
+  closeLessonPreview(): void {
+    this.showLessonPreviewModal.set(false);
+    this.previewLesson.set(null);
   }
 
   // Lesson modal

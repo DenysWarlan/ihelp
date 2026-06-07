@@ -131,6 +131,14 @@ export const staffRoutes: Routes = [
           ),
       },
       {
+        path: 'courses/:id/preview',
+        canActivate: [roleGuard(...ADMIN_COORD_CONSULT)],
+        loadComponent: () =>
+          import('./course-preview-staff/course-preview-staff.component').then(
+            (m) => m.CoursePreviewStaffComponent,
+          ),
+      },
+      {
         path: 'team',
         loadComponent: () =>
           import('./team/team.component').then(

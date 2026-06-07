@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 import {
@@ -37,6 +38,7 @@ import { CourseManageFacade, AdminLesson, LessonFormModel } from '@org/staff/dat
 export class CourseEditComponent implements OnInit {
   protected readonly facade: CourseManageFacade = inject(CourseManageFacade);
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
+  private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
 
   readonly contentTypeOptions = [
     { value: 'TEXT', label: 'Text' },
@@ -108,6 +110,28 @@ export class CourseEditComponent implements OnInit {
 
   protected onSubmitLesson(): void {
     this.facade.submitLesson();
+  }
+
+  protected onPreviewCourse(): void {
+    this.facade.navigateToCoursePreview(this.courseId);
+  }
+
+  protected onPreviewLesson(lesson: AdminLesson): void {
+    this.facade.openLessonPreview(lesson);
+  }
+
+  protected onCloseLessonPreview(): void {
+    this.facade.closeLessonPreview();
+  }
+
+  protected getYoutubeEmbedUrl(url: string): SafeResourceUrl | null {
+    const match: RegExpMatchArray | null = url.match(
+      /(?:youtube\.com\/watch\?.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
+    if (!match) return null;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://www.youtube.com/embed/${match[1]}`
+    );
   }
 
   protected onDelete(): void {

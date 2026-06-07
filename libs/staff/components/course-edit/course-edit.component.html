@@ -16,6 +16,10 @@
           </ui-badge>
         </div>
         <div class="course-edit__header-actions">
+          <ui-button variant="secondary" size="sm" (click)="onPreviewCourse()">
+            <ui-icon name="Eye" [size]="14" />
+            {{ t('admin.preview') }}
+          </ui-button>
           @switch (course.status) {
             @case ('DRAFT') {
               <ui-button variant="primary" size="sm" (click)="onPublish()" [loading]="facade.isSaving()">
@@ -114,6 +118,9 @@
               </span>
             </div>
             <div class="lesson-row__actions">
+              <ui-button variant="secondary" size="sm" (click)="onPreviewLesson(lesson)">
+                <ui-icon name="Eye" [size]="14" />
+              </ui-button>
               <ui-button variant="secondary" size="sm" (click)="onEditLesson(lesson)">
                 <ui-icon name="Edit" [size]="14" />
               </ui-button>
@@ -198,6 +205,58 @@
     </ui-button>
     <ui-button modal-footer variant="primary" (click)="onSubmitLesson();" [loading]="facade.isSaving()">
       {{ facade.editingLesson() ? t('admin.save') : t('admin.create') }}
+    </ui-button>
+  </ui-modal>
+
+  <ui-modal
+    [isOpen]="facade.showLessonPreviewModal()"
+    [title]="t('admin.previewLesson')"
+    size="lg"
+    (closed)="onCloseLessonPreview()"
+  >
+    @if (facade.previewLesson(); as lesson) {
+      <div class="lesson-preview">
+        @if (lesson.hasTriggerWarning) {
+          <div class="lesson-preview__warning">
+            <ui-icon name="AlertTriangle" [size]="16" color="var(--ihelp-warning)" />
+            <span>{{ t('admin.triggerWarning') }}</span>
+          </div>
+        }
+
+        <h2 class="lesson-preview__title">{{ lesson.title }}</h2>
+
+        @if (lesson.videoUrl) {
+          <div class="lesson-preview__video">
+            @if (getYoutubeEmbedUrl(lesson.videoUrl); as embedUrl) {
+              <iframe
+                class="lesson-preview__iframe"
+                [src]="embedUrl"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+            } @else {
+              <video controls [src]="lesson.videoUrl" class="lesson-preview__video-player">
+              </video>
+            }
+          </div>
+        }
+
+        @if (lesson.imageUrl) {
+          <img class="lesson-preview__image" [src]="lesson.imageUrl" [alt]="lesson.title" />
+        }
+
+        @if (lesson.content) {
+          <p class="lesson-preview__content">{{ lesson.content }}</p>
+        }
+
+        @if (!lesson.videoUrl && !lesson.imageUrl && !lesson.content) {
+          <p class="lesson-preview__empty">{{ t('admin.noContent') }}</p>
+        }
+      </div>
+    }
+    <ui-button modal-footer variant="secondary" (click)="onCloseLessonPreview()">
+      {{ t('admin.close') }}
     </ui-button>
   </ui-modal>
 
