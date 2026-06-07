@@ -180,13 +180,21 @@
         name="hasTriggerWarning"
       />
 
-      <ui-input
-        [label]="t('admin.imageUrlOrUpload')"
-        [placeholder]="t('admin.imageUrlPlaceholder')"
-        [ngModel]="facade.lessonModel().imageUrl"
-        (ngModelChange)="onLessonFieldChange('imageUrl', $event)"
-        name="imageUrl"
-      />
+      <div class="modal-form__image-row">
+        <ui-input
+          [label]="t('admin.imageUrlOrUpload')"
+          [placeholder]="t('admin.imageUrlPlaceholder')"
+          [ngModel]="facade.lessonModel().imageUrl"
+          (ngModelChange)="onLessonFieldChange('imageUrl', $event)"
+          name="imageUrl"
+          class="modal-form__image-input"
+        />
+        @if (facade.lessonModel().imageUrl) {
+          <ui-button variant="danger" size="sm" (click)="onRemoveImage()" class="modal-form__image-remove">
+            <ui-icon name="X" [size]="14" />
+          </ui-button>
+        }
+      </div>
       <div class="modal-form__upload">
         <input
           type="file"
@@ -205,6 +213,26 @@
     </ui-button>
     <ui-button modal-footer variant="primary" (click)="onSubmitLesson();" [loading]="facade.isSaving()">
       {{ facade.editingLesson() ? t('admin.save') : t('admin.create') }}
+    </ui-button>
+  </ui-modal>
+
+  <ui-modal
+    [isOpen]="facade.showRemoveImageModal()"
+    [title]="t('admin.removeImageConfirm')"
+    (closed)="onCancelRemoveImage()"
+  >
+    <div class="modal-form">
+      @if (facade.lessonModel().imageUrl) {
+        <img class="modal-form__image-preview" [src]="facade.lessonModel().imageUrl" alt="" />
+      }
+      <p class="modal-form__warning">{{ t('admin.removeImageMessage') }}</p>
+    </div>
+    <ui-button modal-footer variant="secondary" (click)="onCancelRemoveImage()">
+      {{ t('admin.cancel') }}
+    </ui-button>
+    <ui-button modal-footer variant="danger" (click)="onConfirmRemoveImage()">
+      <ui-icon name="X" [size]="14" />
+      {{ t('admin.removeImage') }}
     </ui-button>
   </ui-modal>
 

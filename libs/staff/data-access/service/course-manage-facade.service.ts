@@ -30,6 +30,7 @@ export class CourseManageFacade {
   readonly showLessonModal: WritableSignal<boolean> = signal(false);
   readonly showDeleteModal: WritableSignal<boolean> = signal(false);
   readonly showLessonPreviewModal: WritableSignal<boolean> = signal(false);
+  readonly showRemoveImageModal: WritableSignal<boolean> = signal(false);
   readonly previewLesson: WritableSignal<AdminLesson | null> = signal(null);
   readonly editingLesson: WritableSignal<AdminLesson | null> = signal(null);
   readonly isUploading: WritableSignal<boolean> = signal(false);
@@ -243,6 +244,36 @@ export class CourseManageFacade {
         this.isUploading.set(false);
       },
     });
+  }
+
+  openRemoveImageModal(): void {
+    this.showRemoveImageModal.set(true);
+  }
+
+  closeRemoveImageModal(): void {
+    this.showRemoveImageModal.set(false);
+  }
+
+  confirmRemoveImage(): void {
+    const imageUrl: string = this.lessonModel().imageUrl;
+    this.lessonModel.update((m: LessonFormModel) => ({ ...m, imageUrl: '' }));
+    this.closeRemoveImageModal();
+
+    if (imageUrl && this.isMinioUrl(imageUrl)) {
+      const key: string = this.extractStorageKey(imageUrl);
+      if (key) {
+        this.service.deleteFile(key).subscribe();
+      }
+    }
+  }
+
+  private isMinioUrl(url: string): boolean {
+    return url.includes('/api/storage/') || url.includes('minio');
+  }
+
+  private extractStorageKey(url: string): string {
+    const parts: string[] = url.split('/');
+    return parts[parts.length - 1] ?? '';
   }
 
   getStatusBadgeVariant(

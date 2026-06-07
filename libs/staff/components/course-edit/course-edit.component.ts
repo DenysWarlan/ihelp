@@ -134,6 +134,18 @@ export class CourseEditComponent implements OnInit {
     );
   }
 
+  protected onRemoveImage(): void {
+    this.facade.openRemoveImageModal();
+  }
+
+  protected onConfirmRemoveImage(): void {
+    this.facade.confirmRemoveImage();
+  }
+
+  protected onCancelRemoveImage(): void {
+    this.facade.closeRemoveImageModal();
+  }
+
   protected onDelete(): void {
     this.facade.openDeleteModal();
   }

@@ -97,4 +97,8 @@ export class CourseManageService {
       formData
     );
   }
+
+  deleteFile(key: string): Observable<void> {
+    return this.http.delete<void>(`/api/storage/${key}`);
+  }
 }

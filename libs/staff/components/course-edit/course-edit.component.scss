@@ -164,6 +164,27 @@
   flex-direction: column;
   gap: var(--ihelp-space-4);
 
+  &__image-row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--ihelp-space-2);
+  }
+
+  &__image-input {
+    flex: 1;
+  }
+
+  &__image-remove {
+    margin-bottom: 2px;
+  }
+
+  &__image-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: var(--ihelp-radius-lg);
+  }
+
   &__upload {
     display: flex;
     align-items: center;
