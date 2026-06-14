@@ -18,11 +18,18 @@ export class CoursePreviewStaffComponent implements OnInit {
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
 
   private courseId = '';
+  private readonly isAdmin: boolean;
+
+  constructor() {
+    const win: Window | undefined = typeof window !== 'undefined' ? window : undefined;
+    const role: string = win?.localStorage?.getItem('ihelp_user_role') ?? '';
+    this.isAdmin = role === 'admin' || role === 'coordinator';
+  }
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.params['id'];
     if (this.courseId) {
-      this.facade.loadCourseDetail(this.courseId);
+      this.facade.loadCourseDetail(this.courseId, this.isAdmin ? undefined : 'staff');
     }
   }
 

@@ -41,7 +41,11 @@
                   </p>
                   <ui-progress-bar [value]="course.progress" variant="success" [showLabel]="true" />
                   <div class="active-card__action">
-                    <ui-button variant="primary" size="sm">{{ t('courses.continue') }}</ui-button>
+                    @if (course.status === 'completed') {
+                      <ui-badge variant="success">{{ t('courses.status.completed') }}</ui-badge>
+                    } @else {
+                      <ui-button variant="primary" size="sm">{{ t('courses.continue') }}</ui-button>
+                    }
                   </div>
                 </div>
               </div>
@@ -78,6 +82,7 @@
       }
 
       <!-- Help Banner -->
+      @if (!isConsultant()) {
       <div class="help-banner">
         <div class="help-banner__content">
           <div class="help-banner__icon">
@@ -90,6 +95,7 @@
         </div>
         <ui-button variant="secondary" size="sm" class="help-banner__btn" (click)="onWriteConsultant()">{{ t('courses.helpAction') }}</ui-button>
       </div>
+      }
     }
   </div>
 </ng-container>

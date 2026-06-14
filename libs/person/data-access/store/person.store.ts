@@ -16,6 +16,7 @@ import {
   PersonMeeting,
   PersonProfile,
   PersonLesson,
+  RequestMeetingPayload,
 } from '../model/person.model';
 import { PersonService } from '../service/person.service';
 
@@ -30,6 +31,7 @@ interface PersonState {
   isSaving: boolean;
   isSettingPassword: boolean;
   passwordSuccess: boolean;
+  requestSuccess: boolean;
   error: string | null;
 }
 
@@ -44,6 +46,7 @@ const initialState: PersonState = {
   isSaving: false,
   isSettingPassword: false,
   passwordSuccess: false,
+  requestSuccess: false,
   error: null,
 };
 
@@ -171,6 +174,62 @@ export const PersonStore = signalStore(
           ),
         ),
       ),
+
+      confirmMeeting: rxMethod<string>(
+        pipe(
+          tap(() => patchState(store, { isSaving: true, error: null })),
+          switchMap((id: string) =>
+            personService.confirmMeeting(id).pipe(
+              switchMap(() => personService.getMeetings()),
+              tap((meetings: PersonMeeting[]) =>
+                patchState(store, { meetings, isSaving: false }),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isSaving: false,
+                  error: 'Failed to confirm meeting',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      requestMeeting: rxMethod<RequestMeetingPayload>(
+        pipe(
+          tap(() =>
+            patchState(store, {
+              isSaving: true,
+              requestSuccess: false,
+              error: null,
+            }),
+          ),
+          switchMap((payload: RequestMeetingPayload) =>
+            personService.requestMeeting(payload).pipe(
+              switchMap(() => personService.getMeetings()),
+              tap((meetings: PersonMeeting[]) =>
+                patchState(store, {
+                  meetings,
+                  isSaving: false,
+                  requestSuccess: true,
+                }),
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isSaving: false,
+                  error: 'Failed to request meeting',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      resetRequestSuccess(): void {
+        patchState(store, { requestSuccess: false });
+      },
 
       loadProfile: rxMethod<void>(
         pipe(

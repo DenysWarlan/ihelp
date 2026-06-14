@@ -5,7 +5,7 @@ import { authGuard, roleGuard } from '@org/shared/data-access';
 const ADMIN_ONLY = ['ADMIN'] as const;
 const COORD_ONLY = ['COORDINATOR'] as const;
 const SUPER_ONLY = ['SUPERVISOR'] as const;
-const ADMIN_COORD_CONSULT = ['ADMIN', 'COORDINATOR', 'CONSULTANT'] as const;
+const ADMIN_COORD = ['ADMIN', 'COORDINATOR'] as const;
 
 export const staffRoutes: Routes = [
   {
@@ -101,6 +101,13 @@ export const staffRoutes: Routes = [
           ),
       },
       {
+        path: 'messages',
+        loadComponent: () =>
+          import('./messages/messages.component').then(
+            (m) => m.StaffMessagesComponent,
+          ),
+      },
+      {
         path: 'meetings',
         loadComponent: () =>
           import('./meetings/meetings.component').then(
@@ -116,7 +123,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'courses',
-        canActivate: [roleGuard(...ADMIN_COORD_CONSULT)],
+        canActivate: [roleGuard(...ADMIN_COORD)],
         loadComponent: () =>
           import('./courses-manage/courses-manage.component').then(
             (m) => m.CoursesManageComponent,
@@ -124,7 +131,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'courses/:id',
-        canActivate: [roleGuard(...ADMIN_COORD_CONSULT)],
+        canActivate: [roleGuard(...ADMIN_COORD)],
         loadComponent: () =>
           import('./course-edit/course-edit.component').then(
             (m) => m.CourseEditComponent,
@@ -132,7 +139,7 @@ export const staffRoutes: Routes = [
       },
       {
         path: 'courses/:id/preview',
-        canActivate: [roleGuard(...ADMIN_COORD_CONSULT)],
+        canActivate: [roleGuard(...ADMIN_COORD)],
         loadComponent: () =>
           import('./course-preview-staff/course-preview-staff.component').then(
             (m) => m.CoursePreviewStaffComponent,

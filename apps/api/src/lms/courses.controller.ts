@@ -41,6 +41,15 @@ export class CoursesController {
     return this.coursesService.findAllStaffCourses();
   }
 
+  @Get('staff/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get published course detail for staff' })
+  @ApiOkResponse({ type: CourseDetailDto, description: 'Staff course detail with lessons' })
+  @ApiNotFoundResponse({ description: 'Course not found or not published' })
+  async findOneStaff(@Param('id', ParseUuidPipe) id: string): Promise<CourseDetailDto> {
+    return this.coursesService.findOneStaff(id);
+  }
+
   @Get('my-enrollments')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List courses the current user is enrolled in' })

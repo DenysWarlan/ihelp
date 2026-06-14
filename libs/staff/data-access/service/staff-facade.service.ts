@@ -1,14 +1,27 @@
-import { inject, Injectable, Signal } from '@angular/core';
+import { inject, Injectable, Signal, signal, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import {
   CaseDetail,
   CaseListItem,
+  CreateTeamMeetingPayload,
   ScheduleMeetingRequest,
   StaffDashboard,
   StaffMeeting,
+  StaffUser,
+  TeamMeeting,
+  TeamMeetingFormModel,
 } from '../model/staff.model';
 import { StaffStore } from '../store/staff.store';
+
+const DEFAULT_TEAM_MEETING_FORM: TeamMeetingFormModel = {
+  title: '',
+  date: '',
+  time: '',
+  duration: '60',
+  participantIds: [],
+  notes: '',
+};
 
 @Injectable({ providedIn: 'root' })
 export class StaffFacade {
@@ -21,6 +34,14 @@ export class StaffFacade {
   readonly meetings: Signal<StaffMeeting[]> = this.store.meetings;
   readonly isLoading: Signal<boolean> = this.store.isLoading;
   readonly error: Signal<string | null> = this.store.error;
+
+  readonly teamMeetings: Signal<TeamMeeting[]> = this.store.teamMeetings;
+  readonly staffUsers: Signal<StaffUser[]> = this.store.staffUsers;
+  readonly teamCreateSuccess: Signal<boolean> = this.store.teamCreateSuccess;
+
+  readonly teamMeetingModel: WritableSignal<TeamMeetingFormModel> = signal(
+    DEFAULT_TEAM_MEETING_FORM,
+  );
 
   loadDashboard(): void {
     this.store.loadDashboard();
@@ -58,7 +79,97 @@ export class StaffFacade {
     this.store.reassignCase({ caseId, consultantUserId });
   }
 
+  acceptMeeting(id: string): void {
+    this.store.acceptMeeting(id);
+  }
+
+  declineMeeting(id: string, reason: string): void {
+    this.store.declineMeeting({ id, reason });
+  }
+
   navigateToCase(id: string): void {
     this.router.navigate(['/staff/cases', id]);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Team meetings (internal staff / group meetings)
+  // ---------------------------------------------------------------------------
+
+  loadTeamMeetings(): void {
+    this.store.loadTeamMeetings();
+  }
+
+  loadStaffUsers(): void {
+    this.store.loadStaffUsers();
+  }
+
+  updateTeamMeetingField(
+    field: keyof Omit<TeamMeetingFormModel, 'participantIds'>,
+    value: string,
+  ): void {
+    this.teamMeetingModel.update((current: TeamMeetingFormModel) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  toggleParticipant(userId: string): void {
+    this.teamMeetingModel.update((current: TeamMeetingFormModel) => {
+      const exists: boolean = current.participantIds.includes(userId);
+      const participantIds: string[] = exists
+        ? current.participantIds.filter((id: string) => id !== userId)
+        : [...current.participantIds, userId];
+      return { ...current, participantIds };
+    });
+  }
+
+  resetTeamMeeting(): void {
+    this.teamMeetingModel.set(DEFAULT_TEAM_MEETING_FORM);
+    this.store.resetTeamCreateSuccess();
+  }
+
+  /** Validates and submits the team meeting form. Returns an error code or null on success. */
+  submitTeamMeeting(): string | null {
+    const form: TeamMeetingFormModel = this.teamMeetingModel();
+
+    if (!form.title.trim()) {
+      return 'titleRequired';
+    }
+
+    if (!form.date || !form.time) {
+      return 'dateRequired';
+    }
+
+    if (form.participantIds.length === 0) {
+      return 'participantsRequired';
+    }
+
+    const scheduledAt = new Date(`${form.date}T${form.time}`);
+    if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+      return 'future';
+    }
+
+    const payload: CreateTeamMeetingPayload = {
+      title: form.title.trim(),
+      scheduledAt: scheduledAt.toISOString(),
+      participantIds: form.participantIds,
+      durationMin: parseInt(form.duration, 10),
+      notes: form.notes.trim() || undefined,
+    };
+
+    this.store.createTeamMeeting(payload);
+    return null;
+  }
+
+  acceptTeamMeeting(id: string): void {
+    this.store.respondTeamMeeting({ id, status: 'ACCEPTED' });
+  }
+
+  declineTeamMeeting(id: string): void {
+    this.store.respondTeamMeeting({ id, status: 'DECLINED' });
+  }
+
+  cancelTeamMeeting(id: string, reason: string): void {
+    this.store.cancelTeamMeeting({ id, reason });
   }
 }

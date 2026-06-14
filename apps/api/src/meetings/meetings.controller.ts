@@ -24,11 +24,12 @@ import { PrismaService } from '@org/prisma-client';
 
 import { JwtPayload } from '../auth/auth.model.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
-import { CREATE_MEETING_ROLES, ELEVATED_ROLES } from './meetings.const.js';
+import { ACCEPT_REQUEST_ROLES, CREATE_MEETING_ROLES, ELEVATED_ROLES } from './meetings.const.js';
 import {
   CancelMeetingDto,
   CreateMeetingDto,
   MeetingResponse,
+  RequestMeetingDto,
 } from './meetings.model.js';
 import { MeetingsService } from './meetings.service.js';
 
@@ -53,7 +54,21 @@ export class MeetingsController {
     @Req() req: Request,
   ): Promise<MeetingResponse> {
     const actor = req.user as JwtPayload;
-    return this.meetingsService.create(dto, actor.sub);
+    return this.meetingsService.create(dto, actor.sub, actor.role);
+  }
+
+  @Post('meetings/request')
+  @Roles('PERSON')
+  @ApiOperation({ summary: 'Request a meeting with the assigned consultant' })
+  @ApiResponse({ status: 201, description: 'Meeting request created (status REQUESTED)' })
+  @ApiResponse({ status: 400, description: 'Validation error, past date, or no consultant assigned' })
+  @ApiNotFoundResponse({ description: 'Care case not found' })
+  async request(
+    @Body() dto: RequestMeetingDto,
+    @Req() req: Request,
+  ): Promise<MeetingResponse> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.requestByPerson(dto, actor.sub);
   }
 
   @Get('cases/:caseId/meetings')
@@ -122,6 +137,50 @@ export class MeetingsController {
   ): Promise<MeetingResponse> {
     const actor = req.user as JwtPayload;
     return this.meetingsService.cancel(id, dto, actor.sub);
+  }
+
+  @Patch('meetings/:id/confirm')
+  @Roles('PERSON')
+  @ApiOperation({ summary: 'Person confirms a consultant-scheduled meeting' })
+  @ApiResponse({ status: 200, description: 'Meeting confirmed' })
+  @ApiResponse({ status: 400, description: 'Meeting cannot be confirmed' })
+  @ApiNotFoundResponse({ description: 'Meeting not found' })
+  async confirm(
+    @Param('id', ParseUuidPipe) id: string,
+    @Req() req: Request,
+  ): Promise<MeetingResponse> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.confirmByPerson(id, actor.sub);
+  }
+
+  @Patch('meetings/:id/accept')
+  @Roles(...ACCEPT_REQUEST_ROLES)
+  @ApiOperation({ summary: "Accept a person's meeting request" })
+  @ApiResponse({ status: 200, description: 'Request accepted (status CONFIRMED)' })
+  @ApiResponse({ status: 400, description: 'Request cannot be accepted' })
+  @ApiConflictResponse({ description: 'Proposed time overlaps with an existing meeting' })
+  @ApiNotFoundResponse({ description: 'Meeting not found' })
+  async accept(
+    @Param('id', ParseUuidPipe) id: string,
+    @Req() req: Request,
+  ): Promise<MeetingResponse> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.acceptRequest(id, actor.sub, actor.role);
+  }
+
+  @Patch('meetings/:id/decline')
+  @Roles(...ACCEPT_REQUEST_ROLES)
+  @ApiOperation({ summary: "Decline a person's meeting request" })
+  @ApiResponse({ status: 200, description: 'Request declined (status CANCELLED)' })
+  @ApiResponse({ status: 400, description: 'Request cannot be declined' })
+  @ApiNotFoundResponse({ description: 'Meeting not found' })
+  async decline(
+    @Param('id', ParseUuidPipe) id: string,
+    @Body() dto: CancelMeetingDto,
+    @Req() req: Request,
+  ): Promise<MeetingResponse> {
+    const actor = req.user as JwtPayload;
+    return this.meetingsService.declineRequest(id, dto, actor.sub, actor.role);
   }
 
   @Patch('meetings/:id/complete')

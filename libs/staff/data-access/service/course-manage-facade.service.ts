@@ -57,8 +57,12 @@ export class CourseManageFacade {
     }
   }
 
-  loadCourseDetail(id: string): void {
-    this.store.loadCourseDetail(id);
+  loadCourseDetail(id: string, source?: 'staff'): void {
+    if (source === 'staff') {
+      this.store.loadStaffCourseDetail(id);
+    } else {
+      this.store.loadCourseDetail(id);
+    }
   }
 
   openCreateModal(): void {

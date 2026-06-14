@@ -35,6 +35,7 @@ export const PERSON_CHAT_MAX_PAGE_SIZE = 100;
 
 /** Meeting statuses considered upcoming for person's cabinet. */
 export const UPCOMING_MEETING_STATUSES: readonly MeetingStatus[] = [
+  MeetingStatus.REQUESTED,
   MeetingStatus.SCHEDULED,
   MeetingStatus.CONFIRMED,
 ] as const;

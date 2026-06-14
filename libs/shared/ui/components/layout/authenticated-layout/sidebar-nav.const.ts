@@ -5,6 +5,7 @@ export const SIDEBAR_NAV_ITEMS: readonly SidebarNavItem[] = [
   { label: 'nav.cabinet', icon: 'LayoutDashboard', route: '/person', roles: ['person'] },
   { label: 'nav.courses', icon: 'BookOpen', route: '/person/courses', roles: ['person'] },
   { label: 'nav.chat', icon: 'MessageCircle', route: '/person/chat', roles: ['person'] },
+  { label: 'nav.messages', icon: 'MessageSquare', route: '/person/messages', roles: ['person'] },
   { label: 'nav.meetings', icon: 'Calendar', route: '/person/meetings', roles: ['person'] },
   { label: 'nav.profile', icon: 'User', route: '/person/profile', roles: ['person'] },
 
@@ -12,13 +13,15 @@ export const SIDEBAR_NAV_ITEMS: readonly SidebarNavItem[] = [
   { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff', roles: ['consultant'] },
   { label: 'nav.cases', icon: 'FolderOpen', route: '/staff/cases', roles: ['consultant'] },
   { label: 'nav.chat', icon: 'MessageCircle', route: '/staff/chat', roles: ['consultant'] },
+  { label: 'nav.messages', icon: 'MessageSquare', route: '/staff/messages', roles: ['consultant'] },
   { label: 'nav.meetings', icon: 'Calendar', route: '/staff/meetings', roles: ['consultant'] },
-  { label: 'nav.courses', icon: 'BookOpen', route: '/staff/courses', roles: ['consultant'] },
+  { label: 'nav.courses', icon: 'BookOpen', route: '/person/courses', roles: ['consultant'] },
 
   // Supervisor
   { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff/supervisor', roles: ['supervisor'] },
   { label: 'nav.team', icon: 'Users', route: '/staff/team', roles: ['supervisor'] },
   { label: 'nav.cases', icon: 'FolderOpen', route: '/staff/supervisor/cases', roles: ['supervisor'] },
+  { label: 'nav.messages', icon: 'MessageSquare', route: '/staff/messages', roles: ['supervisor'] },
   { label: 'nav.analytics', icon: 'BarChart3', route: '/staff/analytics', roles: ['supervisor'] },
   { label: 'nav.crisis', icon: 'AlertTriangle', route: '/staff/supervisor/crisis', roles: ['supervisor'] },
   { label: 'nav.meetings', icon: 'Calendar', route: '/staff/meetings', roles: ['supervisor'] },
@@ -29,12 +32,14 @@ export const SIDEBAR_NAV_ITEMS: readonly SidebarNavItem[] = [
   { label: 'nav.assignment', icon: 'UserCheck', route: '/staff/assignment', roles: ['coordinator'] },
   { label: 'nav.workload', icon: 'Activity', route: '/staff/workload', roles: ['coordinator'] },
   { label: 'nav.cases', icon: 'FolderOpen', route: '/staff/cases', roles: ['coordinator'] },
+  { label: 'nav.messages', icon: 'MessageSquare', route: '/staff/messages', roles: ['coordinator'] },
   { label: 'nav.crisis', icon: 'AlertTriangle', route: '/staff/crisis', roles: ['coordinator'] },
 
   // Admin
   { label: 'nav.dashboard', icon: 'LayoutDashboard', route: '/staff/admin', roles: ['admin'] },
   { label: 'nav.users', icon: 'Users', route: '/staff/users', roles: ['admin'] },
   { label: 'nav.courseMgmt', icon: 'BookOpen', route: '/staff/courses', roles: ['admin'] },
+  { label: 'nav.messages', icon: 'MessageSquare', route: '/staff/messages', roles: ['admin'] },
   { label: 'nav.settings', icon: 'Settings', route: '/staff/settings', roles: ['admin'] },
   { label: 'nav.analytics', icon: 'BarChart3', route: '/staff/analytics', roles: ['admin'] },
   { label: 'nav.auditLog', icon: 'FileText', route: '/staff/audit', roles: ['admin'] },

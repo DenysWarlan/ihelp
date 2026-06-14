@@ -4,6 +4,7 @@ export interface PersonDashboard {
   readonly courseProgress: number;
   readonly unreadMessages: number;
   readonly recentActivity: PersonActivity[];
+  readonly caseId: string | null;
   readonly consultantName: string | null;
   readonly consultantSpecialty: string | null;
   readonly caseStatus: string | null;
@@ -67,9 +68,22 @@ export interface PersonMeeting {
   readonly title: string;
   readonly scheduledAt: string;
   readonly durationMinutes: number;
-  readonly status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  readonly status:
+    | 'REQUESTED'
+    | 'SCHEDULED'
+    | 'CONFIRMED'
+    | 'IN_PROGRESS'
+    | 'COMPLETED'
+    | 'CANCELLED';
   readonly consultantName: string;
   readonly meetingUrl: string | null;
+}
+
+export interface RequestMeetingPayload {
+  readonly careCaseId: string;
+  readonly scheduledAt: string;
+  readonly durationMin: number;
+  readonly notes: string;
 }
 
 export interface PersonProfile {

@@ -2,9 +2,14 @@
   <section class="meetings">
     <div class="meetings__header">
       <h1 class="meetings__title">{{ t('staff.meetings') }}</h1>
-      <button class="meetings__schedule-btn" (click)="openModal()">
-        {{ t('staffMeetings.scheduleMeeting') }}
-      </button>
+      <div class="meetings__header-actions">
+        <button class="meetings__team-btn" (click)="openTeamModal()">
+          {{ t('staffMeetings.newTeamMeeting') }}
+        </button>
+        <button class="meetings__schedule-btn" (click)="openModal()">
+          {{ t('staffMeetings.scheduleMeeting') }}
+        </button>
+      </div>
     </div>
 
     @if (isLoading()) {
@@ -48,7 +53,125 @@
               <p class="meeting-card__notes">{{ meeting.notes }}</p>
             }
 
-            @if (meeting.meetingUrl && meeting.status !== 'COMPLETED' && meeting.status !== 'CANCELLED') {
+            @if (meeting.status === 'REQUESTED') {
+              <div class="meeting-card__request-actions">
+                <button
+                  type="button"
+                  class="meeting-card__accept"
+                  [disabled]="isLoading()"
+                  (click)="acceptMeeting(meeting.id)"
+                >
+                  {{ t('staffMeetings.accept') }}
+                </button>
+                <button
+                  type="button"
+                  class="meeting-card__decline"
+                  [disabled]="isLoading()"
+                  (click)="openDeclineModal(meeting.id)"
+                >
+                  {{ t('staffMeetings.decline') }}
+                </button>
+              </div>
+            }
+
+            @if (meeting.meetingUrl && meeting.status !== 'COMPLETED' && meeting.status !== 'CANCELLED' && meeting.status !== 'REQUESTED') {
+              <a
+                class="meeting-card__join"
+                [href]="meeting.meetingUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ t('staffMeetings.join') }}
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Team Meetings (internal staff / group) -->
+  <section class="team-meetings">
+    <h2 class="team-meetings__title">{{ t('staffMeetings.teamSectionTitle') }}</h2>
+
+    @if (teamMeetings().length === 0) {
+      <p class="team-meetings__empty">{{ t('staffMeetings.teamEmpty') }}</p>
+    } @else {
+      <div class="meetings__grid">
+        @for (meeting of teamMeetings(); track meeting.id) {
+          <div class="meeting-card" [class.meeting-card--past]="meeting.status === 'COMPLETED' || meeting.status === 'CANCELLED'">
+            <div class="meeting-card__top">
+              <div class="meeting-card__topic-row">
+                <span class="meeting-card__topic">{{ meeting.title }}</span>
+                <ui-badge [variant]="getTeamStatusVariant(meeting.status)" size="sm">
+                  {{ t('staffMeetings.teamStatus.' + meeting.status) }}
+                </ui-badge>
+              </div>
+              <span class="meeting-card__person">
+                {{ t('staffMeetings.organizer') }}: {{ meeting.organizerName }}
+              </span>
+            </div>
+
+            <div class="meeting-card__meta">
+              <div class="meeting-card__meta-item">
+                <span class="meeting-card__meta-icon">&#128197;</span>
+                <span>{{ meeting.scheduledAt | date:'d MMM y' }}</span>
+              </div>
+              <div class="meeting-card__meta-item">
+                <span class="meeting-card__meta-icon">&#128336;</span>
+                <span>{{ meeting.scheduledAt | date:'HH:mm' }}</span>
+              </div>
+              <div class="meeting-card__meta-item">
+                <span class="meeting-card__meta-icon">&#9202;</span>
+                <span>{{ meeting.durationMin }} {{ t('staffMeetings.minutes') }}</span>
+              </div>
+            </div>
+
+            <div class="meeting-card__participants">
+              @for (p of meeting.participants; track p.id) {
+                <ui-badge [variant]="getParticipantStatusVariant(p.status)" size="sm">
+                  {{ p.name }}
+                </ui-badge>
+              }
+            </div>
+
+            @if (meeting.notes) {
+              <p class="meeting-card__notes">{{ meeting.notes }}</p>
+            }
+
+            @if (meeting.myStatus && meeting.status === 'SCHEDULED') {
+              <div class="meeting-card__request-actions">
+                <button
+                  type="button"
+                  class="meeting-card__accept"
+                  [disabled]="isLoading() || meeting.myStatus === 'ACCEPTED'"
+                  (click)="onAcceptTeam(meeting.id)"
+                >
+                  {{ t('staffMeetings.accept') }}
+                </button>
+                <button
+                  type="button"
+                  class="meeting-card__decline"
+                  [disabled]="isLoading() || meeting.myStatus === 'DECLINED'"
+                  (click)="onDeclineTeam(meeting.id)"
+                >
+                  {{ t('staffMeetings.decline') }}
+                </button>
+              </div>
+            }
+
+            @if (meeting.isOrganizer && meeting.status === 'SCHEDULED') {
+              <button
+                type="button"
+                class="meeting-card__decline"
+                [disabled]="isLoading()"
+                (click)="openCancelTeamModal(meeting.id)"
+              >
+                {{ t('staffMeetings.cancelMeeting') }}
+              </button>
+            }
+
+            @if (meeting.meetingUrl && meeting.status === 'SCHEDULED') {
               <a
                 class="meeting-card__join"
                 [href]="meeting.meetingUrl"
@@ -170,5 +293,164 @@
         </div>
       }
     </form>
+  </ui-modal>
+
+  <!-- Decline Request Modal -->
+  <ui-modal [isOpen]="declineMeetingId() !== null" [title]="t('staffMeetings.declineTitle')" (closed)="closeDeclineModal()" size="md">
+    <div class="decline-modal">
+      <p class="decline-modal__hint">{{ t('staffMeetings.declineHint') }}</p>
+      <textarea
+        class="schedule-modal__textarea"
+        rows="3"
+        [placeholder]="t('staffMeetings.declineReasonPlaceholder')"
+        [ngModel]="declineReason()"
+        (ngModelChange)="declineReason.set($event)"
+        name="declineReason"
+      ></textarea>
+      <div class="schedule-modal__actions">
+        <button
+          type="button"
+          class="schedule-modal__submit"
+          [disabled]="!declineReason().trim() || isLoading()"
+          (click)="confirmDecline()"
+        >
+          {{ t('staffMeetings.confirmDecline') }}
+        </button>
+        <button type="button" class="schedule-modal__cancel" (click)="closeDeclineModal()">
+          {{ t('staffMeetings.cancel') }}
+        </button>
+      </div>
+    </div>
+  </ui-modal>
+
+  <!-- Create Team Meeting Modal -->
+  <ui-modal [isOpen]="isTeamModalOpen()" [title]="t('staffMeetings.teamModalTitle')" (closed)="closeTeamModal()" size="lg">
+    <form class="schedule-modal" (submit)="onSubmitTeam()">
+      <div class="schedule-modal__section">
+        <label class="schedule-modal__label">{{ t('staffMeetings.teamTitleLabel') }}</label>
+        <input
+          type="text"
+          class="schedule-modal__input"
+          [placeholder]="t('staffMeetings.teamTitlePlaceholder')"
+          [ngModel]="teamModel().title"
+          (ngModelChange)="updateTeamField('title', $event)"
+          name="teamTitle"
+          required
+        />
+      </div>
+
+      <div class="schedule-modal__row">
+        <div class="schedule-modal__field">
+          <label class="schedule-modal__label">{{ t('staffMeetings.dateLabel') }}</label>
+          <input
+            type="date"
+            class="schedule-modal__input"
+            [ngModel]="teamModel().date"
+            (ngModelChange)="updateTeamField('date', $event)"
+            [min]="today"
+            name="teamDate"
+            required
+          />
+        </div>
+        <div class="schedule-modal__field">
+          <label class="schedule-modal__label">{{ t('staffMeetings.timeLabel') }}</label>
+          <input
+            type="time"
+            class="schedule-modal__input"
+            [ngModel]="teamModel().time"
+            (ngModelChange)="updateTeamField('time', $event)"
+            name="teamTime"
+            required
+          />
+        </div>
+        <div class="schedule-modal__field">
+          <label class="schedule-modal__label">{{ t('staffMeetings.durationLabel') }}</label>
+          <select
+            class="schedule-modal__input"
+            [ngModel]="teamModel().duration"
+            (ngModelChange)="updateTeamField('duration', $event)"
+            name="teamDuration"
+          >
+            <option value="15">15 {{ t('staffMeetings.minutes') }}</option>
+            <option value="30">30 {{ t('staffMeetings.minutes') }}</option>
+            <option value="45">45 {{ t('staffMeetings.minutes') }}</option>
+            <option value="60">60 {{ t('staffMeetings.minutes') }}</option>
+            <option value="90">90 {{ t('staffMeetings.minutes') }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="schedule-modal__section">
+        <label class="schedule-modal__label">{{ t('staffMeetings.participantsLabel') }}</label>
+        <div class="schedule-modal__participant-list">
+          @for (u of staffUsers(); track u.id) {
+            <button
+              type="button"
+              class="schedule-modal__participant"
+              [class.schedule-modal__participant--selected]="isParticipantSelected(u.id)"
+              (click)="toggleParticipant(u.id)"
+            >
+              <span class="schedule-modal__participant-name">{{ u.name }}</span>
+              <span class="schedule-modal__participant-role">{{ u.role }}</span>
+            </button>
+          } @empty {
+            <p class="schedule-modal__no-cases">{{ t('staffMeetings.noStaff') }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="schedule-modal__section">
+        <label class="schedule-modal__label">{{ t('staffMeetings.notesLabel') }}</label>
+        <textarea
+          class="schedule-modal__textarea"
+          rows="2"
+          [placeholder]="t('staffMeetings.teamNotesPlaceholder')"
+          [ngModel]="teamModel().notes"
+          (ngModelChange)="updateTeamField('notes', $event)"
+          name="teamNotes"
+        ></textarea>
+      </div>
+
+      @if (teamSubmitError()) {
+        <p class="schedule-modal__error">{{ t('staffMeetings.teamError.' + teamSubmitError()) }}</p>
+      }
+
+      <div class="schedule-modal__actions">
+        <button type="submit" class="schedule-modal__submit" [disabled]="isLoading()">
+          {{ t('staffMeetings.createTeamMeeting') }}
+        </button>
+        <button type="button" class="schedule-modal__cancel" (click)="closeTeamModal()">
+          {{ t('staffMeetings.cancel') }}
+        </button>
+      </div>
+    </form>
+  </ui-modal>
+
+  <!-- Cancel Team Meeting Modal -->
+  <ui-modal [isOpen]="cancelTeamId() !== null" [title]="t('staffMeetings.cancelTeamTitle')" (closed)="closeCancelTeamModal()" size="md">
+    <div class="decline-modal">
+      <p class="decline-modal__hint">{{ t('staffMeetings.cancelTeamHint') }}</p>
+      <textarea
+        class="schedule-modal__textarea"
+        rows="3"
+        [placeholder]="t('staffMeetings.declineReasonPlaceholder')"
+        [ngModel]="cancelTeamReason()"
+        (ngModelChange)="cancelTeamReason.set($event)"
+        name="cancelTeamReason"
+      ></textarea>
+      <div class="schedule-modal__actions">
+        <button
+          type="button"
+          class="schedule-modal__submit"
+          [disabled]="isLoading()"
+          (click)="confirmCancelTeam()"
+        >
+          {{ t('staffMeetings.confirmCancelTeam') }}
+        </button>
+        <button type="button" class="schedule-modal__cancel" (click)="closeCancelTeamModal()">
+          {{ t('staffMeetings.cancel') }}
+        </button>
+      </div>
+    </div>
   </ui-modal>
 </ng-container>

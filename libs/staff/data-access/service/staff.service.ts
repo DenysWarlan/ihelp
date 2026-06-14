@@ -6,9 +6,12 @@ import {
   CaseDetail,
   CaseListItem,
   CaseNote,
+  CreateTeamMeetingPayload,
   ScheduleMeetingRequest,
   StaffDashboard,
   StaffMeeting,
+  StaffUser,
+  TeamMeeting,
 } from '../model/staff.model';
 
 @Injectable({ providedIn: 'root' })
@@ -64,7 +67,35 @@ export class StaffService {
     );
   }
 
+  acceptMeeting(id: string): Observable<StaffMeeting> {
+    return this.http.patch<StaffMeeting>(`/api/meetings/${id}/accept`, {});
+  }
+
+  declineMeeting(id: string, cancelReason: string): Observable<StaffMeeting> {
+    return this.http.patch<StaffMeeting>(`/api/meetings/${id}/decline`, { cancelReason });
+  }
+
   reassignCase(caseId: string, consultantUserId: string): Observable<void> {
     return this.http.post<void>(`/api/assignment/${caseId}/reassign`, { consultantUserId });
+  }
+
+  getTeamMeetings(): Observable<TeamMeeting[]> {
+    return this.http.get<TeamMeeting[]>('/api/team-meetings/my');
+  }
+
+  getStaffUsers(): Observable<StaffUser[]> {
+    return this.http.get<StaffUser[]>('/api/team-meetings/staff');
+  }
+
+  createTeamMeeting(payload: CreateTeamMeetingPayload): Observable<TeamMeeting> {
+    return this.http.post<TeamMeeting>('/api/team-meetings', payload);
+  }
+
+  respondTeamMeeting(id: string, status: 'ACCEPTED' | 'DECLINED'): Observable<TeamMeeting> {
+    return this.http.patch<TeamMeeting>(`/api/team-meetings/${id}/respond`, { status });
+  }
+
+  cancelTeamMeeting(id: string, cancelReason: string): Observable<TeamMeeting> {
+    return this.http.patch<TeamMeeting>(`/api/team-meetings/${id}/cancel`, { cancelReason });
   }
 }

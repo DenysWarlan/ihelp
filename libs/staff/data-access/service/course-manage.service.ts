@@ -31,6 +31,10 @@ export class CourseManageService {
     return this.http.get<AdminCourseDetail>(`/api/admin/courses/${id}`);
   }
 
+  getStaffCourseDetail(id: string): Observable<AdminCourseDetail> {
+    return this.http.get<AdminCourseDetail>(`/api/courses/staff/${id}`);
+  }
+
   createCourse(dto: CreateCourseFormModel): Observable<AdminCourse> {
     return this.http.post<AdminCourse>('/api/admin/courses', dto);
   }

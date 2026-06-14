@@ -48,6 +48,36 @@ export class CreateMeetingDto {
 }
 
 // ---------------------------------------------------------------------------
+// DTOs — Request (person-initiated)
+// ---------------------------------------------------------------------------
+
+export class RequestMeetingDto {
+  @ApiProperty({ description: 'Care case ID the person wants a meeting for' })
+  @IsUuidFormat()
+  careCaseId!: string;
+
+  @ApiProperty({ description: 'Proposed date/time in ISO 8601 format (must be in the future)' })
+  @IsNotEmpty()
+  @IsString()
+  scheduledAt!: string;
+
+  @ApiPropertyOptional({
+    description: `Duration in minutes (${MIN_MEETING_DURATION}–${MAX_MEETING_DURATION})`,
+    default: DEFAULT_DURATION,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(MIN_MEETING_DURATION)
+  @Max(MAX_MEETING_DURATION)
+  durationMin?: number;
+
+  @ApiPropertyOptional({ description: 'Optional note describing what the person wants to discuss' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+// ---------------------------------------------------------------------------
 // DTOs — Update
 // ---------------------------------------------------------------------------
 

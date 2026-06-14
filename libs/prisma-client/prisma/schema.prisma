@@ -65,6 +65,15 @@ model User {
   meetingsAsConsultant Meeting[] @relation("MeetingConsultant")
   meetingsAsPerson     Meeting[] @relation("MeetingPerson")
 
+  // Team meetings relations
+  teamMeetingsOrganized    TeamMeeting[]            @relation("TeamMeetingOrganizer")
+  teamMeetingParticipations TeamMeetingParticipant[] @relation("TeamMeetingParticipant")
+
+  // Conversation (non-case chat) relations
+  conversationsCreated     Conversation[]        @relation("ConversationCreator")
+  conversationMemberships  ConversationMember[]  @relation("ConversationMember")
+  conversationMessagesSent ConversationMessage[] @relation("ConversationMessageSender")
+
   // Duty schedule
   dutySchedules DutySchedule[]
 
@@ -547,6 +556,7 @@ model ConsultantProfile {
 // ============================================================
 
 enum MeetingStatus {
+  REQUESTED
   SCHEDULED
   CONFIRMED
   IN_PROGRESS
@@ -582,6 +592,121 @@ model Meeting {
   @@index([personId])
   @@index([status])
   @@map("meetings")
+}
+
+// ============================================================
+// TEAM MEETINGS (internal staff-to-staff & group meetings)
+// ============================================================
+
+enum TeamMeetingStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+enum TeamParticipantStatus {
+  INVITED
+  ACCEPTED
+  DECLINED
+}
+
+model TeamMeeting {
+  id           String            @id @default(uuid()) @db.Uuid
+  organizerId  String            @map("organizer_id") @db.Uuid
+  title        String
+  scheduledAt  DateTime          @map("scheduled_at")
+  durationMin  Int               @default(60) @map("duration_min")
+  meetingUrl   String?           @map("meeting_url")
+  notes        String?
+  status       TeamMeetingStatus @default(SCHEDULED)
+  cancelledAt  DateTime?         @map("cancelled_at")
+  cancelReason String?           @map("cancel_reason")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  organizer    User                     @relation("TeamMeetingOrganizer", fields: [organizerId], references: [id])
+  participants TeamMeetingParticipant[]
+
+  @@index([organizerId, scheduledAt])
+  @@index([status])
+  @@map("team_meetings")
+}
+
+model TeamMeetingParticipant {
+  id            String                @id @default(uuid()) @db.Uuid
+  teamMeetingId String                @map("team_meeting_id") @db.Uuid
+  userId        String                @map("user_id") @db.Uuid
+  status        TeamParticipantStatus @default(INVITED)
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
+
+  teamMeeting TeamMeeting @relation(fields: [teamMeetingId], references: [id], onDelete: Cascade)
+  user        User        @relation("TeamMeetingParticipant", fields: [userId], references: [id])
+
+  @@unique([teamMeetingId, userId])
+  @@index([userId])
+  @@map("team_meeting_participants")
+}
+
+// ============================================================
+// CONVERSATIONS (non-case chat: staff↔staff, group, supervisor↔client)
+// ============================================================
+
+enum ConversationKind {
+  STAFF_DIRECT
+  STAFF_GROUP
+  SUPERVISOR_CLIENT
+}
+
+model Conversation {
+  id            String           @id @default(uuid()) @db.Uuid
+  kind          ConversationKind
+  title         String?
+  createdById   String           @map("created_by_id") @db.Uuid
+  lastMessageAt DateTime?        @map("last_message_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  createdBy User                  @relation("ConversationCreator", fields: [createdById], references: [id])
+  members   ConversationMember[]
+  messages  ConversationMessage[]
+
+  @@index([kind])
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
+model ConversationMember {
+  id             String    @id @default(uuid()) @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  lastReadAt     DateTime? @map("last_read_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation("ConversationMember", fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_members")
+}
+
+model ConversationMessage {
+  id             String    @id @default(uuid()) @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
+  senderId       String    @map("sender_id") @db.Uuid
+  content        String    @db.VarChar(10000)
+  isDeleted      Boolean   @default(false) @map("is_deleted")
+  deletedAt      DateTime? @map("deleted_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("ConversationMessageSender", fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@map("conversation_messages")
 }
 
 // ============================================================

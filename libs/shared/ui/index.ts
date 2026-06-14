@@ -22,6 +22,9 @@ export { ToastService } from './components/toast/toast.service';
 
 export { PaginationComponent } from './components/pagination/pagination.component';
 
+// Conversation (non-case chat) reusable panel
+export { ConversationPanelComponent } from './components/conversation-panel/conversation-panel.component';
+
 // Models
 export type { PageChangeEvent } from './components/pagination/pagination.model';
 export type { SelectOption } from './components/select/select.model';

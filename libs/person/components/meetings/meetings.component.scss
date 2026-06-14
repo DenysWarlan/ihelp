@@ -10,6 +10,14 @@
 
 .meetings-page__header {
   display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ihelp-space-4);
+}
+
+.meetings-page__header-text {
+  display: flex;
   flex-direction: column;
   gap: var(--ihelp-space-1);
 }
@@ -97,4 +105,91 @@
   .meeting-entry__right {
     flex-wrap: wrap;
   }
+}
+
+.request-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ihelp-space-4);
+  z-index: 1000;
+}
+
+.request-modal {
+  background: var(--ihelp-bg-surface, #fff);
+  border-radius: var(--ihelp-radius-lg, 12px);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--ihelp-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.request-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.request-modal__title {
+  font-family: var(--ihelp-font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ihelp-text-primary);
+  margin: 0;
+}
+
+.request-modal__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+}
+
+.request-modal__hint {
+  font-size: 13px;
+  color: var(--ihelp-text-muted);
+  margin: 0;
+}
+
+.request-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-3);
+}
+
+.request-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ihelp-space-1);
+  font-size: 13px;
+  color: var(--ihelp-text-primary);
+
+  input,
+  select,
+  textarea {
+    padding: var(--ihelp-space-2);
+    border: 1px solid var(--ihelp-border);
+    border-radius: var(--ihelp-radius-md, 8px);
+    font: inherit;
+    color: var(--ihelp-text-primary);
+    background: var(--ihelp-bg-surface, #fff);
+  }
+}
+
+.request-modal__error {
+  color: var(--ihelp-error, #c0392b);
+  font-size: 13px;
+  margin: 0;
+}
+
+.request-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ihelp-space-2);
 }

@@ -1,0 +1,185 @@
+<ng-container *transloco="let t">
+  <div class="conv">
+    <!-- Conversation list -->
+    <aside class="conv__list">
+      <div class="conv__list-header">
+        <span class="conv__list-title">{{ t('conversations.title') }}</span>
+        @if (canStart()) {
+          <button type="button" class="conv__new-btn" (click)="openPicker()">
+            <ui-icon name="Plus" [size]="18" />
+          </button>
+        }
+      </div>
+
+      @if (facade.conversations().length === 0) {
+        <div class="conv__list-empty">
+          <ui-icon name="MessageSquare" [size]="36" color="var(--ihelp-text-muted)" />
+          <p>{{ t('conversations.empty') }}</p>
+        </div>
+      } @else {
+        <ul class="conv__items">
+          @for (c of facade.conversations(); track c.id) {
+            <li
+              class="conv__item"
+              [class.conv__item--active]="c.id === facade.selectedConversationId()"
+              (click)="selectConversation(c.id)"
+            >
+              <div class="conv__item-avatar">
+                <ui-icon
+                  [name]="c.kind === 'STAFF_GROUP' ? 'Users' : 'User'"
+                  [size]="20"
+                />
+              </div>
+              <div class="conv__item-body">
+                <div class="conv__item-top">
+                  <span class="conv__item-name">{{ label(c) }}</span>
+                  @if (c.lastMessageAt) {
+                    <span class="conv__item-time">{{ c.lastMessageAt | date:'HH:mm' }}</span>
+                  }
+                </div>
+                <div class="conv__item-bottom">
+                  <span class="conv__item-preview">{{ c.lastMessage ?? t('conversations.noMessages') }}</span>
+                  @if (c.unreadCount > 0) {
+                    <span class="conv__item-badge">{{ c.unreadCount }}</span>
+                  }
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </aside>
+
+    <!-- Active thread -->
+    <section class="conv__thread">
+      @if (facade.selectedConversation(); as active) {
+        <header class="conv__thread-header">
+          <div class="conv__thread-avatar">
+            <ui-icon
+              [name]="active.kind === 'STAFF_GROUP' ? 'Users' : 'User'"
+              [size]="20"
+            />
+          </div>
+          <span class="conv__thread-name">{{ label(active) }}</span>
+        </header>
+
+        <div class="conv__messages" #messagesContainer (click)="onFocusThread()">
+          @for (msg of facade.messages(); track msg.id) {
+            <div class="conv__message" [class.conv__message--own]="isMine(msg)">
+              @if (!isMine(msg) && active.kind === 'STAFF_GROUP') {
+                <span class="conv__message-sender">{{ msg.senderName }}</span>
+              }
+              <div class="conv__message-bubble">
+                <span class="conv__message-text">{{ msg.content }}</span>
+              </div>
+              <span class="conv__message-meta">
+                <span class="conv__message-time">{{ msg.createdAt | date:'HH:mm' }}</span>
+                @if (isMine(msg)) {
+                  <span class="conv__message-status conv__message-status--{{ msg.status }}">
+                    @switch (msg.status) {
+                      @case ('sending') { <ui-icon name="Clock" [size]="14" /> }
+                      @case ('sent') { <ui-icon name="Check" [size]="14" /> }
+                      @case ('error') { <ui-icon name="AlertCircle" [size]="14" /> }
+                    }
+                  </span>
+                }
+              </span>
+            </div>
+          } @empty {
+            <div class="conv__no-messages">
+              <p>{{ t('conversations.startPrompt') }}</p>
+            </div>
+          }
+        </div>
+
+        <form class="conv__composer" (submit)="onSend()">
+          <input
+            class="conv__input"
+            type="text"
+            name="message"
+            [ngModel]="messageText()"
+            (ngModelChange)="messageText.set($event)"
+            [placeholder]="t('conversations.placeholder')"
+            (focus)="onFocusThread()"
+          />
+          <button
+            type="submit"
+            class="conv__send-btn"
+            [disabled]="!messageText().trim() || facade.isSending()"
+          >
+            <ui-icon name="Send" [size]="18" />
+          </button>
+        </form>
+      } @else {
+        <div class="conv__placeholder">
+          <ui-icon name="MessageCircle" [size]="48" color="var(--ihelp-text-muted)" />
+          <p>{{ t('conversations.selectPrompt') }}</p>
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- New chat contact picker -->
+  @if (canStart()) {
+    <ui-modal
+      [isOpen]="showPicker()"
+      [title]="t('conversations.newChat')"
+      size="md"
+      (closed)="closePicker()"
+    >
+      <div class="conv-picker">
+        <input
+          class="conv-picker__search"
+          type="text"
+          [ngModel]="contactSearch()"
+          (ngModelChange)="contactSearch.set($event)"
+          [placeholder]="t('conversations.searchContacts')"
+        />
+
+        <ul class="conv-picker__list">
+          @for (contact of filteredContacts(); track contact.id) {
+            <li
+              class="conv-picker__item"
+              [class.conv-picker__item--selected]="isContactSelected(contact.id)"
+              (click)="toggleContact(contact.id)"
+            >
+              <div class="conv-picker__item-info">
+                <span class="conv-picker__item-name">{{ contact.name }}</span>
+                <span class="conv-picker__item-role">{{ t('conversations.role.' + contact.role) }}</span>
+              </div>
+              @if (isContactSelected(contact.id)) {
+                <ui-icon name="Check" [size]="18" color="var(--ihelp-primary)" />
+              }
+            </li>
+          } @empty {
+            <li class="conv-picker__empty">{{ t('conversations.noContacts') }}</li>
+          }
+        </ul>
+
+        @if (isGroup()) {
+          <input
+            class="conv-picker__title"
+            type="text"
+            [ngModel]="groupTitle()"
+            (ngModelChange)="groupTitle.set($event)"
+            [placeholder]="t('conversations.groupTitlePlaceholder')"
+          />
+        }
+
+        <div class="conv-picker__actions">
+          <button type="button" class="conv-picker__cancel" (click)="closePicker()">
+            {{ t('common.cancel') }}
+          </button>
+          <button
+            type="button"
+            class="conv-picker__confirm"
+            [disabled]="selectedContactIds().length === 0"
+            (click)="confirmStart()"
+          >
+            {{ t('conversations.start') }}
+          </button>
+        </div>
+      </div>
+    </ui-modal>
+  }
+</ng-container>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -30,8 +30,14 @@ export class CoursesComponent implements OnInit {
   readonly facade: PersonFacade = inject(PersonFacade);
   private readonly router: Router = inject(Router);
 
+  readonly isConsultant: Signal<boolean> = signal(
+    localStorage.getItem('ihelp_user_role') === 'consultant',
+  );
+
   readonly activeCourses: Signal<PersonCourse[]> = computed(() =>
-    this.facade.courses().filter((c) => c.status === 'in_progress')
+    this.facade
+      .courses()
+      .filter((c) => c.status === 'in_progress' || c.status === 'completed')
   );
 
   readonly recommendedCourses: Signal<PersonCourse[]> = computed(() =>

@@ -1,8 +1,15 @@
 <ng-container *transloco="let t">
   <div class="meetings-page">
     <div class="meetings-page__header">
-      <h1 class="meetings-page__title">{{ t('personMeetings.title') }}</h1>
-      <p class="meetings-page__subtitle">{{ t('personMeetings.subtitle') }}</p>
+      <div class="meetings-page__header-text">
+        <h1 class="meetings-page__title">{{ t('personMeetings.title') }}</h1>
+        <p class="meetings-page__subtitle">{{ t('personMeetings.subtitle') }}</p>
+      </div>
+      @if (facade.canRequestMeeting()) {
+        <ui-button variant="primary" size="sm" (click)="openModal()">
+          {{ t('personMeetings.requestMeeting') }}
+        </ui-button>
+      }
     </div>
 
     @if (facade.isLoading()) {
@@ -31,14 +38,94 @@
                 <ui-icon name="Clock" [size]="14" color="var(--ihelp-text-muted)" />
                 <span>{{ meeting.scheduledAt | date:'medium' }} · {{ meeting.durationMinutes }} {{ t('personMeetings.minutes') }}</span>
               </div>
-              @if (meeting.meetingUrl && meeting.status === 'SCHEDULED') {
+              @if (meeting.status === 'SCHEDULED') {
+                <ui-button
+                  variant="primary"
+                  size="sm"
+                  [disabled]="facade.isSaving()"
+                  (click)="onConfirm(meeting.id)"
+                >
+                  {{ t('personMeetings.confirm') }}
+                </ui-button>
+              }
+              @if (meeting.meetingUrl && (meeting.status === 'SCHEDULED' || meeting.status === 'CONFIRMED')) {
                 <a [href]="meeting.meetingUrl" target="_blank" rel="noopener noreferrer">
-                  <ui-button variant="primary" size="sm">{{ t('personMeetings.join') }}</ui-button>
+                  <ui-button variant="secondary" size="sm">{{ t('personMeetings.join') }}</ui-button>
                 </a>
               }
             </div>
           </div>
         }
+      </div>
+    }
+
+    @if (isModalOpen()) {
+      <div class="request-modal__backdrop" (click)="closeModal()">
+        <div class="request-modal" (click)="$event.stopPropagation()">
+          <div class="request-modal__header">
+            <h2 class="request-modal__title">{{ t('personMeetings.requestTitle') }}</h2>
+            <button type="button" class="request-modal__close" (click)="closeModal()" aria-label="close">
+              <ui-icon name="X" [size]="20" color="var(--ihelp-text-muted)" />
+            </button>
+          </div>
+          <p class="request-modal__hint">{{ t('personMeetings.requestHint') }}</p>
+
+          <form class="request-modal__form" (submit)="onSubmitRequest()">
+            <label class="request-modal__field">
+              <span>{{ t('personMeetings.dateLabel') }}</span>
+              <input
+                type="date"
+                [min]="today"
+                [value]="facade.requestModel().date"
+                (input)="facade.updateRequestField('date', $any($event.target).value)"
+              />
+            </label>
+
+            <label class="request-modal__field">
+              <span>{{ t('personMeetings.timeLabel') }}</span>
+              <input
+                type="time"
+                [value]="facade.requestModel().time"
+                (input)="facade.updateRequestField('time', $any($event.target).value)"
+              />
+            </label>
+
+            <label class="request-modal__field">
+              <span>{{ t('personMeetings.durationLabel') }}</span>
+              <select
+                [value]="facade.requestModel().duration"
+                (change)="facade.updateRequestField('duration', $any($event.target).value)"
+              >
+                <option value="30">30 {{ t('personMeetings.minutes') }}</option>
+                <option value="45">45 {{ t('personMeetings.minutes') }}</option>
+                <option value="60">60 {{ t('personMeetings.minutes') }}</option>
+              </select>
+            </label>
+
+            <label class="request-modal__field">
+              <span>{{ t('personMeetings.notesLabel') }}</span>
+              <textarea
+                rows="3"
+                [value]="facade.requestModel().notes"
+                (input)="facade.updateRequestField('notes', $any($event.target).value)"
+                [placeholder]="t('personMeetings.notesPlaceholder')"
+              ></textarea>
+            </label>
+
+            @if (submitError()) {
+              <p class="request-modal__error">{{ t('personMeetings.error.' + submitError()) }}</p>
+            }
+
+            <div class="request-modal__actions">
+              <ui-button type="button" variant="secondary" size="sm" (click)="closeModal()">
+                {{ t('personMeetings.cancel') }}
+              </ui-button>
+              <ui-button type="submit" variant="primary" size="sm" [disabled]="facade.isSaving()">
+                {{ t('personMeetings.sendRequest') }}
+              </ui-button>
+            </div>
+          </form>
+        </div>
       </div>
     }
   </div>

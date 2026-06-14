@@ -280,6 +280,23 @@ export class CoursesService {
     });
   }
 
+  async findOneStaff(id: string) {
+    const course = await this.prisma.course.findFirst({
+      where: { id, status: CourseStatus.PUBLISHED },
+      include: {
+        lessons: {
+          orderBy: { sortOrder: 'asc' },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException(`Course with id "${id}" not found`);
+    }
+
+    return course;
+  }
+
   async findAllStaffCourses() {
     return this.prisma.course.findMany({
       where: { status: CourseStatus.PUBLISHED, visibility: 'STAFF' },

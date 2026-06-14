@@ -9,6 +9,7 @@ import {
   PersonLessonDetail,
   PersonMeeting,
   PersonProfile,
+  RequestMeetingPayload,
   SetPasswordRequest,
 } from '../model/person.model';
 
@@ -77,6 +78,7 @@ export class PersonService {
         courseProgress: res.courses.length,
         unreadMessages: 0,
         recentActivity: [],
+        caseId: res.careCase?.id ?? null,
         consultantName: res.careCase?.consultantName ?? null,
         consultantSpecialty: null,
         caseStatus: res.careCase?.status ?? null,
@@ -88,7 +90,9 @@ export class PersonService {
   getCourses(): Observable<PersonCourse[]> {
     return this.http.get<BackendCoursesResponse>('/api/person-cabinet/courses').pipe(
       map((res) => [
-        ...res.active.map((c) => this.mapCourse(c, 'in_progress')),
+        ...res.active.map((c) =>
+          this.mapCourse(c, c.progressPercent >= 100 ? 'completed' : 'in_progress'),
+        ),
         ...res.recommended.map((c) => this.mapCourse(c, 'not_started')),
       ]),
     );
@@ -147,6 +151,14 @@ export class PersonService {
         })),
       ),
     );
+  }
+
+  confirmMeeting(id: string): Observable<void> {
+    return this.http.patch<void>(`/api/meetings/${id}/confirm`, {});
+  }
+
+  requestMeeting(payload: RequestMeetingPayload): Observable<void> {
+    return this.http.post<void>('/api/meetings/request', payload);
   }
 
   getProfile(): Observable<PersonProfile> {

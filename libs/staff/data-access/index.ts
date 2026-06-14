@@ -8,6 +8,13 @@ export type {
   StaffDashboard,
   ScheduleMeetingRequest,
   ScheduleMeetingFormModel,
+  StaffUser,
+  TeamMeeting,
+  TeamMeetingParticipant,
+  TeamMeetingStatus,
+  TeamParticipantStatus,
+  CreateTeamMeetingPayload,
+  TeamMeetingFormModel,
 } from './model/staff.model';
 
 // Services

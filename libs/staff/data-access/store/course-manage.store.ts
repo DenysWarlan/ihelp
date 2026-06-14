@@ -119,6 +119,35 @@ export const CourseManageStore = signalStore(
         )
       ),
 
+      loadStaffCourseDetail: rxMethod<string>(
+        pipe(
+          tap(() =>
+            patchState(store, {
+              isLoading: true,
+              error: null,
+              selectedCourse: null,
+            })
+          ),
+          switchMap((id: string) =>
+            service.getStaffCourseDetail(id).pipe(
+              tap((course: AdminCourseDetail) =>
+                patchState(store, {
+                  selectedCourse: course,
+                  isLoading: false,
+                })
+              ),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to load course',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
       createCourse: rxMethod<CreateCourseFormModel>(
         pipe(
           tap(() => patchState(store, { isLoading: true, error: null })),

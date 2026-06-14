@@ -29,6 +29,7 @@ import {
   CancelMeetingDto,
   CreateMeetingDto,
   MeetingResponse,
+  RequestMeetingDto,
 } from './meetings.model.js';
 
 /** Prisma include to join person name and case topic. */
@@ -55,7 +56,7 @@ export class MeetingsService {
   // Create
   // ---------------------------------------------------------------------------
 
-  async create(dto: CreateMeetingDto, consultantId: string): Promise<MeetingResponse> {
+  async create(dto: CreateMeetingDto, consultantId: string, role?: string): Promise<MeetingResponse> {
     const scheduledAt = new Date(dto.scheduledAt);
 
     if (isNaN(scheduledAt.getTime())) {
@@ -78,7 +79,9 @@ export class MeetingsService {
       throw new NotFoundException('Care case not found');
     }
 
-    if (careCase.consultantId !== consultantId) {
+    const elevatedRoles = ['SUPERVISOR', 'COORDINATOR', 'ADMIN'];
+    const isElevated = elevatedRoles.includes(role ?? '');
+    if (!isElevated && careCase.consultantId !== consultantId) {
       throw new BadRequestException('You are not assigned to this care case');
     }
 
@@ -123,6 +126,205 @@ export class MeetingsService {
     await this.scheduleJobs(meeting);
 
     return this.formatWithTimezones(meeting);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Request (person-initiated)
+  // ---------------------------------------------------------------------------
+
+  async requestByPerson(dto: RequestMeetingDto, personId: string): Promise<MeetingResponse> {
+    const scheduledAt = new Date(dto.scheduledAt);
+
+    if (isNaN(scheduledAt.getTime())) {
+      throw new BadRequestException('scheduledAt must be a valid ISO 8601 date string');
+    }
+
+    if (scheduledAt <= new Date()) {
+      throw new BadRequestException('scheduledAt must be in the future');
+    }
+
+    const durationMin = dto.durationMin ?? DEFAULT_DURATION;
+
+    const careCase = await this.prisma.careCase.findUnique({
+      where: { id: dto.careCaseId },
+      select: { id: true, personId: true, consultantId: true },
+    });
+
+    if (!careCase) {
+      throw new NotFoundException('Care case not found');
+    }
+
+    if (careCase.personId !== personId) {
+      throw new BadRequestException('You can only request meetings for your own care case');
+    }
+
+    if (!careCase.consultantId) {
+      throw new BadRequestException('No consultant is assigned to your care case yet');
+    }
+
+    const [consultant, person] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: careCase.consultantId },
+        select: { timezone: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: personId },
+        select: { timezone: true },
+      }),
+    ]);
+
+    const meeting = await this.prisma.meeting.create({
+      data: {
+        careCaseId: dto.careCaseId,
+        consultantId: careCase.consultantId,
+        personId,
+        scheduledAt,
+        durationMin,
+        consultantTz: consultant?.timezone ?? 'UTC',
+        personTz: person?.timezone ?? 'UTC',
+        notes: dto.notes,
+        status: MeetingStatus.REQUESTED,
+      },
+      include: MEETING_ENRICH_INCLUDE,
+    });
+
+    this.logger.log(
+      `Meeting request ${meeting.id} created by person ${personId} for case ${dto.careCaseId}`,
+    );
+
+    return this.formatWithTimezones(meeting);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Confirm (person confirms a consultant-scheduled meeting)
+  // ---------------------------------------------------------------------------
+
+  async confirmByPerson(meetingId: string, personId: string): Promise<MeetingResponse> {
+    const meeting = await this.prisma.meeting.findUnique({
+      where: { id: meetingId },
+      select: { id: true, status: true, personId: true },
+    });
+
+    if (!meeting) {
+      throw new NotFoundException('Meeting not found');
+    }
+
+    if (meeting.personId !== personId) {
+      throw new BadRequestException('Only the meeting participant can confirm');
+    }
+
+    const allowed = ALLOWED_STATUS_TRANSITIONS[meeting.status] ?? [];
+    if (!allowed.includes(MeetingStatus.CONFIRMED)) {
+      throw new BadRequestException(
+        `Cannot confirm a meeting with status ${meeting.status}`,
+      );
+    }
+
+    const updated = await this.prisma.meeting.update({
+      where: { id: meetingId },
+      data: { status: MeetingStatus.CONFIRMED },
+      include: MEETING_ENRICH_INCLUDE,
+    });
+
+    this.logger.log(`Meeting ${meetingId} confirmed by person ${personId}`);
+
+    return this.formatWithTimezones(updated);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Accept / Decline (consultant responds to a person's request)
+  // ---------------------------------------------------------------------------
+
+  async acceptRequest(meetingId: string, actorId: string, role?: string): Promise<MeetingResponse> {
+    const meeting = await this.prisma.meeting.findUnique({
+      where: { id: meetingId },
+      select: {
+        id: true,
+        status: true,
+        consultantId: true,
+        scheduledAt: true,
+        durationMin: true,
+      },
+    });
+
+    if (!meeting) {
+      throw new NotFoundException('Meeting not found');
+    }
+
+    if (meeting.status !== MeetingStatus.REQUESTED) {
+      throw new BadRequestException(
+        `Cannot accept a meeting with status ${meeting.status}`,
+      );
+    }
+
+    const elevatedRoles = ['SUPERVISOR', 'COORDINATOR', 'ADMIN'];
+    const isElevated = elevatedRoles.includes(role ?? '');
+    if (!isElevated && meeting.consultantId !== actorId) {
+      throw new BadRequestException('Only the assigned consultant can accept the request');
+    }
+
+    // Ensure the proposed slot does not overlap an existing active meeting
+    await this.checkOverlap(
+      meeting.consultantId,
+      meeting.scheduledAt,
+      meeting.durationMin,
+      meeting.id,
+    );
+
+    const updated = await this.prisma.meeting.update({
+      where: { id: meetingId },
+      data: { status: MeetingStatus.CONFIRMED },
+      include: MEETING_ENRICH_INCLUDE,
+    });
+
+    this.logger.log(`Meeting request ${meetingId} accepted by ${actorId}`);
+
+    // Now that the meeting is confirmed, schedule reminders / link generation
+    await this.scheduleJobs(updated);
+
+    return this.formatWithTimezones(updated);
+  }
+
+  async declineRequest(
+    meetingId: string,
+    dto: CancelMeetingDto,
+    actorId: string,
+    role?: string,
+  ): Promise<MeetingResponse> {
+    const meeting = await this.prisma.meeting.findUnique({
+      where: { id: meetingId },
+      select: { id: true, status: true, consultantId: true },
+    });
+
+    if (!meeting) {
+      throw new NotFoundException('Meeting not found');
+    }
+
+    if (meeting.status !== MeetingStatus.REQUESTED) {
+      throw new BadRequestException(
+        `Cannot decline a meeting with status ${meeting.status}`,
+      );
+    }
+
+    const elevatedRoles = ['SUPERVISOR', 'COORDINATOR', 'ADMIN'];
+    const isElevated = elevatedRoles.includes(role ?? '');
+    if (!isElevated && meeting.consultantId !== actorId) {
+      throw new BadRequestException('Only the assigned consultant can decline the request');
+    }
+
+    const updated = await this.prisma.meeting.update({
+      where: { id: meetingId },
+      data: {
+        status: MeetingStatus.CANCELLED,
+        cancelledAt: new Date(),
+        cancelReason: dto.cancelReason,
+      },
+      include: MEETING_ENRICH_INCLUDE,
+    });
+
+    this.logger.log(`Meeting request ${meetingId} declined by ${actorId}`);
+
+    return this.formatWithTimezones(updated);
   }
 
   // ---------------------------------------------------------------------------

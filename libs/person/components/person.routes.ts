@@ -37,6 +37,11 @@ export const personRoutes: Routes = [
           import('./chat/chat.component').then((m) => m.ChatComponent),
       },
       {
+        path: 'messages',
+        loadComponent: () =>
+          import('./messages/messages.component').then((m) => m.PersonMessagesComponent),
+      },
+      {
         path: 'meetings',
         loadComponent: () =>
           import('./meetings/meetings.component').then((m) => m.MeetingsComponent),

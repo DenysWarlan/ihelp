@@ -28,7 +28,7 @@ export class PersonCabinetController {
   constructor(private readonly cabinetService: PersonCabinetService) {}
 
   @Get('dashboard')
-  @Roles('PERSON')
+  @Roles('PERSON', 'CONSULTANT')
   @ApiOperation({ summary: 'Get person dashboard with case, meeting & courses' })
   @ApiResponse({ status: 200, description: 'Dashboard data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -41,18 +41,18 @@ export class PersonCabinetController {
   }
 
   @Get('courses')
-  @Roles('PERSON')
+  @Roles('PERSON', 'CONSULTANT')
   @ApiOperation({ summary: 'Get person courses (active + recommended)' })
   @ApiResponse({ status: 200, description: 'Active and recommended courses' })
   async getCourses(
     @Req() req: Request,
   ): Promise<PersonCoursesResponse> {
     const actor = req.user as JwtPayload;
-    return this.cabinetService.getCourses(actor.sub);
+    return this.cabinetService.getCourses(actor.sub, actor.role);
   }
 
   @Get('courses/:id')
-  @Roles('PERSON')
+  @Roles('PERSON', 'CONSULTANT')
   @ApiOperation({ summary: 'Get course detail with lessons and progress' })
   @ApiResponse({ status: 200, description: 'Course detail with lessons' })
   @ApiResponse({ status: 404, description: 'Course not found or not enrolled' })
@@ -65,7 +65,7 @@ export class PersonCabinetController {
   }
 
   @Get('courses/:courseId/lessons/:lessonId')
-  @Roles('PERSON')
+  @Roles('PERSON', 'CONSULTANT')
   @ApiOperation({ summary: 'Get lesson detail with content' })
   @ApiResponse({ status: 200, description: 'Lesson detail with content' })
   @ApiResponse({ status: 404, description: 'Course or lesson not found' })
@@ -79,7 +79,7 @@ export class PersonCabinetController {
   }
 
   @Post('courses/:courseId/lessons/:lessonId/complete')
-  @Roles('PERSON')
+  @Roles('PERSON', 'CONSULTANT')
   @ApiOperation({ summary: 'Mark a lesson as completed' })
   @ApiResponse({ status: 201, description: 'Lesson marked as completed' })
   @ApiResponse({ status: 404, description: 'Course or lesson not found' })

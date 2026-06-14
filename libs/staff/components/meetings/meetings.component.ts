@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal, signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, Signal, signal, WritableSignal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
@@ -6,7 +6,14 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { BadgeComponent, ModalComponent } from '@org/shared/ui';
 import { StaffFacade } from '@org/staff/data-access';
 import type { BadgeVariant } from '@org/shared/ui';
-import type { CaseListItem, ScheduleMeetingFormModel } from '@org/staff/data-access';
+import type {
+  CaseListItem,
+  ScheduleMeetingFormModel,
+  StaffUser,
+  TeamMeeting,
+  TeamMeetingFormModel,
+  TeamParticipantStatus,
+} from '@org/staff/data-access';
 
 @Component({
   selector: 'app-staff-meetings',
@@ -23,14 +30,32 @@ import type { CaseListItem, ScheduleMeetingFormModel } from '@org/staff/data-acc
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MeetingsComponent implements OnInit {
-  private readonly facade: StaffFacade = inject(StaffFacade);
+  readonly facade: StaffFacade = inject(StaffFacade);
 
   readonly meetings = this.facade.meetings;
   readonly cases = this.facade.cases;
   readonly isLoading = this.facade.isLoading;
 
+  readonly teamMeetings: Signal<TeamMeeting[]> = this.facade.teamMeetings;
+  readonly staffUsers: Signal<StaffUser[]> = this.facade.staffUsers;
+  readonly teamModel: Signal<TeamMeetingFormModel> = this.facade.teamMeetingModel;
+
+  readonly isTeamModalOpen: WritableSignal<boolean> = signal(false);
+  readonly teamSubmitError: WritableSignal<string> = signal('');
+
+  readonly cancelTeamId: WritableSignal<string | null> = signal(null);
+  readonly cancelTeamReason: WritableSignal<string> = signal('');
+
   readonly isModalOpen: WritableSignal<boolean> = signal(false);
   readonly today: string = new Date().toLocaleDateString('en-CA');
+
+  constructor() {
+    effect(() => {
+      if (this.facade.teamCreateSuccess()) {
+        this.closeTeamModal();
+      }
+    });
+  }
 
   readonly formModel: WritableSignal<ScheduleMeetingFormModel> = signal({
     date: '',
@@ -42,9 +67,14 @@ export class MeetingsComponent implements OnInit {
   readonly selectedCaseId: WritableSignal<string> = signal('');
   readonly caseSearch: WritableSignal<string> = signal('');
 
+  readonly declineMeetingId: WritableSignal<string | null> = signal(null);
+  readonly declineReason: WritableSignal<string> = signal('');
+
   ngOnInit(): void {
     this.facade.loadMeetings();
     this.facade.loadCases();
+    this.facade.loadTeamMeetings();
+    this.facade.loadStaffUsers();
   }
 
   readonly filteredCases: Signal<CaseListItem[]> = computed(() => {
@@ -104,6 +134,26 @@ export class MeetingsComponent implements OnInit {
     this.closeModal();
   }
 
+  acceptMeeting(id: string): void {
+    this.facade.acceptMeeting(id);
+  }
+
+  openDeclineModal(id: string): void {
+    this.declineReason.set('');
+    this.declineMeetingId.set(id);
+  }
+
+  closeDeclineModal(): void {
+    this.declineMeetingId.set(null);
+  }
+
+  confirmDecline(): void {
+    const id: string | null = this.declineMeetingId();
+    if (!id) return;
+    this.facade.declineMeeting(id, this.declineReason());
+    this.closeDeclineModal();
+  }
+
   getSelectedCaseName(): string {
     const id: string = this.selectedCaseId();
     if (!id) return '';
@@ -111,11 +161,94 @@ export class MeetingsComponent implements OnInit {
     return c ? `${c.personName} — ${c.topic}` : '';
   }
 
-  getMeetingStatusVariant(status: string): BadgeVariant {
+  // ---------------------------------------------------------------------------
+  // Team meetings
+  // ---------------------------------------------------------------------------
+
+  openTeamModal(): void {
+    this.teamSubmitError.set('');
+    this.facade.resetTeamMeeting();
+    this.isTeamModalOpen.set(true);
+  }
+
+  closeTeamModal(): void {
+    this.isTeamModalOpen.set(false);
+  }
+
+  updateTeamField(field: 'title' | 'date' | 'time' | 'duration' | 'notes', value: string): void {
+    this.facade.updateTeamMeetingField(field, value);
+  }
+
+  toggleParticipant(userId: string): void {
+    this.facade.toggleParticipant(userId);
+  }
+
+  isParticipantSelected(userId: string): boolean {
+    return this.teamModel().participantIds.includes(userId);
+  }
+
+  onSubmitTeam(): void {
+    const error: string | null = this.facade.submitTeamMeeting();
+    this.teamSubmitError.set(error ?? '');
+  }
+
+  onAcceptTeam(id: string): void {
+    this.facade.acceptTeamMeeting(id);
+  }
+
+  onDeclineTeam(id: string): void {
+    this.facade.declineTeamMeeting(id);
+  }
+
+  openCancelTeamModal(id: string): void {
+    this.cancelTeamReason.set('');
+    this.cancelTeamId.set(id);
+  }
+
+  closeCancelTeamModal(): void {
+    this.cancelTeamId.set(null);
+  }
+
+  confirmCancelTeam(): void {
+    const id: string | null = this.cancelTeamId();
+    if (!id) return;
+    this.facade.cancelTeamMeeting(id, this.cancelTeamReason());
+    this.closeCancelTeamModal();
+  }
+
+  getTeamStatusVariant(status: string): BadgeVariant {
     switch (status) {
       case 'SCHEDULED':
-      case 'CONFIRMED':
         return 'info';
+      case 'COMPLETED':
+        return 'success';
+      case 'CANCELLED':
+        return 'error';
+      default:
+        return 'neutral';
+    }
+  }
+
+  getParticipantStatusVariant(status: TeamParticipantStatus): BadgeVariant {
+    switch (status) {
+      case 'ACCEPTED':
+        return 'success';
+      case 'DECLINED':
+        return 'error';
+      case 'INVITED':
+        return 'warning';
+      default:
+        return 'neutral';
+    }
+  }
+
+  getMeetingStatusVariant(status: string): BadgeVariant {
+    switch (status) {
+      case 'CONFIRMED':
+        return 'success';
+      case 'SCHEDULED':
+        return 'info';
+      case 'REQUESTED':
       case 'IN_PROGRESS':
         return 'warning';
       case 'COMPLETED':

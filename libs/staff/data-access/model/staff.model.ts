@@ -98,7 +98,7 @@ export interface CaseDetail {
 export interface StaffMeeting {
   readonly id: string;
   readonly careCaseId: string;
-  readonly status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW_PERSON' | 'NO_SHOW_CONSULTANT' | 'CONFIRMED';
+  readonly status: 'REQUESTED' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW_PERSON' | 'NO_SHOW_CONSULTANT' | 'CONFIRMED';
   readonly scheduledAt: string;
   readonly durationMin: number;
   readonly meetingUrl: string | null;
@@ -128,5 +128,57 @@ export interface ScheduleMeetingFormModel {
   readonly date: string;
   readonly time: string;
   readonly duration: string;
+  readonly notes: string;
+}
+
+export type TeamMeetingStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
+export type TeamParticipantStatus = 'INVITED' | 'ACCEPTED' | 'DECLINED';
+
+export interface StaffUser {
+  readonly id: string;
+  readonly name: string;
+  readonly role: string;
+}
+
+export interface TeamMeetingParticipant {
+  readonly id: string;
+  readonly userId: string;
+  readonly name: string;
+  readonly role: string;
+  readonly status: TeamParticipantStatus;
+}
+
+export interface TeamMeeting {
+  readonly id: string;
+  readonly organizerId: string;
+  readonly organizerName: string;
+  readonly title: string;
+  readonly scheduledAt: string;
+  readonly durationMin: number;
+  readonly meetingUrl: string | null;
+  readonly notes: string | null;
+  readonly status: TeamMeetingStatus;
+  readonly cancelledAt: string | null;
+  readonly cancelReason: string | null;
+  readonly createdAt: string;
+  readonly participants: TeamMeetingParticipant[];
+  readonly isOrganizer: boolean;
+  readonly myStatus: TeamParticipantStatus | null;
+}
+
+export interface CreateTeamMeetingPayload {
+  readonly title: string;
+  readonly scheduledAt: string;
+  readonly participantIds: string[];
+  readonly durationMin: number;
+  readonly notes?: string;
+}
+
+export interface TeamMeetingFormModel {
+  readonly title: string;
+  readonly date: string;
+  readonly time: string;
+  readonly duration: string;
+  readonly participantIds: string[];
   readonly notes: string;
 }

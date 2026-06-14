@@ -12,9 +12,12 @@ import {
   CaseDetail,
   CaseListItem,
   CaseNote,
+  CreateTeamMeetingPayload,
   ScheduleMeetingRequest,
   StaffDashboard,
   StaffMeeting,
+  StaffUser,
+  TeamMeeting,
 } from '../model/staff.model';
 import { StaffService } from '../service/staff.service';
 
@@ -23,6 +26,9 @@ interface StaffState {
   cases: CaseListItem[];
   selectedCase: CaseDetail | null;
   meetings: StaffMeeting[];
+  teamMeetings: TeamMeeting[];
+  staffUsers: StaffUser[];
+  teamCreateSuccess: boolean;
   isLoading: boolean;
   error: string | null;
 }
@@ -32,6 +38,9 @@ const initialState: StaffState = {
   cases: [],
   selectedCase: null,
   meetings: [],
+  teamMeetings: [],
+  staffUsers: [],
+  teamCreateSuccess: false,
   isLoading: false,
   error: null,
 };
@@ -195,6 +204,160 @@ export const StaffStore = signalStore(
           )
         )
       ),
+
+      acceptMeeting: rxMethod<string>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap((id: string) =>
+            staffService.acceptMeeting(id).pipe(
+              tap((meeting: StaffMeeting) => {
+                const updated = store
+                  .meetings()
+                  .map((m) => (m.id === meeting.id ? meeting : m));
+                patchState(store, { meetings: updated, isLoading: false });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to accept meeting request',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
+      declineMeeting: rxMethod<{ id: string; reason: string }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap((data: { id: string; reason: string }) =>
+            staffService.declineMeeting(data.id, data.reason).pipe(
+              tap((meeting: StaffMeeting) => {
+                const updated = store
+                  .meetings()
+                  .map((m) => (m.id === meeting.id ? meeting : m));
+                patchState(store, { meetings: updated, isLoading: false });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to decline meeting request',
+                });
+                return EMPTY;
+              })
+            )
+          )
+        )
+      ),
+
+      loadTeamMeetings: rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(() =>
+            staffService.getTeamMeetings().pipe(
+              tap((teamMeetings: TeamMeeting[]) => {
+                const sorted = [...teamMeetings].sort(
+                  (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+                );
+                patchState(store, { teamMeetings: sorted, isLoading: false });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to load team meetings',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      loadStaffUsers: rxMethod<void>(
+        pipe(
+          switchMap(() =>
+            staffService.getStaffUsers().pipe(
+              tap((staffUsers: StaffUser[]) => patchState(store, { staffUsers })),
+              catchError(() => {
+                patchState(store, { error: 'Failed to load staff users' });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      createTeamMeeting: rxMethod<CreateTeamMeetingPayload>(
+        pipe(
+          tap(() =>
+            patchState(store, { isLoading: true, error: null, teamCreateSuccess: false }),
+          ),
+          switchMap((payload: CreateTeamMeetingPayload) =>
+            staffService.createTeamMeeting(payload).pipe(
+              tap((meeting: TeamMeeting) => {
+                const updated = [...store.teamMeetings(), meeting].sort(
+                  (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+                );
+                patchState(store, {
+                  teamMeetings: updated,
+                  isLoading: false,
+                  teamCreateSuccess: true,
+                });
+              }),
+              catchError(() => {
+                patchState(store, {
+                  isLoading: false,
+                  error: 'Failed to create team meeting',
+                });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      respondTeamMeeting: rxMethod<{ id: string; status: 'ACCEPTED' | 'DECLINED' }>(
+        pipe(
+          switchMap((data: { id: string; status: 'ACCEPTED' | 'DECLINED' }) =>
+            staffService.respondTeamMeeting(data.id, data.status).pipe(
+              tap((meeting: TeamMeeting) => {
+                const updated = store
+                  .teamMeetings()
+                  .map((m) => (m.id === meeting.id ? meeting : m));
+                patchState(store, { teamMeetings: updated });
+              }),
+              catchError(() => {
+                patchState(store, { error: 'Failed to respond to team meeting' });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      cancelTeamMeeting: rxMethod<{ id: string; reason: string }>(
+        pipe(
+          switchMap((data: { id: string; reason: string }) =>
+            staffService.cancelTeamMeeting(data.id, data.reason).pipe(
+              tap((meeting: TeamMeeting) => {
+                const updated = store
+                  .teamMeetings()
+                  .map((m) => (m.id === meeting.id ? meeting : m));
+                patchState(store, { teamMeetings: updated });
+              }),
+              catchError(() => {
+                patchState(store, { error: 'Failed to cancel team meeting' });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      resetTeamCreateSuccess(): void {
+        patchState(store, { teamCreateSuccess: false });
+      },
 
       completeCase: rxMethod<{ caseId: string; version: number }>(
         pipe(

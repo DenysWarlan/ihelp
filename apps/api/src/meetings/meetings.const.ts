@@ -55,6 +55,11 @@ export const MEETING_LINK_BASE_URL = 'https://meet.jit.si' as const;
  * Key = current status, value = list of statuses it can transition to.
  */
 export const ALLOWED_STATUS_TRANSITIONS: Record<MeetingStatus, MeetingStatus[]> = {
+  [MeetingStatus.REQUESTED]: [
+    MeetingStatus.CONFIRMED,
+    MeetingStatus.SCHEDULED,
+    MeetingStatus.CANCELLED,
+  ],
   [MeetingStatus.SCHEDULED]: [
     MeetingStatus.CONFIRMED,
     MeetingStatus.CANCELLED,
@@ -86,6 +91,9 @@ export const ACTIVE_MEETING_STATUSES: MeetingStatus[] = [
   MeetingStatus.CONFIRMED,
   MeetingStatus.IN_PROGRESS,
 ];
+
+/** Roles that can accept/decline a person's meeting request. */
+export const ACCEPT_REQUEST_ROLES = ['CONSULTANT', 'SUPERVISOR', 'COORDINATOR', 'ADMIN'] as const;
 
 /** Statuses eligible for auto no-show transition. */
 export const NO_SHOW_ELIGIBLE_STATUSES: MeetingStatus[] = [

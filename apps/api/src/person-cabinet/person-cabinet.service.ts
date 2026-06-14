@@ -96,7 +96,7 @@ export class PersonCabinetService {
   // S-E15-02: Person's course list
   // ---------------------------------------------------------------------------
 
-  async getCourses(personId: string): Promise<PersonCoursesResponse> {
+  async getCourses(personId: string, role?: string): Promise<PersonCoursesResponse> {
     // Get active enrollments with progress
     const enrollments = await this.prisma.enrollment.findMany({
       where: { personId, status: EnrollmentStatus.ACTIVE },
@@ -146,10 +146,12 @@ export class PersonCabinetService {
       };
     });
 
-    // Recommended courses: published courses the person is not enrolled in
+    // Recommended courses: published courses the person is not enrolled in.
+    // Consultants see STAFF-visibility courses; persons see PUBLIC ones.
+    const visibility = role === 'CONSULTANT' ? 'STAFF' : 'PUBLIC';
     const recommended = await this.getRecommendedCourses(
-      personId,
       enrolledCourseIds,
+      visibility,
     );
 
     return { active, recommended };
@@ -855,13 +857,13 @@ export class PersonCabinetService {
   }
 
   private async getRecommendedCourses(
-    personId: string,
     excludeCourseIds: string[],
+    visibility: 'PUBLIC' | 'STAFF' = 'PUBLIC',
   ): Promise<PersonCourseDto[]> {
     const courses = await this.prisma.course.findMany({
       where: {
         status: CourseStatus.PUBLISHED,
-        visibility: 'PUBLIC',
+        visibility,
         ...(excludeCourseIds.length > 0
           ? { id: { notIn: excludeCourseIds } }
           : {}),

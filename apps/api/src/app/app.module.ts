@@ -38,6 +38,8 @@ import { EventsModule } from '../events/events.module.js';
 import { AssignmentModule } from '../assignment/assignment.module.js';
 import { SlaModule } from '../sla/sla.module.js';
 import { MeetingsModule } from '../meetings/meetings.module.js';
+import { TeamMeetingsModule } from '../team-meetings/team-meetings.module.js';
+import { ConversationsModule } from '../conversations/conversations.module.js';
 import { CrisisModule } from '../crisis/crisis.module.js';
 import { PersonCabinetModule } from '../person-cabinet/person-cabinet.module.js';
 import { StorageModule } from '../storage/storage.module.js';
@@ -124,6 +126,8 @@ import { SupervisorModule } from '../supervisor/supervisor.module.js';
     UsersModule,
     EventsModule,
     MeetingsModule,
+    TeamMeetingsModule,
+    ConversationsModule,
     StorageModule,
     PersonCabinetModule,
     AssignmentModule,
