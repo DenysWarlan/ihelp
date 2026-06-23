@@ -21,8 +21,12 @@
           @for (c of facade.conversations(); track c.id) {
             <li
               class="conv__item"
+              role="button"
+              tabindex="0"
               [class.conv__item--active]="c.id === facade.selectedConversationId()"
               (click)="selectConversation(c.id)"
+              (keydown.enter)="selectConversation(c.id)"
+              (keydown.space)="selectConversation(c.id)"
             >
               <div class="conv__item-avatar">
                 <ui-icon
@@ -63,7 +67,15 @@
           <span class="conv__thread-name">{{ label(active) }}</span>
         </header>
 
-        <div class="conv__messages" #messagesContainer (click)="onFocusThread()">
+        <div
+          class="conv__messages"
+          #messagesContainer
+          role="button"
+          tabindex="0"
+          (click)="onFocusThread()"
+          (keydown.enter)="onFocusThread()"
+          (keydown.space)="onFocusThread()"
+        >
           @for (msg of facade.messages(); track msg.id) {
             <div class="conv__message" [class.conv__message--own]="isMine(msg)">
               @if (!isMine(msg) && active.kind === 'STAFF_GROUP') {
@@ -140,8 +152,12 @@
           @for (contact of filteredContacts(); track contact.id) {
             <li
               class="conv-picker__item"
+              role="button"
+              tabindex="0"
               [class.conv-picker__item--selected]="isContactSelected(contact.id)"
               (click)="toggleContact(contact.id)"
+              (keydown.enter)="toggleContact(contact.id)"
+              (keydown.space)="toggleContact(contact.id)"
             >
               <div class="conv-picker__item-info">
                 <span class="conv-picker__item-name">{{ contact.name }}</span>
