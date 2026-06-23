@@ -79,9 +79,7 @@
         }
 
         @if (lesson.content) {
-          <div class="lesson-page__text">
-            {{ lesson.content }}
-          </div>
+          <div class="lesson-page__text" [innerHTML]="lesson.content"></div>
         }
 
         <!-- Action buttons -->

@@ -151,7 +151,7 @@
         (ngModelChange)="onLessonFieldChange('title', $event)"
         name="lessonTitle"
       />
-      <ui-textarea
+      <ui-rich-text-editor
         [label]="t('admin.lessonDescription')"
         [placeholder]="t('admin.lessonDescriptionPlaceholder')"
         [ngModel]="facade.lessonModel().content"
@@ -275,7 +275,7 @@
         }
 
         @if (lesson.content) {
-          <p class="lesson-preview__content">{{ lesson.content }}</p>
+          <div class="lesson-preview__content" [innerHTML]="lesson.content"></div>
         }
 
         @if (!lesson.videoUrl && !lesson.imageUrl && !lesson.content) {

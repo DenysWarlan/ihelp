@@ -1,0 +1,68 @@
+<div
+  class="rte-field"
+  [class.rte-field--error]="errorMessage()"
+  [class.rte-field--disabled]="isDisabled()"
+>
+  @if (label()) {
+    <label class="rte-field__label" [attr.for]="editorId">{{ label() }}</label>
+  }
+
+  <div class="rte-field__box">
+    <div class="rte-toolbar" role="toolbar">
+      <select
+        class="rte-toolbar__select"
+        [disabled]="isDisabled()"
+        (change)="onBlockChange($any($event.target).value)"
+        aria-label="Стиль тексту"
+      >
+        @for (block of blockOptions; track block.tag) {
+          <option [value]="block.tag">{{ block.label }}</option>
+        }
+      </select>
+
+      <span class="rte-toolbar__divider"></span>
+
+      <button type="button" class="rte-toolbar__btn" (mousedown)="$event.preventDefault()" (click)="exec('bold')" aria-label="Жирний">
+        <ui-icon name="Bold" [size]="16" />
+      </button>
+      <button type="button" class="rte-toolbar__btn" (mousedown)="$event.preventDefault()" (click)="exec('italic')" aria-label="Курсив">
+        <ui-icon name="Italic" [size]="16" />
+      </button>
+      <button type="button" class="rte-toolbar__btn" (mousedown)="$event.preventDefault()" (click)="exec('underline')" aria-label="Підкреслений">
+        <ui-icon name="Underline" [size]="16" />
+      </button>
+
+      <span class="rte-toolbar__divider"></span>
+
+      <button type="button" class="rte-toolbar__btn" (mousedown)="$event.preventDefault()" (click)="exec('insertUnorderedList')" aria-label="Список">
+        <ui-icon name="List" [size]="16" />
+      </button>
+      <button type="button" class="rte-toolbar__btn" (mousedown)="$event.preventDefault()" (click)="onCreateLink()" aria-label="Посилання">
+        <ui-icon name="Link" [size]="16" />
+      </button>
+      <button type="button" class="rte-toolbar__btn" (mousedown)="$event.preventDefault()" (click)="onInsertImage()" aria-label="Зображення">
+        <ui-icon name="Image" [size]="16" />
+      </button>
+    </div>
+
+    <div class="rte-field__editor-wrap">
+      @if (isEmpty() && placeholder()) {
+        <span class="rte-field__placeholder">{{ placeholder() }}</span>
+      }
+      <div
+        #editor
+        [id]="editorId"
+        class="rte-field__editor"
+        contenteditable="true"
+        [attr.aria-label]="label() || placeholder()"
+        [attr.aria-invalid]="!!errorMessage()"
+        (input)="onInput()"
+        (blur)="onBlur()"
+      ></div>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <span class="rte-field__error" role="alert">{{ errorMessage() }}</span>
+  }
+</div>

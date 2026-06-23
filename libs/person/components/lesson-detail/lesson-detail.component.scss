@@ -134,7 +134,13 @@
     font-size: var(--ihelp-text-base);
     color: var(--ihelp-text-primary);
     line-height: 1.7;
-    white-space: pre-wrap;
+
+    h2 { font-size: var(--ihelp-text-xl); font-weight: var(--ihelp-font-bold); margin: var(--ihelp-space-3) 0 var(--ihelp-space-2); }
+    h3 { font-size: var(--ihelp-text-lg); font-weight: var(--ihelp-font-semibold); margin: var(--ihelp-space-3) 0 var(--ihelp-space-1); }
+    p { margin: var(--ihelp-space-2) 0; }
+    ul, ol { padding-left: var(--ihelp-space-4); margin: var(--ihelp-space-2) 0; }
+    a { color: var(--ihelp-accent); text-decoration: underline; }
+    img { max-width: 100%; height: auto; border-radius: var(--ihelp-radius-md); margin: var(--ihelp-space-2) 0; }
   }
 
   // ── Action buttons ──

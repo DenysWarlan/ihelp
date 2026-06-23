@@ -11,6 +11,7 @@ import {
   IconComponent,
   InputComponent,
   ModalComponent,
+  RichTextEditorComponent,
   SelectComponent,
   TextareaComponent,
 } from '@org/shared/ui';
@@ -28,6 +29,7 @@ import { CourseManageFacade, AdminLesson, LessonFormModel } from '@org/staff/dat
     IconComponent,
     InputComponent,
     ModalComponent,
+    RichTextEditorComponent,
     SelectComponent,
     TextareaComponent,
   ],

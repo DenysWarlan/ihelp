@@ -8,6 +8,7 @@ export { InputComponent } from './components/input/input.component';
 export { SelectComponent } from './components/select/select.component';
 export { CheckboxComponent } from './components/checkbox/checkbox.component';
 export { TextareaComponent } from './components/textarea/textarea.component';
+export { RichTextEditorComponent } from './components/rich-text-editor/rich-text-editor.component';
 export { ButtonComponent } from './components/button/button.component';
 
 // Data Display Components
